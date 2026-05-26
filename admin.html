@@ -436,6 +436,30 @@ function fVideo({ pg, key, label, help }) {
   </div>`;
 }
 
+function fVideoUpload({ pg, key, label }) {
+  const val = CMS.get(pg, key) || '';
+  const id  = `vup_${pg}_${key}`;
+  const hasVideo = val && val.startsWith('/midia/');
+  return `<div class="field-row">
+    <label class="field-label">${label}</label>
+    <div class="field-help">Vídeo MP4 enviado para o servidor — aparece em qualquer navegador sem depender do YouTube.</div>
+    <div class="img-actions" style="gap:8px;flex-wrap:wrap">
+      <button class="btn-pick" onclick="document.getElementById('${id}').click()">🎬 Escolher vídeo MP4</button>
+      <input type="file" id="${id}" accept="video/mp4,video/*" onchange="onVideoFilePick('${pg}','${key}',this)"/>
+      ${hasVideo
+        ? `<span style="color:#8fb88f;font-size:12px">✅ ${val}</span>
+           <button class="btn-clear" onclick="CMS.set('${pg}','${key}','');CMS.save(true);this.parentElement.querySelector('span').remove();this.remove()">✕ Remover</button>`
+        : `<span style="color:rgba(232,221,208,.4);font-size:12px">Nenhum vídeo enviado</span>`}
+    </div>
+    <div id="vprog_${id}" style="display:none;margin-top:8px">
+      <div style="background:rgba(255,255,255,.1);border-radius:4px;height:6px;overflow:hidden">
+        <div id="vbar_${id}" style="background:#c9a574;height:100%;width:0%;transition:width .3s"></div>
+      </div>
+      <span id="vpct_${id}" style="font-size:11px;color:rgba(232,221,208,.5);margin-top:4px;display:block">Enviando…</span>
+    </div>
+  </div>`;
+}
+
 /* ══════════════════════════════════════════
    IMAGE / VIDEO EVENT HANDLERS
 ══════════════════════════════════════════ */
@@ -496,6 +520,61 @@ function onVideoInput(pg, key, prevId, val) {
     : `<div class="vid-ph">🎬<br/>Cole a URL para ver o preview</div>`;
 }
 
+function onVideoFilePick(pg, key, input) {
+  const file = input.files[0];
+  if (!file) return;
+  const id   = `vup_${pg}_${key}`;
+  const prog = document.getElementById('vprog_' + id);
+  const bar  = document.getElementById('vbar_'  + id);
+  const pct  = document.getElementById('vpct_'  + id);
+  if (prog) prog.style.display = 'block';
+
+  const pass = CMS.pass();
+  const form = new FormData();
+  form.append('file', file);
+  form.append('_pass', pass);
+
+  const xhr = new XMLHttpRequest();
+  xhr.open('POST', 'upload.php');
+
+  xhr.upload.onprogress = function(e) {
+    if (e.lengthComputable && bar && pct) {
+      const p = Math.round(e.loaded / e.total * 100);
+      bar.style.width = p + '%';
+      pct.textContent = p + '% — ' + (e.loaded / 1024 / 1024).toFixed(1) + 'MB de ' + (e.total / 1024 / 1024).toFixed(1) + 'MB';
+    }
+  };
+
+  xhr.onload = function() {
+    if (prog) prog.style.display = 'none';
+    try {
+      const data = JSON.parse(xhr.responseText);
+      if (!data.ok) throw new Error(data.error);
+      CMS.set(pg, key, data.url);
+      CMS.save(true);
+      toast('✅ Vídeo enviado: ' + data.url);
+      // Atualiza o status na UI
+      const wrap = input.closest('.img-actions') || input.parentElement;
+      if (wrap) {
+        const old = wrap.querySelector('span');
+        if (old) old.textContent = '✅ ' + data.url;
+        else wrap.insertAdjacentHTML('beforeend', `<span style="color:#8fb88f;font-size:12px">✅ ${data.url}</span>`);
+      }
+    } catch(e) {
+      toast('❌ Erro no upload: ' + e.message, true);
+    }
+    input.value = '';
+  };
+
+  xhr.onerror = function() {
+    if (prog) prog.style.display = 'none';
+    toast('❌ Falha na conexão ao enviar vídeo.', true);
+    input.value = '';
+  };
+
+  xhr.send(form);
+}
+
 /* ══════════════════════════════════════════
    RESORT PAGE TEMPLATE
 ══════════════════════════════════════════ */
@@ -541,8 +620,9 @@ function resortHTML(pg, name, file) {
 
     <div class="cms-section">
       <div class="cms-section-label">Banner principal</div>
-      <div class="info-box">A imagem de fundo aparece atrás do título. Um overlay escuro é aplicado automaticamente para manter o texto legível.</div>
-      ${fImg({ pg, key:'hero_img', label:'Imagem de fundo do banner', help:'Proporção ideal: 16:9 ou mais largo. Formatos: JPG, PNG, WebP.' })}
+      <div class="info-box">O vídeo tem prioridade sobre a imagem. Se não houver vídeo, a imagem é usada como fundo.</div>
+      ${fVideoUpload({ pg, key:'hero_video_file', label:'Vídeo de fundo (MP4)' })}
+      ${fImg({ pg, key:'hero_img', label:'Imagem de fundo (fallback sem vídeo)', help:'Proporção ideal: 16:9 ou mais largo. Formatos: JPG, PNG, WebP.' })}
       ${fText({ pg, key:'hero_title', label:'Título principal (HTML aceito)', help:'Use &lt;br/&gt; para quebrar linha e &lt;em&gt;texto&lt;/em&gt; para itálico dourado. Ex: Costão do&lt;br/&gt;&lt;em&gt;Santinho.&lt;/em&gt;', rows:2 })}
       ${fText({ pg, key:'hero_sub', label:'Subtítulo (tags do resort)', ph:'Ex: Resort à beira-mar · Mata Atlântica · Spa termal', rows:1 })}
     </div>

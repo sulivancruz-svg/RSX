@@ -67,8 +67,11 @@ if (!isset($_FILES['file']) || $_FILES['file']['error'] !== UPLOAD_ERR_OK) {
     fail('Upload error: ' . $err);
 }
 
-// Tipos permitidos
-$allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/svg+xml'];
+// Tipos permitidos (imagens + vídeos)
+$allowed = [
+    'image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/svg+xml',
+    'video/mp4', 'video/webm', 'video/ogg', 'video/quicktime',
+];
 $mime = mime_content_type($_FILES['file']['tmp_name']);
 if (!in_array($mime, $allowed)) {
     fail('Tipo de arquivo não permitido: ' . $mime);

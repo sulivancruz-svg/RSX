@@ -14,6 +14,7 @@
   }
 
   var RESORT_FIELDS = [
+    { k: 'hero_video_file',  s: '.page-hero-video source',            t: 'src'  },
     { k: 'hero_img',         s: '.page-hero',                         t: 'bg'   },
     { k: 'hero_title',       s: '.page-hero-title',                   t: 'html' },
     { k: 'hero_sub',         s: '.page-hero-sub',                     t: 'html' },
@@ -89,6 +90,10 @@
       if (ph) ph.style.display = 'none';
     } else if (f.t === 'yt') {
       el.src = ytEmbed(val);
+    } else if (f.t === 'src') {
+      el.src = val;
+      var vid = el.closest('video');
+      if (vid) vid.load();
     }
   }
 
