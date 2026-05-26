@@ -32,6 +32,23 @@ function fail($msg, $code = 400) {
     exit;
 }
 
+// GET ?diag=1 — diagnóstico
+if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+    if (isset($_GET['diag'])) {
+        echo json_encode([
+            'php'          => phpversion(),
+            'upload_max'   => ini_get('upload_max_filesize'),
+            'post_max'     => ini_get('post_max_size'),
+            'midia_exists' => is_dir($MEDIA_DIR),
+            'midia_write'  => is_dir($MEDIA_DIR) && is_writable($MEDIA_DIR),
+            'dir_write'    => is_writable(__DIR__),
+        ], JSON_PRETTY_PRINT);
+    } else {
+        echo json_encode(['ok' => true, 'status' => 'upload endpoint ready']);
+    }
+    exit;
+}
+
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     fail('Method not allowed', 405);
 }
