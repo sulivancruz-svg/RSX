@@ -139,6 +139,14 @@ input[type="file"]{display:none}
 #toast.show{opacity:1;transform:none}
 #toast.error{background:var(--red)}
 
+/* ── TAG PICKER ── */
+.tag-picker{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.tag-btn{background:var(--card);border:1px solid var(--border);border-radius:20px;
+  padding:6px 14px;font-size:11px;font-weight:500;color:var(--text-dim);
+  cursor:pointer;transition:all .15s;letter-spacing:.04em}
+.tag-btn:hover{border-color:var(--border-focus);color:var(--text)}
+.tag-btn.selected{background:rgba(201,165,116,.15);border-color:var(--gold);color:var(--gold)}
+
 /* ── SCROLLBAR ── */
 ::-webkit-scrollbar{width:4px}
 ::-webkit-scrollbar-track{background:transparent}
@@ -357,6 +365,38 @@ function fImg({ pg, key, label, help, square }) {
   </div>`;
 }
 
+function fTags({ pg, key, label, help, options, single }) {
+  const val  = CMS.get(pg, key) || '';
+  const sel  = val.split(',').map(s => s.trim()).filter(Boolean);
+  const mode = single ? 'single' : 'multi';
+  return `<div class="field-row">
+    <label class="field-label">${label}</label>
+    ${help ? `<div class="field-help">${help}</div>` : ''}
+    <div class="tag-picker">
+      ${options.map(opt => `<button type="button"
+        class="tag-btn${sel.includes(opt) ? ' selected' : ''}"
+        onclick="toggleTag('${pg}','${key}','${opt}',this,'${mode}')">
+        ${opt}
+      </button>`).join('')}
+    </div>
+  </div>`;
+}
+
+function toggleTag(pg, key, val, btn, mode) {
+  if (mode === 'single') {
+    // deselect all others in same group
+    btn.closest('.tag-picker').querySelectorAll('.tag-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    CMS.set(pg, key, val);
+  } else {
+    const current = (CMS.get(pg, key)||'').split(',').map(s=>s.trim()).filter(Boolean);
+    const idx = current.indexOf(val);
+    if (idx >= 0) current.splice(idx, 1); else current.push(val);
+    CMS.set(pg, key, current.join(', '));
+    btn.classList.toggle('selected');
+  }
+}
+
 function fVideo({ pg, key, label, help }) {
   const val = CMS.get(pg, key);
   const id  = `vid_${pg}_${key}`;
@@ -425,6 +465,18 @@ function resortHTML(pg, name, file) {
     <div class="info-box" style="margin-bottom:32px">
       <strong>Como funciona:</strong> edite os campos abaixo e clique em <strong>💾 Salvar</strong> no topo da página. As alterações aparecem automaticamente quando você abre a página do resort.<br/>
       <span style="color:rgba(232,221,208,.4);font-size:11px;margin-top:4px;display:block">⚠️ O site precisa estar aberto via <code>http://localhost:3456</code> para as edições funcionarem.</span>
+    </div>
+
+    <div class="cms-section">
+      <div class="cms-section-label">Categorias</div>
+      ${fTags({ pg, key:'tipo', label:'Tipo de hospedagem', single:true,
+        options:['Resort','Pousada','Hotel','Hotel Boutique','Fazenda','Lodge','Apart-Hotel','Eco Resort'] })}
+      ${fTags({ pg, key:'regime', label:'Regime alimentar', single:true,
+        options:['All-Inclusive','All-Inclusive Premium','Meia Pensão','Café da Manhã','Só Pernoite'] })}
+      ${fTags({ pg, key:'perfil', label:'Perfil do destino (pode marcar mais de um)', single:false,
+        options:['Família','Casal','Lua de Mel','Grupos','Solo','Pet Friendly','Adultos'] })}
+      ${fTags({ pg, key:'destaques', label:'Destaques (pode marcar mais de um)', single:false,
+        options:['Beira-Mar','Serra','Natureza','Urbano','Piscinas Termais','Spa','Arqueologia','Esportes','Gastronomia','Adultos Only'] })}
     </div>
 
     <div class="cms-section">

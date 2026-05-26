@@ -17,6 +17,8 @@
     { k: 'hero_img',         s: '.page-hero',                         t: 'bg'   },
     { k: 'hero_title',       s: '.page-hero-title',                   t: 'html' },
     { k: 'hero_sub',         s: '.page-hero-sub',                     t: 'html' },
+    { k: 'regime',           s: '.page-hero-badge',                   t: 'badge'},
+    { k: 'tipo',             s: '.tour-meta span:first-child',        t: 'html' },
     { k: 'overview_h2',      s: '.overview-text .section-h2',         t: 'html' },
     { k: 'overview_p1',      s: '.overview-text > p:nth-of-type(1)',  t: 'html' },
     { k: 'overview_p2',      s: '.overview-text > p:nth-of-type(2)',  t: 'html' },
@@ -58,6 +60,11 @@
     if (!el) return;
     if (f.t === 'html') {
       el.innerHTML = val;
+    } else if (f.t === 'badge') {
+      // Replace first segment of badge (regime) keeping rest (location)
+      var parts = el.textContent.split('·');
+      parts[0] = ' ' + val + ' ';
+      el.textContent = parts.join('·');
     } else if (f.t === 'bg') {
       el.style.backgroundImage = 'url("' + val + '")';
       el.style.backgroundSize  = 'cover';
