@@ -179,10 +179,8 @@ input[type="file"]{display:none}
       <span class="app-brand-label">Painel de Conteúdo</span>
     </div>
     <div class="app-actions">
-      <a id="previewLink" href="index.html" target="_blank">
-        <button class="btn-ghost">Ver site ↗</button>
-      </a>
-      <button class="btn-save" onclick="CMS.save()">💾 Salvar</button>
+      <button class="btn-ghost" onclick="window._previewWin = window.open('index.html','rsx_preview')">Ver Home ↗</button>
+      <button class="btn-save" onclick="CMS.save(); setTimeout(()=>{ if(window._previewWin && !window._previewWin.closed){ window._previewWin.location.reload(); } }, 300)">💾 Salvar</button>
       <button class="btn-ghost" onclick="doLogout()">Sair</button>
     </div>
   </header>
@@ -247,9 +245,9 @@ const CMS = {
     if (!this.data.pages)  this.data.pages  = {};
   },
 
-  save() {
+  save(silent) {
     localStorage.setItem(this.KEY, JSON.stringify(this.data));
-    toast('Conteúdo salvo com sucesso!');
+    if (!silent) toast('Conteúdo salvo com sucesso!');
   },
 
   get(page, key) {
@@ -395,6 +393,7 @@ function toggleTag(pg, key, val, btn, mode) {
     CMS.set(pg, key, current.join(', '));
     btn.classList.toggle('selected');
   }
+  CMS.save(true); // salva automaticamente ao clicar numa tag (silencioso)
 }
 
 function fVideo({ pg, key, label, help }) {
