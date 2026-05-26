@@ -1487,7 +1487,8 @@ footer {
   .sf { border-right: none; border-bottom: 1px solid rgba(14,26,53,.08); border-radius: 12px; }
   .sf:last-of-type { border-bottom: none; }
   .search-submit { justify-content: center; }
-  .popover { position: static !important; transform: none !important; width: 100% !important; min-width: 0 !important; }
+  .popover { position: static !important; transform: none !important; width: 100% !important; min-width: 0 !important; display: none; }
+  .popover.open { display: block; opacity: 1; pointer-events: auto; }
   .cal-grid { grid-template-columns: 1fr; }
   .hero-h1 { font-size: clamp(38px, 11vw, 56px); line-height: 1; }
   .hero-bottom { flex-direction: column; gap: 20px; }
