@@ -1,13 +1,5 @@
 ---
 deployment:
   tasks:
-    - export DEPLOYPATH=/home/rsxtrave/public_html/
-    - /bin/cp index.html $DEPLOYPATH
-    - /bin/cp sobre.html $DEPLOYPATH
-    - /bin/cp contato.html $DEPLOYPATH
-    - /bin/cp costao.html $DEPLOYPATH
-    - /bin/cp fazzenda.html $DEPLOYPATH
-    - /bin/cp japaratinga.html $DEPLOYPATH
-    - /bin/cp admin.html $DEPLOYPATH
-    - /bin/cp content-override.js $DEPLOYPATH
-    - /bin/cp -r design_handoff_rsx_travel_site $DEPLOYPATH
+    - /bin/cp -f index.html sobre.html contato.html costao.html fazzenda.html japaratinga.html admin.html content-override.js /home/rsxtrave/public_html/
+    - /bin/cp -rf design_handoff_rsx_travel_site /home/rsxtrave/public_html/
