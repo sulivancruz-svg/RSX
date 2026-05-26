@@ -504,6 +504,38 @@ function resortHTML(pg, name, file) {
     </div>
 
     <div class="cms-section">
+      <div class="cms-section-label">Números em destaque (4 blocos)</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div>
+          ${fText({ pg, key:'stat1_num',   label:'Número 1', ph:'86' })}
+          ${fText({ pg, key:'stat1_label', label:'Label 1',  ph:'Apartamentos' })}
+        </div>
+        <div>
+          ${fText({ pg, key:'stat2_num',   label:'Número 2', ph:'∞' })}
+          ${fText({ pg, key:'stat2_label', label:'Label 2',  ph:'Piscinas naturais' })}
+        </div>
+        <div>
+          ${fText({ pg, key:'stat3_num',   label:'Número 3', ph:'5★' })}
+          ${fText({ pg, key:'stat3_label', label:'Label 3',  ph:'Experiência' })}
+        </div>
+        <div>
+          ${fText({ pg, key:'stat4_num',   label:'Número 4', ph:'AL' })}
+          ${fText({ pg, key:'stat4_label', label:'Label 4',  ph:'Nordeste · Brasil' })}
+        </div>
+      </div>
+    </div>
+
+    <div class="cms-section">
+      <div class="cms-section-label">Destaques do resort (3 cards)</div>
+      ${fText({ pg, key:'hl1_title', label:'Destaque 1 — Título', ph:'Piscinas Naturais' })}
+      ${fText({ pg, key:'hl1_desc',  label:'Destaque 1 — Descrição', rows:3 })}
+      ${fText({ pg, key:'hl2_title', label:'Destaque 2 — Título', ph:'Gastronomia' })}
+      ${fText({ pg, key:'hl2_desc',  label:'Destaque 2 — Descrição', rows:3 })}
+      ${fText({ pg, key:'hl3_title', label:'Destaque 3 — Título', ph:'Exclusividade' })}
+      ${fText({ pg, key:'hl3_desc',  label:'Destaque 3 — Descrição', rows:3 })}
+    </div>
+
+    <div class="cms-section">
       <div class="cms-section-label">Citação em destaque</div>
       ${fText({ pg, key:'experience_quote', label:'Texto da citação', ph:'"Quando você está aqui, o mundo lá fora simplesmente para."' })}
     </div>
@@ -635,6 +667,20 @@ const RESORT_FIELD_MAP = [
   { k:'overview_p2',      s:'.overview-text > p:nth-of-type(2)', t:'html' },
   { k:'overview_p3',      s:'.overview-text > p:nth-of-type(3)', t:'html' },
   { k:'experience_quote', s:'.experience-quote',                 t:'html' },
+  { k:'stat1_num',   s:'.overview-stats .stat-box:nth-child(1) .stat-number', t:'html' },
+  { k:'stat1_label', s:'.overview-stats .stat-box:nth-child(1) .stat-label',  t:'html' },
+  { k:'stat2_num',   s:'.overview-stats .stat-box:nth-child(2) .stat-number', t:'html' },
+  { k:'stat2_label', s:'.overview-stats .stat-box:nth-child(2) .stat-label',  t:'html' },
+  { k:'stat3_num',   s:'.overview-stats .stat-box:nth-child(3) .stat-number', t:'html' },
+  { k:'stat3_label', s:'.overview-stats .stat-box:nth-child(3) .stat-label',  t:'html' },
+  { k:'stat4_num',   s:'.overview-stats .stat-box:nth-child(4) .stat-number', t:'html' },
+  { k:'stat4_label', s:'.overview-stats .stat-box:nth-child(4) .stat-label',  t:'html' },
+  { k:'hl1_title',   s:'.highlights-grid .highlight-card:nth-child(1) .highlight-title', t:'html' },
+  { k:'hl1_desc',    s:'.highlights-grid .highlight-card:nth-child(1) .highlight-desc',  t:'html' },
+  { k:'hl2_title',   s:'.highlights-grid .highlight-card:nth-child(2) .highlight-title', t:'html' },
+  { k:'hl2_desc',    s:'.highlights-grid .highlight-card:nth-child(2) .highlight-desc',  t:'html' },
+  { k:'hl3_title',   s:'.highlights-grid .highlight-card:nth-child(3) .highlight-title', t:'html' },
+  { k:'hl3_desc',    s:'.highlights-grid .highlight-card:nth-child(3) .highlight-desc',  t:'html' },
 ];
 const SOBRE_FIELD_MAP = [
   { k:'hero_h1', s:'.sobre-hero h1',               t:'html' },

@@ -28,6 +28,20 @@
     { k: 'gallery_3',        s: '.gallery-item:nth-child(3)',         t: 'bg'   },
     { k: 'gallery_4',        s: '.gallery-item:nth-child(4)',         t: 'bg'   },
     { k: 'gallery_5',        s: '.gallery-item:nth-child(5)',         t: 'bg'   },
+    { k: 'stat1_num',        s: '.overview-stats .stat-box:nth-child(1) .stat-number', t: 'html' },
+    { k: 'stat1_label',      s: '.overview-stats .stat-box:nth-child(1) .stat-label',  t: 'html' },
+    { k: 'stat2_num',        s: '.overview-stats .stat-box:nth-child(2) .stat-number', t: 'html' },
+    { k: 'stat2_label',      s: '.overview-stats .stat-box:nth-child(2) .stat-label',  t: 'html' },
+    { k: 'stat3_num',        s: '.overview-stats .stat-box:nth-child(3) .stat-number', t: 'html' },
+    { k: 'stat3_label',      s: '.overview-stats .stat-box:nth-child(3) .stat-label',  t: 'html' },
+    { k: 'stat4_num',        s: '.overview-stats .stat-box:nth-child(4) .stat-number', t: 'html' },
+    { k: 'stat4_label',      s: '.overview-stats .stat-box:nth-child(4) .stat-label',  t: 'html' },
+    { k: 'hl1_title',        s: '.highlights-grid .highlight-card:nth-child(1) .highlight-title', t: 'html' },
+    { k: 'hl1_desc',         s: '.highlights-grid .highlight-card:nth-child(1) .highlight-desc',  t: 'html' },
+    { k: 'hl2_title',        s: '.highlights-grid .highlight-card:nth-child(2) .highlight-title', t: 'html' },
+    { k: 'hl2_desc',         s: '.highlights-grid .highlight-card:nth-child(2) .highlight-desc',  t: 'html' },
+    { k: 'hl3_title',        s: '.highlights-grid .highlight-card:nth-child(3) .highlight-title', t: 'html' },
+    { k: 'hl3_desc',         s: '.highlights-grid .highlight-card:nth-child(3) .highlight-desc',  t: 'html' },
   ];
 
   var FIELDS = {
