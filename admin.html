@@ -737,7 +737,12 @@ function showPage(id, btn) {
   if (btn) btn.classList.add('active');
   document.getElementById('previewLink').href = PAGE_LINKS[id] || 'index.html';
   const inner = document.getElementById('mainInner');
-  inner.innerHTML = PAGES[id] ? PAGES[id]() : '<p>Não encontrado</p>';
+  try {
+    inner.innerHTML = PAGES[id] ? PAGES[id]() : '<p>Não encontrado</p>';
+  } catch(err) {
+    inner.innerHTML = `<div style="color:#f87171;padding:24px;background:rgba(255,0,0,.1);border-radius:8px;font-family:monospace;font-size:13px"><strong>Erro ao carregar seção:</strong><br/>${err.message}</div>`;
+    console.error('showPage error:', err);
+  }
   document.querySelector('.main').scrollTop = 0;
   // Auto-fill fields from the live page if they're empty
   const file = PAGE_LINKS[id];
