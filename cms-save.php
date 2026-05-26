@@ -17,6 +17,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 $DATA_FILE = __DIR__ . '/cms-data.json';
 $PASS_FILE = __DIR__ . '/cms-pass.txt';
 
+// Garante que o arquivo existe e é gravável
+if (!file_exists($DATA_FILE)) {
+    @file_put_contents($DATA_FILE, '{}');
+    @chmod($DATA_FILE, 0664);
+}
+if (!is_writable($DATA_FILE)) {
+    @chmod($DATA_FILE, 0664);
+}
+
 // Senha padrão (muda pelo admin)
 function getPass($file) {
     if (file_exists($file)) {
@@ -26,8 +35,21 @@ function getPass($file) {
     return 'rsx2024';
 }
 
-// GET — retorna os dados atuais
+// GET — retorna os dados ou diagnóstico
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+    // ?diag=1 mostra diagnóstico
+    if (isset($_GET['diag'])) {
+        echo json_encode([
+            'php'       => phpversion(),
+            'file'      => $DATA_FILE,
+            'exists'    => file_exists($DATA_FILE),
+            'writable'  => is_writable($DATA_FILE),
+            'dir_write' => is_writable(__DIR__),
+            'size'      => file_exists($DATA_FILE) ? filesize($DATA_FILE) : 0,
+            'post_max'  => ini_get('post_max_size'),
+        ], JSON_PRETTY_PRINT);
+        exit;
+    }
     if (file_exists($DATA_FILE)) {
         echo file_get_contents($DATA_FILE);
     } else {
