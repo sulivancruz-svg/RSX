@@ -480,6 +480,15 @@ function resortHTML(pg, name, file) {
     </div>
 
     <div class="cms-section">
+      <div class="cms-section-label">Card na página inicial</div>
+      <div class="info-box">Como este resort aparece no card da <strong>página inicial</strong>.</div>
+      ${fImg({ pg, key:'card_img', label:'Foto do card (thumbnail)',
+        help:'Aparece como imagem de fundo do card na home. Proporção ideal: 4:3 ou quadrada.' })}
+      ${fText({ pg, key:'card_desc', label:'Descrição curta do card', rows:2,
+        ph:'Ex: Resort à beira-mar com spa termal, gastronomia premiada e mata atlântica preservada.' })}
+    </div>
+
+    <div class="cms-section">
       <div class="cms-section-label">Banner principal</div>
       <div class="info-box">A imagem de fundo aparece atrás do título. Um overlay escuro é aplicado automaticamente para manter o texto legível.</div>
       ${fImg({ pg, key:'hero_img', label:'Imagem de fundo do banner', help:'Proporção ideal: 16:9 ou mais largo. Formatos: JPG, PNG, WebP.' })}
