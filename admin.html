@@ -179,8 +179,8 @@ input[type="file"]{display:none}
       <span class="app-brand-label">Painel de Conteúdo</span>
     </div>
     <div class="app-actions">
-      <a id="previewLink" href="index.html" target="rsx_preview" style="text-decoration:none"><button class="btn-ghost" onclick="window._previewWin=window.open(document.getElementById('previewLink').href,'rsx_preview');return false">Ver Home ↗</button></a>
-      <button class="btn-save" onclick="CMS.save(); setTimeout(()=>{ if(window._previewWin && !window._previewWin.closed){ window._previewWin.location.reload(); } }, 300)">💾 Salvar</button>
+      <button id="previewLink" class="btn-ghost" data-href="index.html" onclick="window._previewWin=window.open(this.dataset.href,'rsx_preview')">Ver Home ↗</button>
+      <button class="btn-save" onclick="CMS.save(); setTimeout(()=>{ try{ if(window._previewWin && !window._previewWin.closed) window._previewWin.location.reload(); }catch(e){} }, 400)">💾 Salvar</button>
       <button class="btn-ghost" onclick="doLogout()">Sair</button>
     </div>
   </header>
@@ -735,7 +735,8 @@ async function prefillFromPage(pageId, file) {
 function showPage(id, btn) {
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
   if (btn) btn.classList.add('active');
-  document.getElementById('previewLink').href = PAGE_LINKS[id] || 'index.html';
+  const pl = document.getElementById('previewLink');
+  if (pl) pl.dataset.href = PAGE_LINKS[id] || 'index.html';
   const inner = document.getElementById('mainInner');
   try {
     inner.innerHTML = PAGES[id] ? PAGES[id]() : '<p>Não encontrado</p>';
