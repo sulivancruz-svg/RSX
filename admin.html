@@ -439,25 +439,35 @@ function fVideo({ pg, key, label, help }) {
 /* ══════════════════════════════════════════
    IMAGE / VIDEO EVENT HANDLERS
 ══════════════════════════════════════════ */
-function onFilePick(pg, key, prevId, input) {
+async function onFilePick(pg, key, prevId, input) {
   const file = input.files[0];
   if (!file) return;
-  if (file.size > 4 * 1024 * 1024) {
-    toast('⚠️ Foto grande (>4MB) — pode falhar. Reduza o tamanho ou use URL externa.', true);
+
+  // Preview imediato via blob local enquanto faz upload
+  const localUrl = URL.createObjectURL(file);
+  setImgPreview(prevId, localUrl);
+  toast('⏳ Enviando para o servidor…');
+
+  const pass = CMS.pass();
+  const form = new FormData();
+  form.append('file', file);
+  form.append('_pass', pass);
+
+  try {
+    const res  = await fetch('upload.php', { method: 'POST', body: form });
+    const data = await res.json();
+    if (!data.ok) throw new Error(data.error || 'Erro desconhecido');
+
+    CMS.set(pg, key, data.url);
+    setImgPreview(prevId, data.url);
+    CMS.save(true);
+    toast('✅ Foto enviada para /midia/ e salva!');
+    URL.revokeObjectURL(localUrl);
+  } catch (err) {
+    toast('❌ Falha no upload: ' + err.message, true);
+    setImgPreview(prevId, CMS.get(pg, key) || '');
   }
-  const r = new FileReader();
-  r.onload = e => {
-    CMS.set(pg, key, e.target.result);
-    setImgPreview(prevId, e.target.result);
-    try {
-      CMS.save(true); // salva automaticamente (silencioso)
-      toast('✅ Foto salva!');
-    } catch(err) {
-      toast('❌ Foto muito grande para salvar. Use URL ou reduza o arquivo.', true);
-      CMS.set(pg, key, ''); // reverte
-    }
-  };
-  r.readAsDataURL(file);
+  input.value = ''; // limpa o input para permitir re-upload do mesmo arquivo
 }
 function onUrlInput(pg, key, prevId, val) {
   CMS.set(pg, key, val.trim());
