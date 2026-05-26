@@ -564,6 +564,56 @@ const PAGE_LINKS = {
   fazzenda:'fazzenda.html', japaratinga:'japaratinga.html', sobre:'sobre.html', contato:'contato.html'
 };
 
+/* ══════════════════════════════════════════
+   FIELD MAP — mirrors content-override.js
+══════════════════════════════════════════ */
+const RESORT_FIELD_MAP = [
+  { k:'hero_title',       s:'.page-hero-title',                  t:'html' },
+  { k:'hero_sub',         s:'.page-hero-sub',                    t:'html' },
+  { k:'overview_h2',      s:'.overview-text .section-h2',        t:'html' },
+  { k:'overview_p1',      s:'.overview-text > p:nth-of-type(1)', t:'html' },
+  { k:'overview_p2',      s:'.overview-text > p:nth-of-type(2)', t:'html' },
+  { k:'overview_p3',      s:'.overview-text > p:nth-of-type(3)', t:'html' },
+  { k:'experience_quote', s:'.experience-quote',                 t:'html' },
+];
+const SOBRE_FIELD_MAP = [
+  { k:'hero_h1', s:'.sobre-hero h1',               t:'html' },
+  { k:'bio_p1',  s:'.bio-text > p:nth-of-type(1)', t:'html' },
+  { k:'bio_p2',  s:'.bio-text > p:nth-of-type(2)', t:'html' },
+  { k:'bio_p3',  s:'.bio-text > p:nth-of-type(3)', t:'html' },
+];
+const PAGE_FIELD_MAPS = {
+  costao: RESORT_FIELD_MAP, fazzenda: RESORT_FIELD_MAP, japaratinga: RESORT_FIELD_MAP,
+  sobre: SOBRE_FIELD_MAP,
+};
+
+/* Fetch a page, extract current texts, pre-fill CMS if fields are empty */
+async function prefillFromPage(pageId, file) {
+  if (!file) return;
+  try {
+    const res  = await fetch(file + '?_=' + Date.now());
+    if (!res.ok) return;
+    const txt  = await res.text();
+    const doc  = new DOMParser().parseFromString(txt, 'text/html');
+    const map  = PAGE_FIELD_MAPS[pageId];
+    if (!map) return;
+    let filled = 0;
+    map.forEach(f => {
+      if (CMS.get(pageId, f.k)) return; // already set, don't overwrite
+      const el = doc.querySelector(f.s);
+      if (!el) return;
+      const val = f.t === 'html' ? el.innerHTML.trim() : '';
+      if (val) { CMS.set(pageId, f.k, val); filled++; }
+    });
+    if (filled > 0) {
+      // Refresh the rendered form so fields show the fetched values
+      const inner = document.getElementById('mainInner');
+      inner.innerHTML = PAGES[pageId] ? PAGES[pageId]() : inner.innerHTML;
+      toast(`${filled} campo(s) preenchidos com o texto atual da página.`);
+    }
+  } catch(e) { /* silently ignore fetch errors (e.g. file:// protocol) */ }
+}
+
 function showPage(id, btn) {
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
   if (btn) btn.classList.add('active');
@@ -571,6 +621,9 @@ function showPage(id, btn) {
   const inner = document.getElementById('mainInner');
   inner.innerHTML = PAGES[id] ? PAGES[id]() : '<p>Não encontrado</p>';
   document.querySelector('.main').scrollTop = 0;
+  // Auto-fill fields from the live page if they're empty
+  const file = PAGE_LINKS[id];
+  if (file && PAGE_FIELD_MAPS[id]) prefillFromPage(id, file);
 }
 
 // Init if session active
