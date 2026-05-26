@@ -203,24 +203,22 @@
   }
 
   function run() {
-    // 1. Aplica localStorage imediatamente (sem delay — para o editor ver na hora)
+    // 1. Aplica localStorage imediatamente (editor vê na hora)
     var localData = loadLocal();
-    if (localData && Object.keys(localData).length > 1) {
+    if (localData && (localData.pages || localData.global)) {
       applyAll(localData);
     }
 
-    // 2. Busca cms-data.json do servidor (visto por todos os visitantes)
+    // 2. Busca cms-data.json do servidor (todos os visitantes veem)
     var base = window.location.pathname.replace(/\/[^\/]*$/, '/');
     fetch(base + 'cms-data.json?_=' + Date.now())
       .then(function(r) { return r.ok ? r.json() : null; })
       .then(function(serverData) {
-        if (!serverData || Object.keys(serverData).length === 0) return;
-        // Mescla: dados do servidor têm prioridade sobre localStorage
+        if (!serverData || (!serverData.pages && !serverData.global)) return;
         applyAll(serverData);
-        // Sincroniza localStorage com o servidor
         try { localStorage.setItem(KEY, JSON.stringify(serverData)); } catch(e) {}
       })
-      .catch(function() { /* sem servidor — usa só localStorage */ });
+      .catch(function() {});
   }
 
   document.readyState === 'loading'
