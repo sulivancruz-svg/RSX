@@ -245,6 +245,32 @@ const CMS = {
     if (!this.data.pages)  this.data.pages  = {};
   },
 
+  // Busca dados do servidor e mescla (server tem prioridade — URL /midia/ sobrescreve base64 local)
+  syncFromServer(callback) {
+    fetch('cms-data.json?_=' + Date.now())
+      .then(function(r) { return r.ok ? r.json() : null; })
+      .then(function(serverData) {
+        if (!serverData || (!serverData.pages && !serverData.global)) {
+          if (callback) callback(false);
+          return;
+        }
+        // Mescla: server tem prioridade campo a campo
+        if (serverData.global) {
+          Object.assign(CMS.data.global, serverData.global);
+        }
+        if (serverData.pages) {
+          Object.keys(serverData.pages).forEach(function(pg) {
+            if (!CMS.data.pages[pg]) CMS.data.pages[pg] = {};
+            Object.assign(CMS.data.pages[pg], serverData.pages[pg]);
+          });
+        }
+        // Sincroniza localStorage com dados mesclados
+        try { localStorage.setItem(CMS.KEY, JSON.stringify(CMS.data)); } catch(e) {}
+        if (callback) callback(true);
+      })
+      .catch(function() { if (callback) callback(false); });
+  },
+
   save(silent) {
     // 1. Salva no localStorage (rápido, local)
     try {
@@ -295,6 +321,14 @@ const CMS = {
 /* ══════════════════════════════════════════
    AUTH
 ══════════════════════════════════════════ */
+function afterLoad() {
+  CMS.syncFromServer(function(synced) {
+    if (synced) toast('✅ Dados sincronizados do servidor.', false);
+    renderCustomPageNav();
+    showPage('geral', document.querySelector('[data-page="geral"]'));
+  });
+}
+
 function doLogin() {
   const p = document.getElementById('passInput').value;
   if (CMS.checkPass(p)) {
@@ -302,8 +336,7 @@ function doLogin() {
     document.getElementById('login').style.display = 'none';
     document.getElementById('app').classList.add('visible');
     CMS.load();
-    renderCustomPageNav();
-    showPage('geral', document.querySelector('[data-page="geral"]'));
+    afterLoad();
   } else {
     document.getElementById('loginError').classList.add('show');
     document.getElementById('passInput').value = '';
@@ -319,6 +352,7 @@ if (sessionStorage.getItem(CMS.AUTH_KEY)) {
   document.getElementById('login').style.display = 'none';
   document.getElementById('app').classList.add('visible');
   CMS.load();
+  CMS.syncFromServer(function() {});
 }
 
 /* ══════════════════════════════════════════
