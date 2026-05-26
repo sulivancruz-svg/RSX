@@ -3,7 +3,7 @@
   'use strict';
   var KEY = 'rsx_cms_content';
 
-  function load() {
+  function loadLocal() {
     try { return JSON.parse(localStorage.getItem(KEY) || '{}'); }
     catch (e) { return {}; }
   }
@@ -101,24 +101,20 @@
       var card = document.querySelector('a.tour-card[href="' + pg + '.html"]');
       if (!card) return;
 
-      // Regime → badge + meta
       if (d.regime) {
         var badge = card.querySelector('.tour-badge');
         if (badge) badge.textContent = d.regime;
         var metaLast = card.querySelector('.tour-meta span:last-child');
         if (metaLast) metaLast.textContent = d.regime;
       }
-      // Tipo → badge (só se não tiver regime)
       if (d.tipo && !d.regime) {
         var badge2 = card.querySelector('.tour-badge');
         if (badge2) badge2.textContent = d.tipo;
       }
-      // Descrição curta do card
       if (d.card_desc) {
         var desc = card.querySelector('.tour-desc');
         if (desc) desc.textContent = d.card_desc;
       }
-      // Imagem do card
       if (d.card_img) {
         var imgInner = card.querySelector('.tour-img-inner');
         if (imgInner) {
@@ -130,6 +126,22 @@
         }
       }
     });
+
+    // Card "Quem sou" (sobre.html) — usa profile_img da página sobre
+    var sobreData = data.pages && data.pages['sobre'];
+    var sobreImg  = sobreData && (sobreData['profile_img'] || sobreData['card_img']);
+    if (sobreImg) {
+      var sobreCard = document.querySelector('a.tour-card[href="sobre.html"] .tour-img-inner');
+      if (sobreCard) {
+        sobreCard.style.backgroundImage = 'url("' + sobreImg + '")';
+        sobreCard.style.backgroundSize  = 'cover';
+        sobreCard.style.backgroundPosition = 'center';
+        var ph3 = sobreCard.querySelector('.tour-img-placeholder');
+        if (ph3) ph3.style.display = 'none';
+      }
+      // seção Rebeca na home
+      applyField({ k: 'profile_img', s: '.rebeca-portrait-bg', t: 'bg' }, sobreImg);
+    }
   }
 
   /* ── Injeta cards de novos destinos criados no admin ── */
@@ -143,7 +155,6 @@
       slot.innerHTML = custom.map(function(p) {
         var d = pages[p.slug] || {};
         var regime  = d.regime  || p.regime  || 'Resort';
-        var tipo    = d.tipo    || p.tipo    || regime;
         var loc     = p.localizacao || 'Brasil';
         var desc    = d.card_desc || p.desc || 'Descubra este destino com a curadoria RSX Travel.';
         var imgStyle = d.card_img
@@ -166,9 +177,7 @@
     } catch(e) {}
   }
 
-  function run() {
-    var data = load();
-
+  function applyAll(data) {
     // WhatsApp global
     var wa = data.global && data.global.whatsapp;
     if (wa) {
@@ -179,29 +188,11 @@
 
     var pid = pageId();
 
-    // Página inicial: atualiza cards dos resorts existentes + injeta novos + foto Rebeca
     if (pid === 'index') {
       applyIndexCards(data);
       applyCustomCards(data);
-      // foto da Rebeca na seção home — lida da página "sobre"
-      var sobreData = data.pages && data.pages['sobre'];
-      var sobreImg  = sobreData && (sobreData['profile_img'] || sobreData['card_img']);
-      if (sobreImg) {
-        // aplica na seção Rebeca da home
-        applyField({ k: 'profile_img', s: '.rebeca-portrait-bg', t: 'bg' }, sobreImg);
-        // aplica no card "Quem sou" do grid de resorts
-        var sobreCard = document.querySelector('a.tour-card[href="sobre.html"] .tour-img-inner');
-        if (sobreCard) {
-          sobreCard.style.backgroundImage = 'url("' + sobreImg + '")';
-          sobreCard.style.backgroundSize  = 'cover';
-          sobreCard.style.backgroundPosition = 'center';
-          var ph = sobreCard.querySelector('.tour-img-placeholder');
-          if (ph) ph.style.display = 'none';
-        }
-      }
     }
 
-    // Aplica campos da página atual
     var pageData = data.pages && data.pages[pid];
     if (!pageData) return;
     var fields = FIELDS[pid];
@@ -209,6 +200,27 @@
       fields = RESORT_FIELDS;
     }
     (fields || []).forEach(function (f) { applyField(f, pageData[f.k]); });
+  }
+
+  function run() {
+    // 1. Aplica localStorage imediatamente (sem delay — para o editor ver na hora)
+    var localData = loadLocal();
+    if (localData && Object.keys(localData).length > 1) {
+      applyAll(localData);
+    }
+
+    // 2. Busca cms-data.json do servidor (visto por todos os visitantes)
+    var base = window.location.pathname.replace(/\/[^\/]*$/, '/');
+    fetch(base + 'cms-data.json?_=' + Date.now())
+      .then(function(r) { return r.ok ? r.json() : null; })
+      .then(function(serverData) {
+        if (!serverData || Object.keys(serverData).length === 0) return;
+        // Mescla: dados do servidor têm prioridade sobre localStorage
+        applyAll(serverData);
+        // Sincroniza localStorage com o servidor
+        try { localStorage.setItem(KEY, JSON.stringify(serverData)); } catch(e) {}
+      })
+      .catch(function() { /* sem servidor — usa só localStorage */ });
   }
 
   document.readyState === 'loading'

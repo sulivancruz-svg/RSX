@@ -246,13 +246,31 @@ const CMS = {
   },
 
   save(silent) {
+    // 1. Salva no localStorage (rápido, local)
     try {
       localStorage.setItem(this.KEY, JSON.stringify(this.data));
-      if (!silent) toast('Conteúdo salvo com sucesso!');
     } catch(e) {
-      toast('❌ Erro ao salvar: armazenamento cheio. Remova fotos grandes ou use URLs externas.', true);
-      throw e; // repassa pro caller
+      toast('❌ Armazenamento cheio. Use URLs externas para imagens grandes.', true);
+      throw e;
     }
+    // 2. Envia para o servidor (cms-data.json) para todos verem
+    var payload = Object.assign({}, this.data, { _pass: this.pass() });
+    fetch('cms-save.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(res) {
+      if (res.ok) {
+        if (!silent) toast('✅ Salvo! Mudanças visíveis para todos.');
+      } else {
+        toast('⚠️ Salvo local, mas falhou no servidor: ' + res.error, true);
+      }
+    })
+    .catch(function() {
+      if (!silent) toast('⚠️ Salvo local. Servidor indisponível.', true);
+    });
   },
 
   get(page, key) {
