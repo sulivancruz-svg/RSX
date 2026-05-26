@@ -1,0 +1,2323 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>RSX Travel — Curadoria de Resorts All-Inclusive · Rebeca Piccolo</title>
+<meta name="description" content="Curadoria pessoal de resorts all-inclusive e roteiros feitos sob medida. Cada detalhe pensado por Rebeca Piccolo para que a sua viagem fique na memória." />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin="anonymous"></script>
+
+<style>
+/* ============================
+   TOKENS
+   ============================ */
+:root {
+  --navy-950: #080f1f;
+  --navy-900: #0e1a35;
+  --navy-800: #1a2847;
+  --navy-700: #233357;
+  --gold-600: #a07840;
+  --gold-500: #b8935c;
+  --gold-400: #c9a574;
+  --gold-300: #dcc093;
+  --gold-200: #edda9f;
+  --cream:    #f5efe6;
+  --cream-warm: #ede4d3;
+  --paper:    #f7f3eb;
+  --ink:      #0e1a35;
+  --ink-soft: rgba(14,26,53,0.65);
+  --line:     rgba(201,165,116,0.22);
+
+  --ease-out: cubic-bezier(.2,.7,.2,1);
+  --ease-in-out: cubic-bezier(.45,0,.25,1);
+
+  --section-px: 64px;
+  --section-py: 140px;
+}
+
+/* ============================
+   RESET + BASE
+   ============================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; font-size: 16px; }
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  cursor: none;
+}
+body.loading { overflow: hidden; }
+img { display: block; max-width: 100%; }
+a { color: inherit; text-decoration: none; }
+button { cursor: pointer; font-family: inherit; }
+
+.serif  { font-family: 'Cormorant Garamond', serif; }
+.mono   { font-family: 'JetBrains Mono', monospace; }
+
+/* ============================
+   CUSTOM CURSOR
+   ============================ */
+#cursor-dot {
+  position: fixed;
+  top: 0; left: 0;
+  width: 8px; height: 8px;
+  background: var(--gold-400);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate(-50%, -50%);
+  transition: transform .1s, opacity .3s, width .3s var(--ease-out), height .3s var(--ease-out);
+  mix-blend-mode: difference;
+}
+#cursor-ring {
+  position: fixed;
+  top: 0; left: 0;
+  width: 36px; height: 36px;
+  border: 1px solid rgba(201,165,116,0.6);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9998;
+  transform: translate(-50%, -50%);
+  transition: transform .25s var(--ease-out), width .4s var(--ease-out), height .4s var(--ease-out), border-color .3s;
+}
+body:hover #cursor-dot { opacity: 1; }
+a:hover ~ #cursor-ring,
+button:hover ~ #cursor-ring { width: 60px; height: 60px; border-color: var(--gold-400); }
+
+/* ============================
+   LOADER
+   ============================ */
+#loader {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: var(--navy-950);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 32px;
+  transition: opacity .8s var(--ease-out), visibility .8s;
+}
+#loader.out { opacity: 0; visibility: hidden; pointer-events: none; }
+.loader-logo {
+  width: 200px;
+  opacity: 0;
+  animation: loaderFade 1s .3s var(--ease-out) forwards;
+}
+.loader-logo img { width: 100%; }
+.loader-bar-wrap {
+  width: 160px;
+  height: 1px;
+  background: rgba(201,165,116,0.2);
+  overflow: hidden;
+  opacity: 0;
+  animation: loaderFade .6s .5s ease forwards;
+}
+.loader-bar {
+  height: 100%;
+  width: 0%;
+  background: var(--gold-400);
+  animation: loaderBar 1.6s .6s var(--ease-in-out) forwards;
+}
+.loader-label {
+  font-size: 10px;
+  letter-spacing: .5em;
+  text-transform: uppercase;
+  color: rgba(245,239,230,0.4);
+  opacity: 0;
+  animation: loaderFade .6s .5s ease forwards;
+}
+@keyframes loaderFade { to { opacity: 1; } }
+@keyframes loaderBar  { to { width: 100%; } }
+
+/* ============================
+   GRAIN OVERLAY
+   ============================ */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 900;
+  opacity: .025;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 180px 180px;
+}
+
+/* ============================
+   NAV
+   ============================ */
+nav.topnav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 200;
+  padding: 28px var(--section-px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: background .5s ease, padding .5s ease, backdrop-filter .5s ease, box-shadow .5s;
+  color: var(--cream);
+}
+nav.topnav.scrolled {
+  background: rgba(8,15,31,.92);
+  backdrop-filter: blur(20px) saturate(1.5);
+  padding: 16px var(--section-px);
+  box-shadow: 0 1px 0 rgba(201,165,116,.15);
+}
+.nav-logo {
+  display: flex;
+  align-items: center;
+}
+.nav-logo img {
+  height: 72px;
+  width: auto;
+  transition: opacity .3s;
+}
+.nav-logo:hover img { opacity: .85; }
+.nav-links { display: flex; gap: 40px; list-style: none; }
+.nav-links a {
+  font-size: 11px;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  font-weight: 400;
+  color: rgba(245,239,230,.8);
+  transition: color .3s;
+  position: relative;
+  padding-bottom: 2px;
+}
+.nav-links a::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0;
+  width: 0; height: 1px;
+  background: var(--gold-400);
+  transition: width .4s var(--ease-out);
+}
+.nav-links a:hover { color: var(--cream); }
+.nav-links a:hover::after { width: 100%; }
+.nav-right { display: flex; align-items: center; gap: 20px; }
+.nav-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--navy-900);
+  background: var(--gold-400);
+  padding: 11px 24px;
+  font-size: 10px;
+  letter-spacing: .28em;
+  text-transform: uppercase;
+  font-weight: 600;
+  border-radius: 2px;
+  transition: background .3s, transform .3s;
+}
+.nav-cta:hover { background: var(--gold-300); transform: translateY(-1px); }
+.nav-mobile-btn {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  background: transparent;
+  border: none;
+  padding: 4px;
+}
+.nav-mobile-btn span {
+  display: block;
+  width: 22px; height: 1px;
+  background: var(--cream);
+  transition: transform .3s, opacity .3s;
+}
+
+/* ============================
+   HERO
+   ============================ */
+.hero {
+  position: relative;
+  height: 100svh;
+  min-height: 720px;
+  overflow: hidden;
+  background: var(--navy-950);
+  display: flex;
+  flex-direction: column;
+}
+
+/* YouTube video background */
+.hero-video-wrap {
+  position: absolute;
+  inset: -10% -5%;
+  z-index: 0;
+  pointer-events: none;
+}
+.hero-video-wrap iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  filter: saturate(.8) brightness(.9);
+}
+.hero-video-fallback {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, var(--navy-800) 0%, var(--navy-950) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.hero-video-fallback::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    repeating-linear-gradient(135deg,
+      rgba(201,165,116,.04) 0 12px,
+      transparent 12px 24px);
+}
+
+/* gradient overlays */
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    linear-gradient(180deg,
+      rgba(8,15,31,.6) 0%,
+      rgba(8,15,31,.15) 40%,
+      rgba(8,15,31,.55) 80%,
+      rgba(8,15,31,.8) 100%);
+  pointer-events: none;
+}
+.hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(90deg, rgba(8,15,31,.45) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  padding: 0 var(--section-px);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding-bottom: 120px;
+}
+
+/* eyebrow */
+.hero-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 10px;
+  letter-spacing: .45em;
+  text-transform: uppercase;
+  color: var(--gold-300);
+  margin-bottom: 24px;
+  opacity: 0;
+  transform: translateY(16px);
+  animation: heroUp .9s .8s var(--ease-out) forwards;
+}
+.hero-eyebrow::before {
+  content: '';
+  width: 32px; height: 1px;
+  background: var(--gold-400);
+  flex-shrink: 0;
+}
+
+.hero-h1 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(68px, 9vw, 160px);
+  line-height: .92;
+  font-weight: 400;
+  letter-spacing: -.025em;
+  color: var(--cream);
+  max-width: 1200px;
+  opacity: 0;
+  transform: translateY(24px);
+  animation: heroUp 1s .95s var(--ease-out) forwards;
+}
+.hero-h1 em {
+  font-style: italic;
+  color: var(--gold-300);
+  font-weight: 300;
+}
+.hero-h1 .word {
+  display: inline-block;
+}
+
+.hero-bottom {
+  margin-top: 60px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 60px;
+  opacity: 0;
+  transform: translateY(16px);
+  animation: heroUp .9s 1.2s var(--ease-out) forwards;
+}
+.hero-quote {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: clamp(18px, 1.6vw, 24px);
+  line-height: 1.45;
+  color: rgba(245,239,230,.8);
+  max-width: 460px;
+  border-left: 1px solid rgba(201,165,116,.4);
+  padding-left: 22px;
+}
+.hero-meta {
+  text-align: right;
+  flex-shrink: 0;
+}
+.hero-meta-top {
+  font-size: 10px;
+  letter-spacing: .35em;
+  text-transform: uppercase;
+  color: rgba(245,239,230,.5);
+}
+.hero-meta-coord {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--gold-300);
+  letter-spacing: .1em;
+  margin-top: 6px;
+}
+
+/* scroll indicator */
+.scroll-ind {
+  position: absolute;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  color: rgba(245,239,230,.55);
+  font-size: 9px;
+  letter-spacing: .5em;
+  text-transform: uppercase;
+  opacity: 0;
+  animation: heroFade .8s 1.6s ease forwards;
+}
+.scroll-ind .line {
+  width: 1px; height: 52px;
+  background: linear-gradient(180deg, transparent, var(--gold-400));
+  animation: scrollPulse 2.4s 2s ease-in-out infinite;
+}
+@keyframes scrollPulse {
+  0%,100% { transform: scaleY(0); transform-origin: top; }
+  50%      { transform: scaleY(1); transform-origin: top; }
+}
+
+@keyframes heroUp {
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes heroFade {
+  to { opacity: 1; }
+}
+
+/* ============================
+   SEARCH BAR
+   ============================ */
+.search-section {
+  position: relative;
+  z-index: 50;
+  margin-top: -64px;
+  padding: 0 var(--section-px);
+}
+.search-bar {
+  background: var(--cream);
+  border-radius: 120px;
+  padding: 10px 10px 10px 10px;
+  display: flex;
+  align-items: stretch;
+  box-shadow:
+    0 32px 80px -20px rgba(8,15,31,.38),
+    0 10px 24px -8px rgba(8,15,31,.22),
+    0 0 0 1px rgba(201,165,116,.2);
+  max-width: 1080px;
+  margin: 0 auto;
+}
+.sf {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 22px;
+  border-radius: 100px;
+  color: var(--ink-soft);
+  cursor: pointer;
+  transition: background .25s;
+  position: relative;
+  border-right: 1px solid rgba(14,26,53,.08);
+}
+.sf:last-of-type { border-right: none; }
+.sf:hover, .sf.open { background: rgba(201,165,116,.1); }
+.sf-icon {
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  background: rgba(14,26,53,.05);
+  color: var(--gold-500);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.sf-icon svg { width: 15px; height: 15px; }
+.sf-body { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+.sf-label {
+  font-size: 9px;
+  letter-spacing: .32em;
+  text-transform: uppercase;
+  color: rgba(14,26,53,.45);
+  font-weight: 600;
+  margin-bottom: 3px;
+}
+.sf-value {
+  font-size: 13px;
+  color: var(--navy-900);
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sf-value.ph { color: rgba(14,26,53,.4); font-weight: 400; }
+
+.search-submit {
+  background: var(--navy-900);
+  color: var(--gold-400);
+  border: none;
+  padding: 18px 32px;
+  border-radius: 100px;
+  font-size: 10px;
+  letter-spacing: .3em;
+  text-transform: uppercase;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: background .3s, transform .3s;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+.search-submit:hover { background: var(--navy-700); transform: translateY(-1px); }
+.search-submit svg { width: 15px; height: 15px; }
+
+/* Popovers */
+.popover {
+  position: absolute;
+  top: calc(100% + 14px);
+  background: var(--cream);
+  border-radius: 22px;
+  box-shadow:
+    0 28px 56px -14px rgba(8,15,31,.28),
+    0 0 0 1px rgba(201,165,116,.2);
+  padding: 22px;
+  min-width: 300px;
+  z-index: 60;
+  opacity: 0;
+  transform: translateY(-8px);
+  pointer-events: none;
+  transition: opacity .25s, transform .25s var(--ease-out);
+}
+.popover.open { opacity: 1; transform: translateY(0); pointer-events: auto; }
+.popover.dest { left: 0; }
+.popover.dates {
+  left: 50%;
+  width: 520px;
+  transform: translateX(-50%) translateY(-8px);
+}
+.popover.dates.open { transform: translateX(-50%) translateY(0); }
+.popover.guests { right: 120px; }
+.pop-h {
+  font-size: 9px;
+  letter-spacing: .32em;
+  text-transform: uppercase;
+  color: rgba(14,26,53,.45);
+  font-weight: 600;
+  margin-bottom: 14px;
+}
+.pop-list { list-style: none; display: flex; flex-direction: column; gap: 2px; }
+.pop-opt {
+  padding: 11px 12px;
+  border-radius: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: background .2s;
+}
+.pop-opt:hover, .pop-opt.sel { background: rgba(201,165,116,.18); }
+.pop-swatch {
+  width: 42px; height: 42px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--gold-400), var(--navy-800));
+  flex-shrink: 0;
+}
+.pop-opt-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 18px;
+  color: var(--navy-900);
+  font-weight: 500;
+  line-height: 1.1;
+}
+.pop-opt-sub { font-size: 11px; color: rgba(14,26,53,.5); margin-top: 2px; }
+
+/* Calendar */
+.cal-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.cal-nav-btn {
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  border: 1px solid rgba(14,26,53,.15);
+  background: transparent;
+  color: var(--navy-900);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background .2s;
+}
+.cal-nav-btn:hover { background: rgba(201,165,116,.18); }
+.cal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.cal-title {
+  text-align: center;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 16px;
+  color: var(--navy-900);
+  font-weight: 500;
+  margin-bottom: 12px;
+}
+.cal-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+  text-align: center;
+}
+.cal-dow {
+  font-size: 9px;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: rgba(14,26,53,.38);
+  padding: 6px 0;
+  font-weight: 600;
+}
+.cal-day {
+  padding: 7px 0;
+  font-size: 12px;
+  border-radius: 50%;
+  cursor: pointer;
+  color: var(--navy-900);
+  transition: background .15s, color .15s;
+}
+.cal-day:hover { background: rgba(201,165,116,.2); }
+.cal-day.muted { color: rgba(14,26,53,.22); cursor: default; }
+.cal-day.muted:hover { background: transparent; }
+.cal-day.start, .cal-day.end {
+  background: var(--navy-900) !important;
+  color: var(--gold-400);
+}
+.cal-day.between { background: rgba(201,165,116,.22); border-radius: 0; }
+
+/* Stepper */
+.stepper-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 4px;
+  border-bottom: 1px solid rgba(14,26,53,.07);
+}
+.stepper-row:last-child { border-bottom: none; }
+.stepper-row .name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 19px;
+  color: var(--navy-900);
+}
+.stepper-row .sub { font-size: 11px; color: rgba(14,26,53,.48); margin-top: 1px; }
+.stepper-ctrl { display: flex; align-items: center; gap: 12px; }
+.step-btn {
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  border: 1px solid rgba(14,26,53,.18);
+  background: transparent;
+  color: var(--navy-900);
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background .2s, color .2s;
+}
+.step-btn:hover { background: var(--navy-900); color: var(--gold-400); }
+.step-btn:disabled { opacity: .28; pointer-events: none; }
+.step-count {
+  min-width: 22px;
+  text-align: center;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 22px;
+  color: var(--navy-900);
+}
+
+/* ============================
+   SECTION PATTERN
+   ============================ */
+.section-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 10px;
+  letter-spacing: .4em;
+  text-transform: uppercase;
+  color: var(--gold-500);
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+.section-eyebrow::before {
+  content: '';
+  width: 28px; height: 1px;
+  background: var(--gold-500);
+}
+
+/* ============================
+   DESTAQUES
+   ============================ */
+.destaques {
+  padding: var(--section-py) var(--section-px);
+  background: var(--paper);
+}
+.destaques-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 60px;
+  gap: 32px;
+}
+.destaques-head h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(40px, 4.5vw, 66px);
+  font-weight: 400;
+  line-height: 1;
+  color: var(--navy-900);
+  letter-spacing: -.01em;
+}
+.destaques-head h2 em { font-style: italic; color: var(--gold-500); font-weight: 300; }
+.see-all {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 11px;
+  letter-spacing: .28em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--navy-900);
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--navy-900);
+  transition: color .3s, border-color .3s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.see-all:hover { color: var(--gold-500); border-color: var(--gold-500); }
+
+.tour-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+}
+
+.tour-card {
+  background: var(--cream);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: transform .5s var(--ease-out), box-shadow .5s;
+  position: relative;
+}
+.tour-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 28px 56px -16px rgba(8,15,31,.2);
+}
+.tour-img {
+  aspect-ratio: 3/2;
+  overflow: hidden;
+  position: relative;
+  background: var(--navy-800);
+}
+.tour-img-inner {
+  position: absolute;
+  inset: 0;
+  background-image:
+    repeating-linear-gradient(135deg, rgba(201,165,116,.06) 0 12px, transparent 12px 24px),
+    linear-gradient(180deg, var(--navy-800), var(--navy-950));
+  transition: transform 1.3s var(--ease-out);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.tour-card:hover .tour-img-inner { transform: scale(1.07); }
+.tour-img-placeholder {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 14px;
+  color: rgba(201,165,116,.45);
+  text-align: center;
+  padding: 16px;
+}
+.tour-badge {
+  position: absolute;
+  top: 14px; left: 14px;
+  background: var(--navy-950);
+  color: var(--gold-300);
+  font-size: 9px;
+  letter-spacing: .3em;
+  text-transform: uppercase;
+  padding: 5px 12px;
+  border-radius: 2px;
+  z-index: 2;
+  font-weight: 500;
+}
+.tour-bookmark {
+  position: absolute;
+  top: 14px; right: 14px;
+  width: 34px; height: 34px;
+  border-radius: 6px;
+  background: rgba(245,239,230,.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--navy-900);
+  z-index: 2;
+  transition: background .3s;
+}
+.tour-bookmark:hover { background: var(--cream); }
+.tour-body { padding: 22px 24px 26px; flex: 1; display: flex; flex-direction: column; }
+.tour-meta {
+  font-size: 10px;
+  letter-spacing: .28em;
+  text-transform: uppercase;
+  color: var(--gold-500);
+  margin-bottom: 10px;
+}
+.tour-meta span:not(:last-child)::after {
+  content: '·';
+  margin: 0 8px;
+  color: rgba(14,26,53,.2);
+}
+.tour-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 26px;
+  font-weight: 500;
+  line-height: 1.1;
+  color: var(--navy-900);
+  margin-bottom: 8px;
+}
+.tour-desc {
+  font-size: 13px;
+  line-height: 1.6;
+  color: rgba(14,26,53,.58);
+  font-weight: 300;
+  flex: 1;
+  margin-bottom: 18px;
+}
+.tour-cta-row {
+  padding-top: 14px;
+  border-top: 1px solid rgba(14,26,53,.08);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.tour-cta-label {
+  font-size: 10px;
+  letter-spacing: .28em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--navy-900);
+  transition: color .3s;
+}
+.tour-card:hover .tour-cta-label { color: var(--gold-500); }
+.tour-cta-arrow {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  border: 1px solid rgba(14,26,53,.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all .3s;
+  color: var(--navy-900);
+}
+.tour-card:hover .tour-cta-arrow {
+  background: var(--navy-900);
+  color: var(--gold-400);
+  border-color: var(--navy-900);
+  transform: rotate(45deg);
+}
+
+/* ============================
+   PILARES
+   ============================ */
+.pilares {
+  padding: 0 var(--section-px) var(--section-py);
+  background: var(--paper);
+}
+.pilares-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  border: 1px solid rgba(14,26,53,.1);
+}
+.pilar {
+  padding: 44px 32px;
+  text-align: center;
+  border-right: 1px solid rgba(14,26,53,.1);
+  transition: background .4s;
+  position: relative;
+  overflow: hidden;
+}
+.pilar:last-child { border-right: none; }
+.pilar::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--navy-900);
+  transform: translateY(101%);
+  transition: transform .5s var(--ease-out);
+}
+.pilar:hover::before { transform: translateY(0); }
+.pilar-icon {
+  width: 48px; height: 48px;
+  margin: 0 auto 18px;
+  color: var(--gold-500);
+  position: relative;
+  z-index: 1;
+  transition: color .4s;
+}
+.pilar:hover .pilar-icon { color: var(--gold-300); }
+.pilar-icon svg { width: 100%; height: 100%; }
+.pilar-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 24px;
+  color: var(--navy-900);
+  font-weight: 500;
+  margin-bottom: 10px;
+  position: relative;
+  z-index: 1;
+  transition: color .4s;
+}
+.pilar:hover .pilar-title { color: var(--cream); }
+.pilar-label {
+  font-size: 12px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: rgba(14,26,53,.52);
+  line-height: 1.6;
+  font-weight: 400;
+  position: relative;
+  z-index: 1;
+  transition: color .4s;
+}
+.pilar:hover .pilar-label { color: rgba(245,239,230,.65); }
+
+/* ============================
+   FEATURE (full-bleed)
+   ============================ */
+.feature {
+  position: relative;
+  min-height: 760px;
+  overflow: hidden;
+  color: var(--cream);
+  display: flex;
+  align-items: flex-end;
+  padding: 100px var(--section-px);
+}
+.feature-bg {
+  position: absolute;
+  inset: -12% -3%;
+  z-index: 0;
+  will-change: transform;
+}
+.feature-bg-inner {
+  position: absolute;
+  inset: 0;
+  background:
+    repeating-linear-gradient(135deg, rgba(201,165,116,.05) 0 12px, transparent 12px 24px),
+    linear-gradient(180deg, var(--navy-700) 0%, var(--navy-950) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.feature-bg-inner::after {
+  content: 'COSTÃO\A DO\A SANTINHO';
+  white-space: pre;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(80px, 12vw, 180px);
+  color: rgba(201,165,116,.06);
+  font-style: italic;
+  letter-spacing: -.03em;
+  line-height: .9;
+  text-align: center;
+}
+.feature::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(180deg, rgba(8,15,31,.35) 0%, rgba(8,15,31,.7) 100%);
+}
+.feature-content {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: flex-end;
+  gap: 80px;
+}
+.feature-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 10px;
+  letter-spacing: .4em;
+  text-transform: uppercase;
+  color: var(--gold-300);
+  margin-bottom: 20px;
+}
+.feature-eyebrow::before {
+  content: '';
+  width: 28px; height: 1px;
+  background: var(--gold-300);
+}
+.feature h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(64px, 7.5vw, 128px);
+  line-height: .92;
+  font-weight: 400;
+  letter-spacing: -.02em;
+}
+.feature h2 em { font-style: italic; color: var(--gold-300); font-weight: 300; }
+.feature-side {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.feature-side p {
+  font-size: 16px;
+  line-height: 1.8;
+  color: rgba(245,239,230,.8);
+  font-weight: 300;
+  max-width: 460px;
+}
+.feature-pills { display: flex; flex-wrap: wrap; gap: 8px; }
+.pill {
+  padding: 7px 16px;
+  border: 1px solid rgba(220,192,147,.35);
+  border-radius: 100px;
+  font-size: 10px;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--gold-300);
+  transition: background .3s, border-color .3s;
+}
+.pill:hover { background: rgba(201,165,116,.15); border-color: rgba(220,192,147,.6); }
+.feature-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 10px;
+  letter-spacing: .32em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--cream);
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(201,165,116,.5);
+  width: fit-content;
+  transition: color .3s, border-color .3s;
+}
+.feature-cta:hover { color: var(--gold-300); border-color: var(--gold-300); }
+
+/* Map dots */
+.map-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+.map-dot {
+  position: absolute;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--gold-400);
+  box-shadow: 0 0 0 5px rgba(201,165,116,.18);
+  animation: mapPulse 3s ease-in-out infinite;
+}
+.map-dot::after {
+  content: attr(data-label);
+  position: absolute;
+  left: 16px; top: -6px;
+  font-size: 12px;
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  color: rgba(245,239,230,.85);
+  white-space: nowrap;
+}
+@keyframes mapPulse {
+  0%,100% { box-shadow: 0 0 0 5px rgba(201,165,116,.18); }
+  50%      { box-shadow: 0 0 0 10px rgba(201,165,116,.06); }
+}
+
+/* ============================
+   MANIFESTO
+   ============================ */
+.manifesto {
+  background: var(--navy-950);
+  color: var(--cream);
+  padding: 200px var(--section-px);
+  position: relative;
+  overflow: hidden;
+}
+.manifesto-bg-text {
+  position: absolute;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(280px, 38vw, 560px);
+  color: rgba(201,165,116,.04);
+  font-style: italic;
+  pointer-events: none;
+  line-height: 1;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  letter-spacing: -.04em;
+  z-index: 0;
+  white-space: nowrap;
+}
+.manifesto-content {
+  position: relative;
+  z-index: 2;
+  max-width: 900px;
+  margin: 0 auto;
+  text-align: center;
+}
+.manifesto-eyebrow {
+  font-size: 10px;
+  letter-spacing: .45em;
+  text-transform: uppercase;
+  color: var(--gold-400);
+  margin-bottom: 44px;
+}
+.manifesto h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(44px, 5.5vw, 80px);
+  font-weight: 400;
+  line-height: 1.08;
+  letter-spacing: -.01em;
+  margin-bottom: 60px;
+}
+.manifesto h2 em { font-style: italic; color: var(--gold-400); font-weight: 300; }
+.manifesto p {
+  font-size: 17px;
+  line-height: 1.9;
+  color: rgba(245,239,230,.72);
+  font-weight: 300;
+  max-width: 660px;
+  margin: 0 auto 28px;
+}
+.manifesto-divider {
+  width: 1px;
+  height: 60px;
+  background: linear-gradient(180deg, transparent, var(--gold-400), transparent);
+  margin: 0 auto 44px;
+}
+.manifesto-sig {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 26px;
+  color: var(--gold-400);
+  margin-top: 60px;
+}
+
+/* ============================
+   REBECA
+   ============================ */
+.rebeca {
+  background: var(--cream-warm);
+  padding: var(--section-py) var(--section-px);
+  overflow: hidden;
+}
+.rebeca-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.1fr;
+  gap: 100px;
+  align-items: center;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+.rebeca-portrait-wrap {
+  aspect-ratio: 4/5;
+  position: relative;
+}
+.rebeca-portrait-bg {
+  position: absolute;
+  inset: 0;
+  background:
+    repeating-linear-gradient(135deg, rgba(201,165,116,.06) 0 12px, transparent 12px 24px),
+    linear-gradient(160deg, var(--navy-700) 0%, var(--navy-950) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.rebeca-portrait-placeholder {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 18px;
+  color: rgba(201,165,116,.5);
+  text-align: center;
+  padding: 24px;
+}
+.rebeca-portrait-frame {
+  position: absolute;
+  inset: -20px -20px 20px 20px;
+  border: 1px solid var(--gold-500);
+  z-index: -1;
+  pointer-events: none;
+}
+.rebeca-text h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(48px, 5vw, 80px);
+  font-weight: 400;
+  line-height: .98;
+  color: var(--navy-900);
+  margin-bottom: 36px;
+  letter-spacing: -.01em;
+}
+.rebeca-text h2 em { font-style: italic; color: var(--gold-500); font-weight: 300; }
+.rebeca-text p {
+  font-size: 16px;
+  line-height: 1.85;
+  color: rgba(14,26,53,.72);
+  font-weight: 300;
+  max-width: 520px;
+  margin-bottom: 20px;
+}
+.rebeca-sig {
+  margin-top: 40px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(14,26,53,.1);
+}
+.rebeca-sig-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 28px;
+  color: var(--gold-500);
+}
+.rebeca-sig-role {
+  font-size: 10px;
+  letter-spacing: .28em;
+  text-transform: uppercase;
+  color: rgba(14,26,53,.45);
+  border-left: 1px solid rgba(14,26,53,.18);
+  padding-left: 20px;
+  line-height: 1.6;
+}
+.rebeca-social {
+  display: flex;
+  gap: 12px;
+  margin-top: 28px;
+}
+.rebeca-social-link {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  border: 1px solid rgba(14,26,53,.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ink-soft);
+  transition: all .3s;
+}
+.rebeca-social-link:hover {
+  background: var(--navy-900);
+  color: var(--gold-400);
+  border-color: var(--navy-900);
+}
+.rebeca-social-link svg { width: 16px; height: 16px; }
+
+/* ============================
+   CTA FINAL
+   ============================ */
+.final-cta {
+  background: var(--paper);
+  text-align: center;
+  padding: 200px var(--section-px);
+  position: relative;
+  overflow: hidden;
+}
+.final-cta::before {
+  content: '';
+  position: absolute;
+  top: -1px; left: 50%;
+  transform: translateX(-50%);
+  width: 1px;
+  height: 100px;
+  background: linear-gradient(180deg, var(--navy-950), transparent);
+}
+.final-cta h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(56px, 7vw, 116px);
+  font-weight: 400;
+  line-height: .96;
+  color: var(--navy-900);
+  max-width: 1100px;
+  margin: 0 auto 32px;
+  letter-spacing: -.015em;
+}
+.final-cta h2 em { font-style: italic; color: var(--gold-500); font-weight: 300; }
+.final-cta-sub {
+  font-size: 17px;
+  color: rgba(14,26,53,.58);
+  max-width: 560px;
+  margin: 0 auto 60px;
+  line-height: 1.75;
+  font-weight: 300;
+}
+.cta-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 16px;
+  background: var(--navy-900);
+  color: var(--cream);
+  padding: 22px 48px;
+  font-size: 10px;
+  letter-spacing: .35em;
+  text-transform: uppercase;
+  font-weight: 600;
+  border-radius: 2px;
+  transition: all .35s;
+  position: relative;
+  overflow: hidden;
+}
+.cta-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--gold-400);
+  transform: translateX(-101%);
+  transition: transform .4s var(--ease-out);
+}
+.cta-btn:hover::before { transform: translateX(0); }
+.cta-btn span, .cta-btn svg { position: relative; z-index: 1; transition: color .3s; }
+.cta-btn:hover span, .cta-btn:hover svg { color: var(--navy-900); }
+.cta-btn svg { width: 16px; height: 16px; }
+
+/* ============================
+   FOOTER
+   ============================ */
+footer {
+  background: var(--navy-950);
+  color: var(--cream);
+  padding: 100px var(--section-px) 40px;
+}
+.footer-top {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 60px;
+  padding-bottom: 80px;
+  border-bottom: 1px solid rgba(201,165,116,.15);
+}
+.footer-brand-logo {
+  margin-bottom: 20px;
+}
+.footer-brand-logo img {
+  height: 100px;
+  width: auto;
+  display: block;
+}
+.footer-brand-tag {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 18px;
+  color: rgba(245,239,230,.65);
+  line-height: 1.5;
+  max-width: 280px;
+  margin-bottom: 28px;
+}
+.footer-social { display: flex; gap: 10px; }
+.footer-social a {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  border: 1px solid rgba(245,239,230,.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(245,239,230,.6);
+  transition: all .3s;
+}
+.footer-social a:hover { border-color: var(--gold-400); color: var(--gold-400); }
+.footer-social a svg { width: 14px; height: 14px; }
+.footer-col h4 {
+  font-size: 10px;
+  letter-spacing: .38em;
+  text-transform: uppercase;
+  color: var(--gold-400);
+  margin-bottom: 24px;
+  font-weight: 600;
+}
+.footer-col ul { list-style: none; }
+.footer-col li { margin-bottom: 12px; }
+.footer-col a {
+  color: rgba(245,239,230,.7);
+  font-size: 14px;
+  font-weight: 300;
+  transition: color .3s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.footer-col a:hover { color: var(--gold-300); }
+.footer-bottom {
+  padding-top: 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 10px;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: rgba(245,239,230,.35);
+}
+.footer-bottom a { color: inherit; transition: color .3s; }
+.footer-bottom a:hover { color: var(--gold-400); }
+
+/* ============================
+   WHATSAPP FLOAT
+   ============================ */
+.wa-float {
+  position: fixed;
+  bottom: 28px; right: 28px;
+  z-index: 500;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--navy-950);
+  color: var(--gold-400);
+  border: 1px solid rgba(201,165,116,.4);
+  padding: 13px 22px 13px 18px;
+  border-radius: 100px;
+  font-size: 10px;
+  letter-spacing: .28em;
+  text-transform: uppercase;
+  font-weight: 600;
+  transition: all .35s;
+  box-shadow: 0 12px 40px rgba(8,15,31,.5);
+  opacity: 0;
+  transform: translateY(12px);
+  animation: heroFade .6s 2.2s ease forwards, waBounce .6s 2.2s ease forwards;
+}
+.wa-float:hover {
+  background: var(--gold-400);
+  color: var(--navy-900);
+  border-color: var(--gold-400);
+  transform: translateY(-2px);
+  box-shadow: 0 20px 50px rgba(8,15,31,.4);
+}
+.wa-float svg { width: 18px; height: 18px; flex-shrink: 0; }
+.wa-pulse {
+  position: absolute;
+  inset: -4px;
+  border-radius: 100px;
+  border: 1px solid rgba(201,165,116,.3);
+  animation: waPulse 2.5s 2.5s ease-out infinite;
+  pointer-events: none;
+}
+@keyframes waBounce { to { opacity: 1; transform: translateY(0); } }
+@keyframes waPulse {
+  0% { transform: scale(1); opacity: .6; }
+  100% { transform: scale(1.18); opacity: 0; }
+}
+
+/* ============================
+   REVEAL
+   ============================ */
+.reveal {
+  opacity: 0;
+  transform: translateY(36px);
+  transition: opacity 1s var(--ease-out), transform 1s var(--ease-out);
+}
+.reveal.in { opacity: 1; transform: translateY(0); }
+.reveal-delay-1 { transition-delay: .1s; }
+.reveal-delay-2 { transition-delay: .2s; }
+.reveal-delay-3 { transition-delay: .3s; }
+.reveal-delay-4 { transition-delay: .4s; }
+
+/* ============================
+   RESPONSIVE
+   ============================ */
+@media (max-width: 1400px) {
+  .tour-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 1100px) {
+  :root { --section-px: 32px; --section-py: 100px; }
+  nav.topnav { padding: 18px var(--section-px); }
+  nav.topnav.scrolled { padding: 14px var(--section-px); }
+  .nav-links { display: none; }
+  .nav-mobile-btn { display: flex; }
+  .hero-content { padding: 0 32px; padding-bottom: 100px; }
+  .rebeca-grid { grid-template-columns: 1fr; gap: 60px; }
+  .feature-content { grid-template-columns: 1fr; }
+  .footer-top { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 760px) {
+  :root { --section-px: 20px; --section-py: 80px; }
+  .tour-grid { grid-template-columns: 1fr; }
+  .pilares-grid { grid-template-columns: 1fr 1fr; }
+  .search-bar { flex-direction: column; border-radius: 20px; padding: 12px; }
+  .sf { border-right: none; border-bottom: 1px solid rgba(14,26,53,.08); border-radius: 12px; }
+  .sf:last-of-type { border-bottom: none; }
+  .search-submit { justify-content: center; }
+  .popover { position: static !important; transform: none !important; width: 100% !important; min-width: 0 !important; }
+  .cal-grid { grid-template-columns: 1fr; }
+  .hero-h1 { font-size: clamp(38px, 11vw, 56px); line-height: 1; }
+  .hero-bottom { flex-direction: column; gap: 20px; }
+  .hero-meta { text-align: left; }
+  .search-section { margin-top: -24px; }
+  .destaques-head { flex-direction: column; align-items: flex-start; gap: 20px; }
+  .hero-content { padding-bottom: 100px; }
+  .rebeca-visual { max-height: 420px; }
+  .section-h2 { font-size: clamp(32px, 8vw, 44px); }
+}
+@media (max-width: 500px) {
+  .pilares-grid { grid-template-columns: 1fr; }
+  .footer-top { grid-template-columns: 1fr; }
+  .footer-bottom { flex-direction: column; gap: 12px; text-align: center; }
+  .hero-h1 { font-size: clamp(34px, 10vw, 42px); }
+  .hero-eyebrow { font-size: 9px; letter-spacing: .15em; }
+  .wa-float .wa-label { display: none; }
+  .wa-float { padding: 14px; }
+}
+/* ocultar cursor customizado em touch */
+@media (hover: none) {
+  #cursor-dot, #cursor-ring { display: none; }
+  body { cursor: auto; }
+}
+
+/* ============================
+   MOBILE NAV DRAWER
+   ============================ */
+.mobile-nav {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  pointer-events: none;
+}
+.mobile-nav-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(8,15,31,.85);
+  backdrop-filter: blur(10px);
+  opacity: 0;
+  transition: opacity .4s;
+}
+.mobile-nav-panel {
+  position: absolute;
+  right: 0; top: 0; bottom: 0;
+  width: min(320px, 85vw);
+  background: var(--navy-900);
+  padding: 80px 36px 40px;
+  transform: translateX(100%);
+  transition: transform .5s var(--ease-out);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.mobile-nav.open { pointer-events: auto; }
+.mobile-nav.open .mobile-nav-backdrop { opacity: 1; }
+.mobile-nav.open .mobile-nav-panel { transform: translateX(0); }
+.mobile-nav a {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 36px;
+  font-weight: 400;
+  color: rgba(245,239,230,.8);
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(201,165,116,.12);
+  transition: color .3s;
+  display: block;
+}
+.mobile-nav a:hover { color: var(--gold-300); }
+.mobile-nav-close {
+  position: absolute;
+  top: 20px; right: 20px;
+  width: 40px; height: 40px;
+  border: 1px solid rgba(201,165,116,.3);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--cream);
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all .3s;
+}
+.mobile-nav-close:hover { background: var(--gold-400); color: var(--navy-900); border-color: var(--gold-400); }
+.mobile-nav-cta {
+  margin-top: auto;
+  display: block;
+  background: var(--gold-400);
+  color: var(--navy-900);
+  text-align: center;
+  padding: 16px;
+  font-size: 11px;
+  letter-spacing: .3em;
+  text-transform: uppercase;
+  font-weight: 700;
+  border-radius: 2px;
+  font-family: 'Inter', sans-serif !important;
+}
+</style>
+<script src="content-override.js"></script>
+</head>
+<body class="loading">
+
+<!-- CURSOR -->
+<div id="cursor-dot"></div>
+<div id="cursor-ring"></div>
+
+<!-- LOADER -->
+<div id="loader">
+  <div class="loader-logo">
+    <img src="design_handoff_rsx_travel_site/assets/rsx-logo-principal-crop.png" alt="RSX Travel"
+         onerror="this.style.display='none'; this.parentElement.innerHTML='<span style=\'font-family:Cormorant Garamond,serif;font-size:28px;letter-spacing:.3em;color:#dcc093\'>RSX TRAVEL</span>'" />
+  </div>
+  <div class="loader-bar-wrap"><div class="loader-bar"></div></div>
+  <span class="loader-label">Carregando</span>
+</div>
+
+<!-- MOBILE NAV -->
+<div class="mobile-nav" id="mobileNav">
+  <div class="mobile-nav-backdrop" onclick="closeMobileNav()"></div>
+  <div class="mobile-nav-panel">
+    <button class="mobile-nav-close" onclick="closeMobileNav()">✕</button>
+    <a href="#destinos" onclick="closeMobileNav()">Destinos</a>
+    <a href="#resorts"  onclick="closeMobileNav()">Resorts</a>
+    <a href="#sobre"    onclick="closeMobileNav()">Sobre</a>
+    <a href="#manifesto" onclick="closeMobileNav()">Filosofia</a>
+    <a href="#contato"  onclick="closeMobileNav()">Contato</a>
+    <a href="https://wa.me/5541988429348" class="mobile-nav-cta" target="_blank" rel="noopener">Reservar via WhatsApp</a>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav class="topnav" id="topnav">
+  <a href="#" class="nav-logo">
+    <img src="design_handoff_rsx_travel_site/assets/rsx-logo-white-crop.png" alt="RSX Travel"
+         onerror="this.style.display='none'; this.parentElement.innerHTML='<span style=\'font-family:Cormorant Garamond,serif;font-size:20px;letter-spacing:.25em;color:#dcc093\'>RSX TRAVEL</span>'" />
+  </a>
+  <ul class="nav-links">
+    <li><a href="#destinos">Destinos</a></li>
+    <li><a href="#resorts">Resorts</a></li>
+    <li><a href="#sobre">Sobre</a></li>
+    <li><a href="#manifesto">Filosofia</a></li>
+    <li><a href="#contato">Contato</a></li>
+  </ul>
+  <div class="nav-right">
+    <a href="https://wa.me/5541988429348" class="nav-cta" target="_blank" rel="noopener">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 14.4c-.3-.1-1.8-.9-2.1-1-.3-.1-.5-.1-.7.1-.2.3-.7 1-.9 1.1-.2.2-.3.2-.6.1-.3-.1-1.3-.5-2.4-1.5-.9-.8-1.5-1.8-1.7-2.1-.2-.3 0-.5.1-.6l.4-.5c.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5 0-.1-.7-1.7-1-2.3-.3-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1.1 1.1-1.1 2.6 0 1.6 1.1 3.1 1.3 3.3.2.2 2.3 3.5 5.6 4.9.8.3 1.4.5 1.9.7.8.2 1.5.2 2.1.1.6-.1 1.8-.7 2.1-1.5.3-.7.3-1.4.2-1.5-.1-.2-.3-.3-.6-.4zM12 2C6.5 2 2 6.5 2 12c0 1.8.5 3.5 1.3 5L2 22l5.2-1.4c1.5.8 3.1 1.2 4.8 1.2 5.5 0 10-4.5 10-10S17.5 2 12 2z"/></svg>
+      Reservar
+    </a>
+    <button class="nav-mobile-btn" onclick="openMobileNav()" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<header class="hero" id="hero">
+  <!-- YouTube video background -->
+  <div class="hero-video-wrap" id="heroVideoWrap">
+    <div class="hero-video-fallback" id="heroFallback"></div>
+    <iframe
+      id="heroIframe"
+      src="https://www.youtube-nocookie.com/embed/WNF3LVPCTvU?autoplay=1&mute=1&loop=1&playlist=WNF3LVPCTvU&controls=0&showinfo=0&rel=0&iv_load_policy=3&modestbranding=1&playsinline=1&enablejsapi=0&cc_load_policy=0"
+      allow="autoplay; encrypted-media; fullscreen"
+      allowfullscreen
+      style="position:absolute;inset:0;width:100%;height:100%;border:none;opacity:0;transition:opacity 1.5s ease"
+      onload="this.style.opacity='1'; document.getElementById('heroFallback').style.opacity='0';"
+      title="RSX Travel"
+    ></iframe>
+  </div>
+
+  <div class="hero-content">
+    <div class="hero-eyebrow">RSX Travel · Curadoria Pessoal</div>
+    <div class="hero-bottom">
+      <p class="hero-quote">
+        Curadoria pessoal de resorts all-inclusive.<br/>
+        Cada detalhe resolvido para você<br/>
+        chegar bem e querer voltar.
+      </p>
+      <div class="hero-meta">
+        <div class="hero-meta-top">Curitiba — PR · Brasil</div>
+        <div class="hero-meta-coord">−25.4284 · −49.2733</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="scroll-ind">
+    <span>Role</span>
+    <div class="line"></div>
+  </div>
+</header>
+
+<!-- SEARCH BAR -->
+<section class="search-section">
+  <div id="search-root"></div>
+</section>
+
+<!-- DESTAQUES -->
+<section class="destaques" id="resorts">
+  <div class="destaques-head reveal">
+    <div>
+      <div class="section-eyebrow">Curadoria</div>
+      <h2>Resorts em <em>destaque</em></h2>
+    </div>
+    <a href="https://wa.me/5541988429348" class="see-all" target="_blank" rel="noopener">
+      Falar com a Rebeca →
+    </a>
+  </div>
+
+  <div class="tour-grid">
+    <!-- Card 1: Quem sou -->
+    <a href="sobre.html" class="tour-card reveal">
+      <div class="tour-img">
+        <div class="tour-badge">Sobre</div>
+        <div class="tour-img-inner">
+          <p class="tour-img-placeholder">Retrato<br/>da Rebeca</p>
+        </div>
+        <div class="tour-bookmark">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+        </div>
+      </div>
+      <div class="tour-body">
+        <div class="tour-meta"><span>Sobre</span><span>RSX Travel</span></div>
+        <h3 class="tour-name">Quem sou</h3>
+        <p class="tour-desc">Conheça a história por trás da curadoria e por que cada detalhe faz diferença.</p>
+        <div class="tour-cta-row">
+          <span class="tour-cta-label">Saber mais</span>
+          <div class="tour-cta-arrow">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </div>
+        </div>
+      </div>
+    </a>
+
+    <!-- Card 2: Costão -->
+    <a href="costao.html" class="tour-card reveal reveal-delay-1">
+      <div class="tour-img">
+        <div class="tour-badge">All-Inclusive</div>
+        <div class="tour-img-inner" style="background-image:repeating-linear-gradient(135deg,rgba(201,165,116,.07) 0 14px,transparent 14px 28px),linear-gradient(150deg,#1a3548,#0e1a35)">
+          <p class="tour-img-placeholder">Costão do<br/>Santinho</p>
+        </div>
+        <div class="tour-bookmark">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+        </div>
+      </div>
+      <div class="tour-body">
+        <div class="tour-meta"><span>Florianópolis · SC</span><span>All-Inclusive</span></div>
+        <h3 class="tour-name">Costão do Santinho</h3>
+        <p class="tour-desc">Resort à beira-mar com mata atlântica preservada, gastronomia premiada e arqueologia rupestre.</p>
+        <div class="tour-cta-row">
+          <span class="tour-cta-label">Conhecer o resort</span>
+          <div class="tour-cta-arrow">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </div>
+        </div>
+      </div>
+    </a>
+
+    <!-- Card 3: Fazzenda -->
+    <a href="fazzenda.html" class="tour-card reveal reveal-delay-2">
+      <div class="tour-img">
+        <div class="tour-badge">Família</div>
+        <div class="tour-img-inner" style="background-image:repeating-linear-gradient(135deg,rgba(201,165,116,.07) 0 14px,transparent 14px 28px),linear-gradient(150deg,#1e3020,#0a1810)">
+          <p class="tour-img-placeholder">Fazzenda<br/>Park Resort</p>
+        </div>
+        <div class="tour-bookmark">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+        </div>
+      </div>
+      <div class="tour-body">
+        <div class="tour-meta"><span>Santo Amaro · SC</span><span>Família</span></div>
+        <h3 class="tour-name">Fazzenda Park Resort</h3>
+        <p class="tour-desc">Vida no campo com o conforto de um resort premiado. Aventura, descanso e gastronomia em um só lugar.</p>
+        <div class="tour-cta-row">
+          <span class="tour-cta-label">Conhecer o resort</span>
+          <div class="tour-cta-arrow">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </div>
+        </div>
+      </div>
+    </a>
+
+    <!-- Card 4: Japaratinga -->
+    <a href="japaratinga.html" class="tour-card reveal reveal-delay-3">
+      <div class="tour-img">
+        <div class="tour-badge">Premium</div>
+        <div class="tour-img-inner" style="background-image:repeating-linear-gradient(135deg,rgba(201,165,116,.07) 0 14px,transparent 14px 28px),linear-gradient(150deg,#1a2e40,#081525)">
+          <p class="tour-img-placeholder">Japaratinga<br/>Lounge Resort</p>
+        </div>
+        <div class="tour-bookmark">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+        </div>
+      </div>
+      <div class="tour-body">
+        <div class="tour-meta"><span>Japaratinga · AL</span><span>Premium</span></div>
+        <h3 class="tour-name">Japaratinga Lounge</h3>
+        <p class="tour-desc">Águas calmas, areia branca e piscinas naturais. Refúgio premium no litoral norte de Alagoas.</p>
+        <div class="tour-cta-row">
+          <span class="tour-cta-label">Conhecer o resort</span>
+          <div class="tour-cta-arrow">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </div>
+        </div>
+      </div>
+    </a>
+    <!-- Novos destinos gerados pelo painel admin são inseridos aqui -->
+    <div id="custom-resorts-slot"></div>
+  </div>
+</section>
+
+<!-- PILARES -->
+<section class="pilares">
+  <div class="pilares-grid reveal">
+    <div class="pilar">
+      <div class="pilar-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+          <path d="M12 2L14.5 9H22L16 13.5L18 21L12 16.5L6 21L8 13.5L2 9H9.5Z"/>
+        </svg>
+      </div>
+      <div class="pilar-title">All-Inclusive</div>
+      <div class="pilar-label">Especialistas em resorts<br/>com tudo incluso</div>
+    </div>
+    <div class="pilar">
+      <div class="pilar-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+          <circle cx="12" cy="12" r="9"/>
+          <path d="M3 12h18M12 3a14 14 0 0 1 4 9 14 14 0 0 1-4 9M12 3a14 14 0 0 0-4 9 14 14 0 0 0 4 9"/>
+        </svg>
+      </div>
+      <div class="pilar-title">Curadoria</div>
+      <div class="pilar-label">Cada roteiro pensado<br/>do voo à volta para casa</div>
+    </div>
+    <div class="pilar">
+      <div class="pilar-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+          <path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.4 8.4 0 0 1 3.8-.9h.5a8.5 8.5 0 0 1 8 8z"/>
+        </svg>
+      </div>
+      <div class="pilar-title">Atendimento 1:1</div>
+      <div class="pilar-label">Você fala direto<br/>com a Rebeca</div>
+    </div>
+    <div class="pilar">
+      <div class="pilar-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+        </svg>
+      </div>
+      <div class="pilar-title">Sob medida</div>
+      <div class="pilar-label">Roteiro feito<br/>para o seu momento</div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURE FULL-BLEED -->
+<section class="feature" id="destinos">
+  <div class="feature-bg" data-parallax="-0.15">
+    <div class="feature-bg-inner"></div>
+  </div>
+  <svg class="map-overlay" viewBox="0 0 1400 720" preserveAspectRatio="none">
+    <line x1="240" y1="190" x2="580" y2="310" stroke="rgba(220,192,147,.4)" stroke-width="1" stroke-dasharray="4 5"/>
+    <line x1="580" y1="310" x2="960" y2="225" stroke="rgba(220,192,147,.4)" stroke-width="1" stroke-dasharray="4 5"/>
+    <line x1="960" y1="225" x2="1160" y2="410" stroke="rgba(220,192,147,.4)" stroke-width="1" stroke-dasharray="4 5"/>
+  </svg>
+  <div class="map-dot" style="top:26%;left:17%;" data-label="Costão"></div>
+  <div class="map-dot" style="top:43%;left:41%;" data-label="Fazzenda" data-delay="0.5"></div>
+  <div class="map-dot" style="top:31%;left:68%;" data-label="Japaratinga" data-delay="1"></div>
+  <div class="map-dot" style="top:57%;left:83%;" data-label="Maragogi" data-delay="1.5"></div>
+
+  <div class="feature-content reveal">
+    <div>
+      <div class="feature-eyebrow">Conheça</div>
+      <h2>Costão do<br/><em>Santinho.</em></h2>
+    </div>
+    <div class="feature-side">
+      <p>Resort all-inclusive à beira-mar em Florianópolis, com mata atlântica preservada, sítios arqueológicos, gastronomia premiada e spa de águas termais. Um dos mais completos do Brasil.</p>
+      <div class="feature-pills">
+        <span class="pill">All-Inclusive</span>
+        <span class="pill">Spa Termal</span>
+        <span class="pill">Mata Atlântica</span>
+        <span class="pill">Kids Club</span>
+        <span class="pill">Gastronomia</span>
+      </div>
+      <a href="costao.html" class="feature-cta">
+        Explorar o destino →
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- MANIFESTO -->
+<section class="manifesto" id="manifesto">
+  <div class="manifesto-bg-text">RSX</div>
+  <div class="manifesto-content reveal">
+    <div class="manifesto-eyebrow">— Filosofia</div>
+    <h2>Boas viagens ficam<br/>na memória por <em>anos.</em></h2>
+    <div class="manifesto-divider"></div>
+    <p>Boas viagens ficam na memória. No "lembra quando?" que aparece do nada. No cansaço bom de quem descansou de verdade.</p>
+    <p>É isso que me move: fazer parte de viagens que <em style="font-style:italic;color:var(--gold-400)">valem cada centavo e cada dia de folga.</em></p>
+    <p>Quando for a sua vez, eu cuido de tudo.</p>
+    <div class="manifesto-sig">— Rebeca Piccolo</div>
+  </div>
+</section>
+
+<!-- REBECA -->
+<section class="rebeca" id="sobre">
+  <div class="rebeca-grid">
+    <div class="rebeca-portrait-wrap reveal" data-parallax="0.04">
+      <div class="rebeca-portrait-bg">
+        <p class="rebeca-portrait-placeholder">Retrato da<br/>Rebeca Piccolo</p>
+      </div>
+      <div class="rebeca-portrait-frame"></div>
+    </div>
+    <div class="rebeca-text reveal reveal-delay-2">
+      <div class="section-eyebrow">Quem sou</div>
+      <h2>Sou a <em>Rebeca.</em><br/>E cuido dos detalhes.</h2>
+      <p>Faço curadoria de resorts all-inclusive há anos. O quarto certo na ala certa, o resort ideal para o seu grupo, cada detalhe resolvido antes de você embarcar.</p>
+      <p>Não vendo pacote. Planejo a sua viagem do início ao fim. E só indico o que eu mesma já visitei e aprovei.</p>
+      <div class="rebeca-social">
+        <a href="https://instagram.com/rebecapiccolo" target="_blank" rel="noopener" class="rebeca-social-link" title="Instagram">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r=".8" fill="currentColor" stroke="none"/></svg>
+        </a>
+        <a href="https://www.facebook.com/rebeca.piccolo.9" target="_blank" rel="noopener" class="rebeca-social-link" title="Facebook">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+        </a>
+        <a href="https://wa.me/5541988429348" target="_blank" rel="noopener" class="rebeca-social-link" title="WhatsApp">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 14.4c-.3-.1-1.8-.9-2.1-1-.3-.1-.5-.1-.7.1-.2.3-.7 1-.9 1.1-.2.2-.3.2-.6.1-.3-.1-1.3-.5-2.4-1.5-.9-.8-1.5-1.8-1.7-2.1-.2-.3 0-.5.1-.6l.4-.5c.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5 0-.1-.7-1.7-1-2.3-.3-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1.1 1.1-1.1 2.6 0 1.6 1.1 3.1 1.3 3.3.2.2 2.3 3.5 5.6 4.9.8.3 1.4.5 1.9.7.8.2 1.5.2 2.1.1.6-.1 1.8-.7 2.1-1.5.3-.7.3-1.4.2-1.5-.1-.2-.3-.3-.6-.4zM12 2C6.5 2 2 6.5 2 12c0 1.8.5 3.5 1.3 5L2 22l5.2-1.4c1.5.8 3.1 1.2 4.8 1.2 5.5 0 10-4.5 10-10S17.5 2 12 2z"/></svg>
+        </a>
+      </div>
+      <div class="rebeca-sig">
+        <div class="rebeca-sig-name">Rebeca Piccolo</div>
+        <div class="rebeca-sig-role">Founder &amp; Travel<br/>Designer</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA FINAL -->
+<section class="final-cta" id="contato">
+  <div class="reveal">
+    <h2>Pronta para planejar<br/>a sua próxima <em>viagem?</em></h2>
+    <p class="final-cta-sub">Me conta para onde você quer ir, quantas pessoas vão junto e quando. Eu cuido de tudo e te dou as melhores opções.</p>
+    <a href="https://wa.me/5541988429348?text=Oie%2C+s%C3%B3+Rebeca%2C+vim+pelo+site+e+quero+come%C3%A7ar+minha+viagem%21" target="_blank" rel="noopener" class="cta-btn">
+      <span>Começar minha viagem</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-top">
+    <div class="footer-brand">
+      <div class="footer-brand-logo">
+        <img src="design_handoff_rsx_travel_site/assets/rsx-logo-principal-crop.png" alt="RSX Travel"
+             onerror="this.style.display='none'; this.parentElement.innerHTML='<span style=\'font-family:Cormorant Garamond,serif;font-size:22px;letter-spacing:.28em;color:#dcc093\'>RSX TRAVEL</span>'" />
+      </div>
+      <p class="footer-brand-tag">Viagens &amp; momentos &amp; registros que ficam.</p>
+      <div class="footer-social">
+        <a href="https://instagram.com/rebecapiccolo" target="_blank" rel="noopener" title="Instagram">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r=".8" fill="currentColor" stroke="none"/></svg>
+        </a>
+        <a href="https://www.facebook.com/rebeca.piccolo.9" target="_blank" rel="noopener" title="Facebook">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+        </a>
+        <a href="https://wa.me/5541988429348" target="_blank" rel="noopener" title="WhatsApp">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.4 8.4 0 0 1 3.8-.9h.5a8.5 8.5 0 0 1 8 8z"/></svg>
+        </a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h4>Navegar</h4>
+      <ul>
+        <li><a href="#destinos">Destinos</a></li>
+        <li><a href="#resorts">Resorts</a></li>
+        <li><a href="#sobre">Quem sou</a></li>
+        <li><a href="#manifesto">Filosofia</a></li>
+        <li><a href="#contato">Contato</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Resorts</h4>
+      <ul>
+        <li><a href="costao.html">Costão do Santinho</a></li>
+        <li><a href="fazzenda.html">Fazzenda Park</a></li>
+        <li><a href="japaratinga.html">Japaratinga Lounge</a></li>
+        <li><a href="https://wa.me/5541988429348" target="_blank" rel="noopener">Sob consulta</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Conecte-se</h4>
+      <ul>
+        <li><a href="https://instagram.com/rebecapiccolo" target="_blank" rel="noopener">Instagram</a></li>
+        <li><a href="https://www.facebook.com/rebeca.piccolo.9" target="_blank" rel="noopener">Facebook</a></li>
+        <li><a href="https://wa.me/5541988429348" target="_blank" rel="noopener">WhatsApp</a></li>
+        <li><a href="mailto:contato@rsxtravel.com.br">E-mail</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 RSX Travel · Curitiba PR</span>
+    <span>Desenhado com <span style="color:var(--gold-400)">cuidado</span></span>
+  </div>
+</footer>
+
+<!-- WHATSAPP FLOAT -->
+<a href="https://wa.me/5541988429348" target="_blank" rel="noopener" class="wa-float">
+  <div class="wa-pulse"></div>
+  <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 14.4c-.3-.1-1.8-.9-2.1-1-.3-.1-.5-.1-.7.1-.2.3-.7 1-.9 1.1-.2.2-.3.2-.6.1-.3-.1-1.3-.5-2.4-1.5-.9-.8-1.5-1.8-1.7-2.1-.2-.3 0-.5.1-.6l.4-.5c.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5 0-.1-.7-1.7-1-2.3-.3-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1.1 1.1-1.1 2.6 0 1.6 1.1 3.1 1.3 3.3.2.2 2.3 3.5 5.6 4.9.8.3 1.4.5 1.9.7.8.2 1.5.2 2.1.1.6-.1 1.8-.7 2.1-1.5.3-.7.3-1.4.2-1.5-.1-.2-.3-.3-.6-.4zM12 2C6.5 2 2 6.5 2 12c0 1.8.5 3.5 1.3 5L2 22l5.2-1.4c1.5.8 3.1 1.2 4.8 1.2 5.5 0 10-4.5 10-10S17.5 2 12 2z"/></svg>
+  WhatsApp
+</a>
+
+<!-- SCRIPTS -->
+<script>
+// ==============================
+// LOADER
+// ==============================
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    document.getElementById('loader').classList.add('out');
+    document.body.classList.remove('loading');
+  }, 2200);
+});
+
+// ==============================
+// CUSTOM CURSOR
+// ==============================
+const dot  = document.getElementById('cursor-dot');
+const ring = document.getElementById('cursor-ring');
+let mx = 0, my = 0, rx = 0, ry = 0;
+
+document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+
+function animateCursor() {
+  rx += (mx - rx) * .14;
+  ry += (my - ry) * .14;
+  dot.style.left  = mx + 'px';
+  dot.style.top   = my + 'px';
+  ring.style.left = rx + 'px';
+  ring.style.top  = ry + 'px';
+  requestAnimationFrame(animateCursor);
+}
+animateCursor();
+
+// Cursor scale on hover
+document.querySelectorAll('a, button').forEach(el => {
+  el.addEventListener('mouseenter', () => {
+    ring.style.width  = '56px';
+    ring.style.height = '56px';
+    ring.style.borderColor = 'rgba(201,165,116,.7)';
+  });
+  el.addEventListener('mouseleave', () => {
+    ring.style.width  = '36px';
+    ring.style.height = '36px';
+    ring.style.borderColor = 'rgba(201,165,116,.6)';
+  });
+});
+
+// ==============================
+// NAV SCROLL
+// ==============================
+const nav = document.getElementById('topnav');
+window.addEventListener('scroll', () => {
+  nav.classList.toggle('scrolled', window.scrollY > 50);
+}, { passive: true });
+
+// ==============================
+// MOBILE NAV
+// ==============================
+function openMobileNav()  { document.getElementById('mobileNav').classList.add('open'); }
+function closeMobileNav() { document.getElementById('mobileNav').classList.remove('open'); }
+
+// ==============================
+// REVEAL ON SCROLL
+// ==============================
+const revealIO = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('in');
+      revealIO.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.08 });
+document.querySelectorAll('.reveal').forEach(el => revealIO.observe(el));
+
+// ==============================
+// PARALLAX
+// ==============================
+const parallaxEls = [...document.querySelectorAll('[data-parallax]')];
+function updateParallax() {
+  const vh = window.innerHeight;
+  parallaxEls.forEach(el => {
+    const rect = el.getBoundingClientRect();
+    if (rect.bottom < -300 || rect.top > vh + 300) return;
+    const speed = parseFloat(el.dataset.parallax) || 0;
+    const center = rect.top + rect.height / 2;
+    const offset = (center - vh / 2) * speed;
+    el.style.transform = `translate3d(0, ${offset.toFixed(2)}px, 0)`;
+  });
+}
+let ticking = false;
+window.addEventListener('scroll', () => {
+  if (!ticking) {
+    requestAnimationFrame(() => { updateParallax(); ticking = false; });
+    ticking = true;
+  }
+}, { passive: true });
+window.addEventListener('resize', updateParallax);
+updateParallax();
+
+// ==============================
+// MAP DOTS STAGGER ANIMATION
+// ==============================
+document.querySelectorAll('.map-dot').forEach(dot => {
+  const delay = parseFloat(dot.getAttribute('data-delay') || 0);
+  dot.style.animationDelay = delay + 's';
+  dot.style.opacity = '0';
+  dot.style.transition = 'opacity .6s ease';
+  setTimeout(() => { dot.style.opacity = '1'; }, delay * 1000 + 800);
+});
+</script>
+
+<!-- REACT SEARCH BAR -->
+<script type="text/babel">
+const DESTS = [
+  { id: 'costao',       name: 'Costão do Santinho',     sub: 'Florianópolis · SC' },
+  { id: 'fazzenda',     name: 'Fazzenda Park Resort',   sub: 'Santo Amaro · SC'   },
+  { id: 'japaratinga',  name: 'Japaratinga Lounge',     sub: 'Maragogi · AL'      },
+  { id: 'salinas',      name: 'Salinas Maragogi',       sub: 'Maragogi · AL'      },
+  { id: 'comandatuba',  name: 'Transamerica Comandatuba', sub: 'Una · BA'         },
+];
+const MES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+const DOW = ['D','S','T','Q','Q','S','S'];
+
+function fmt(d) {
+  if (!d) return null;
+  return `${String(d.getDate()).padStart(2,'0')} ${MES[d.getMonth()].slice(0,3).toLowerCase()}`;
+}
+function fmtRange(s, e) {
+  if (!s) return null;
+  if (!e) return `${fmt(s)} · escolha a volta`;
+  return `${fmt(s)} — ${fmt(e)} · ${e.getFullYear()}`;
+}
+function sameDay(a, b) {
+  return a && b && a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate();
+}
+
+function CalMonth({ year, month, start, end, hover, onPick, onHover }) {
+  const first = new Date(year, month, 1);
+  const cells = [];
+  for (let i = 0; i < first.getDay(); i++) cells.push(null);
+  for (let d = 1; d <= new Date(year, month+1, 0).getDate(); d++) cells.push(new Date(year, month, d));
+  while (cells.length % 7 !== 0) cells.push(null);
+
+  const inRange = (d) => {
+    if (!start || !d) return false;
+    const e = end || hover;
+    if (!e) return false;
+    const [lo, hi] = start <= e ? [start, e] : [e, start];
+    return d > lo && d < hi;
+  };
+
+  return (
+    <div className="cal-month">
+      <div className="cal-title">{MES[month]} {year}</div>
+      <div className="cal-days">
+        {DOW.map((d,i) => <div key={'h'+i} className="cal-dow">{d}</div>)}
+        {cells.map((d, i) => {
+          if (!d) return <div key={i} className="cal-day muted" />;
+          const today = new Date(); today.setHours(0,0,0,0);
+          const cls = ['cal-day'];
+          if (sameDay(d, start))  cls.push('start');
+          if (sameDay(d, end))    cls.push('end');
+          if (inRange(d))         cls.push('between');
+          if (d < today)          cls.push('muted');
+          return (
+            <div key={i} className={cls.join(' ')}
+                 onClick={() => d >= today && onPick(d)}
+                 onMouseEnter={() => onHover(d)}>
+              {d.getDate()}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function SearchBar() {
+  const [open, setOpen]       = React.useState(null);
+  const [dest, setDest]       = React.useState(DESTS[2]);
+  const [start, setStart]     = React.useState(new Date(2026, 6, 14));
+  const [end, setEnd]         = React.useState(new Date(2026, 6, 21));
+  const [hover, setHover]     = React.useState(null);
+  const [adults, setAdults]   = React.useState(2);
+  const [children, setChildren] = React.useState(0);
+  const [rooms, setRooms]     = React.useState(1);
+  const [calOff, setCalOff]   = React.useState(0);
+  const wrap = React.useRef(null);
+
+  React.useEffect(() => {
+    const h = e => { if (wrap.current && !wrap.current.contains(e.target)) setOpen(null); };
+    document.addEventListener('mousedown', h);
+    return () => document.removeEventListener('mousedown', h);
+  }, []);
+
+  const pickDate = (d) => {
+    if (!start || (start && end)) { setStart(d); setEnd(null); }
+    else if (d < start)           { setStart(d); setEnd(null); }
+    else if (!sameDay(d, start))  { setEnd(d); }
+  };
+
+  const today = new Date();
+  const m1 = new Date(today.getFullYear(), today.getMonth() + calOff, 1);
+  const m2 = new Date(today.getFullYear(), today.getMonth() + calOff + 1, 1);
+
+  const guestStr = () => {
+    const p = adults + children;
+    return `${p} ${p===1?'pessoa':'pessoas'} · ${rooms} ${rooms===1?'quarto':'quartos'}`;
+  };
+
+  const submit = () => {
+    setOpen(null);
+    const msg = `Oi Rebeca! Estou pensando em ${dest.name}, ${fmtRange(start, end) || 'datas a definir'}, para ${guestStr()}. Pode me ajudar?`;
+    window.open(`https://wa.me/5541988429348?text=${encodeURIComponent(msg)}`, '_blank');
+  };
+
+  return (
+    <div className="search-bar" ref={wrap}>
+      {/* Destino */}
+      <div className={'sf' + (open==='dest'?' open':'')} role="button" tabIndex={0}
+           onClick={() => setOpen(open==='dest' ? null : 'dest')}>
+        <div className="sf-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
+            <circle cx="12" cy="10" r="3"/><path d="M12 21s-7-6.5-7-12a7 7 0 1 1 14 0c0 5.5-7 12-7 12z"/>
+          </svg>
+        </div>
+        <div className="sf-body">
+          <span className="sf-label">Destino</span>
+          <span className="sf-value">{dest.name}</span>
+        </div>
+        <div className={'popover dest' + (open==='dest'?' open':'')} onClick={e => e.stopPropagation()}>
+          <div className="pop-h">Resorts em destaque</div>
+          <ul className="pop-list">
+            {DESTS.map(d => (
+              <li key={d.id} className={'pop-opt' + (d.id===dest.id?' sel':'')}
+                  onClick={() => { setDest(d); setOpen(null); }}>
+                <div className="pop-swatch" />
+                <div>
+                  <div className="pop-opt-name">{d.name}</div>
+                  <div className="pop-opt-sub">{d.sub}</div>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+
+      {/* Datas */}
+      <div className={'sf' + (open==='dates'?' open':'')} role="button" tabIndex={0}
+           onClick={() => setOpen(open==='dates' ? null : 'dates')}>
+        <div className="sf-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
+            <rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v4M16 3v4"/>
+          </svg>
+        </div>
+        <div className="sf-body">
+          <span className="sf-label">Check-in · Check-out</span>
+          <span className={'sf-value' + (!start?' ph':'')}>{fmtRange(start, end) || 'Quando você quer ir?'}</span>
+        </div>
+        <div className={'popover dates' + (open==='dates'?' open':'')} onClick={e => e.stopPropagation()}>
+          <div className="cal-nav">
+            <button type="button" className="cal-nav-btn" onClick={() => setCalOff(o => o-1)}>‹</button>
+            <div className="pop-h" style={{margin:0}}>Escolha as datas</div>
+            <button type="button" className="cal-nav-btn" onClick={() => setCalOff(o => o+1)}>›</button>
+          </div>
+          <div className="cal-grid" onMouseLeave={() => setHover(null)}>
+            <CalMonth year={m1.getFullYear()} month={m1.getMonth()} start={start} end={end} hover={hover} onPick={pickDate} onHover={setHover} />
+            <CalMonth year={m2.getFullYear()} month={m2.getMonth()} start={start} end={end} hover={hover} onPick={pickDate} onHover={setHover} />
+          </div>
+        </div>
+      </div>
+
+      {/* Hóspedes */}
+      <div className={'sf' + (open==='guests'?' open':'')} role="button" tabIndex={0}
+           onClick={() => setOpen(open==='guests' ? null : 'guests')}>
+        <div className="sf-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
+            <circle cx="9" cy="8" r="3"/>
+            <path d="M3 21c0-3.3 2.7-6 6-6s6 2.7 6 6M16 11a3 3 0 1 0 0-6M21 21c0-2.6-1.7-4.8-4-5.7"/>
+          </svg>
+        </div>
+        <div className="sf-body">
+          <span className="sf-label">Hóspedes</span>
+          <span className="sf-value">{guestStr()}</span>
+        </div>
+        <div className={'popover guests' + (open==='guests'?' open':'')} onClick={e => e.stopPropagation()}>
+          <div className="pop-h">Quem viaja?</div>
+          {[
+            { k:'adults',   name:'Adultos',  sub:'A partir de 13 anos', val:adults,   set:setAdults,   min:1 },
+            { k:'children', name:'Crianças', sub:'De 2 a 12 anos',      val:children, set:setChildren, min:0 },
+            { k:'rooms',    name:'Quartos',  sub:'Acomodações',         val:rooms,    set:setRooms,    min:1 },
+          ].map(row => (
+            <div key={row.k} className="stepper-row">
+              <div>
+                <div className="name">{row.name}</div>
+                <div className="sub">{row.sub}</div>
+              </div>
+              <div className="stepper-ctrl">
+                <button type="button" className="step-btn" disabled={row.val<=row.min}
+                        onClick={() => row.set(Math.max(row.min, row.val-1))}>−</button>
+                <span className="step-count">{row.val}</span>
+                <button type="button" className="step-btn"
+                        onClick={() => row.set(row.val+1)}>+</button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <button className="search-submit" type="button" onClick={submit}>
+        Pedir curadoria
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <circle cx="11" cy="11" r="7"/><path d="M21 21l-5-5"/>
+        </svg>
+      </button>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('search-root')).render(<SearchBar />);
+</script>
+
+</body>
+</html>

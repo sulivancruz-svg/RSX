@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Painel Admin — RSX Travel</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Cormorant+Garamond:ital,wght@0,400;1,400&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#080f1e;--surface:#0f1628;--card:#141e35;
+  --border:rgba(201,165,116,.15);--border-focus:rgba(201,165,116,.5);
+  --gold:#c9a574;--gold-dim:rgba(201,165,116,.6);
+  --text:#e8ddd0;--text-dim:rgba(232,221,208,.55);
+  --red:#e05555;--green:#4caf7d;--radius:6px;
+}
+html,body{height:100%;font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);font-size:14px;-webkit-font-smoothing:antialiased}
+input,textarea,button{font-family:inherit;font-size:inherit}
+a{color:var(--gold);text-decoration:none}
+
+/* ── LOGIN ── */
+#login{min-height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:28px;
+  background:radial-gradient(ellipse at 50% 0%,rgba(201,165,116,.07) 0%,transparent 65%),var(--bg)}
+.login-logo{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:400;
+  letter-spacing:.25em;color:var(--gold);text-transform:uppercase}
+.login-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;
+  padding:40px;width:100%;max-width:360px;display:flex;flex-direction:column;gap:20px}
+.login-title{font-size:15px;font-weight:500}
+.login-note{font-size:12px;color:var(--text-dim);line-height:1.6}
+.login-error{color:var(--red);font-size:12px;display:none}
+.login-error.show{display:block}
+.default-pass-hint{font-size:11px;color:rgba(232,221,208,.3)}
+
+/* ── SHARED FIELD STYLES ── */
+.field-group{display:flex;flex-direction:column;gap:6px}
+.field-label{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim);font-weight:500}
+.field-input{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);
+  padding:10px 14px;color:var(--text);outline:none;transition:border-color .2s;width:100%}
+.field-input:focus{border-color:var(--border-focus)}
+textarea.field-input{resize:vertical;min-height:90px;line-height:1.6}
+.field-help{font-size:11px;color:var(--text-dim);line-height:1.6;margin-top:2px}
+
+/* ── BUTTONS ── */
+.btn-primary{background:var(--gold);color:#080f1e;border:none;border-radius:var(--radius);
+  padding:11px 24px;font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;
+  cursor:pointer;transition:opacity .2s,transform .15s;width:100%}
+.btn-primary:hover{opacity:.9;transform:translateY(-1px)}
+.btn-save{background:var(--gold);color:#080f1e;border:none;border-radius:var(--radius);
+  padding:8px 22px;font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;transition:opacity .2s}
+.btn-save:hover{opacity:.88}
+.btn-ghost{background:transparent;color:var(--text-dim);border:1px solid var(--border);
+  border-radius:var(--radius);padding:7px 16px;font-size:11px;letter-spacing:.06em;
+  cursor:pointer;transition:color .2s,border-color .2s;white-space:nowrap}
+.btn-ghost:hover{color:var(--text);border-color:var(--border-focus)}
+.btn-pick{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+  padding:8px 14px;font-size:12px;font-weight:500;color:var(--text);cursor:pointer;
+  transition:border-color .2s;white-space:nowrap}
+.btn-pick:hover{border-color:var(--border-focus)}
+.btn-clear{background:transparent;border:none;font-size:11px;color:var(--red);
+  cursor:pointer;opacity:.7;padding:0;transition:opacity .2s}
+.btn-clear:hover{opacity:1}
+input[type="file"]{display:none}
+
+/* ── APP LAYOUT ── */
+#app{display:none;height:100vh;flex-direction:column}
+#app.visible{display:flex}
+
+.app-header{display:flex;align-items:center;justify-content:space-between;
+  padding:0 24px;height:56px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0}
+.app-brand{display:flex;align-items:center;gap:14px}
+.app-brand img{height:34px;width:auto}
+.app-brand-label{font-size:11px;font-weight:500;color:var(--text-dim);letter-spacing:.1em;text-transform:uppercase}
+.app-actions{display:flex;align-items:center;gap:10px}
+
+.app-body{display:flex;flex:1;overflow:hidden}
+
+/* ── SIDEBAR ── */
+.sidebar{width:210px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);
+  padding:20px 0;overflow-y:auto;display:flex;flex-direction:column;gap:4px}
+.sidebar-section-label{font-size:10px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--text-dim);font-weight:500;padding:8px 20px 4px;margin-top:8px}
+.sidebar-section-label:first-child{margin-top:0}
+.nav-btn{display:flex;align-items:center;gap:10px;padding:9px 16px;
+  border-radius:0;cursor:pointer;font-size:13px;color:var(--text-dim);
+  transition:background .15s,color .15s;user-select:none;border:none;
+  background:transparent;width:100%;text-align:left}
+.nav-btn:hover{background:rgba(201,165,116,.05);color:var(--text)}
+.nav-btn.active{background:rgba(201,165,116,.1);color:var(--gold);
+  box-shadow:inset 3px 0 0 var(--gold)}
+.nav-icon{font-size:14px;flex-shrink:0}
+
+/* ── MAIN CONTENT ── */
+.main{flex:1;overflow-y:auto;padding:36px 44px 60px}
+.main-inner{max-width:740px}
+
+.page-title{font-family:'Cormorant Garamond',serif;font-size:34px;font-weight:400;
+  color:var(--text);margin-bottom:6px}
+.page-subtitle{font-size:12px;color:var(--text-dim);margin-bottom:36px;line-height:1.6}
+
+.cms-section{margin-bottom:44px}
+.cms-section-label{font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--gold-dim);font-weight:600;margin-bottom:16px;padding-bottom:10px;
+  border-bottom:1px solid var(--border)}
+
+.field-row{margin-bottom:20px}
+
+/* ── IMAGE PICKER ── */
+.img-picker{display:flex;flex-direction:column;gap:10px}
+.img-preview{width:100%;aspect-ratio:16/9;background:var(--card);
+  border:1px dashed var(--border);border-radius:var(--radius);
+  display:flex;align-items:center;justify-content:center;overflow:hidden;
+  background-size:cover;background-position:center;position:relative}
+.img-preview.square{aspect-ratio:1/1;max-width:180px}
+.img-ph{font-size:11px;color:var(--text-dim);text-align:center;line-height:1.7}
+.img-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.img-url{flex:1;min-width:180px}
+
+/* ── VIDEO PREVIEW ── */
+.vid-preview{width:100%;aspect-ratio:16/9;background:var(--card);border:1px dashed var(--border);
+  border-radius:var(--radius);overflow:hidden;display:flex;align-items:center;justify-content:center;margin-top:10px}
+.vid-preview iframe{width:100%;height:100%;border:none}
+.vid-ph{font-size:11px;color:var(--text-dim);text-align:center;line-height:1.7}
+
+/* ── INFO BOX ── */
+.info-box{background:rgba(201,165,116,.05);border:1px solid rgba(201,165,116,.18);
+  border-radius:var(--radius);padding:14px 18px;font-size:12px;color:var(--text-dim);line-height:1.7;margin-bottom:20px}
+.info-box strong{color:var(--gold)}
+.info-box code{color:var(--gold);background:rgba(201,165,116,.1);padding:1px 5px;border-radius:3px;font-size:11px}
+
+/* ── PASS CHANGE ── */
+.pass-row{display:flex;gap:8px;align-items:flex-end}
+.pass-row .field-input{flex:1}
+
+/* ── TOAST ── */
+#toast{position:fixed;bottom:24px;right:24px;background:var(--green);color:#fff;
+  padding:10px 22px;border-radius:var(--radius);font-size:13px;font-weight:500;
+  opacity:0;transform:translateY(6px);transition:opacity .25s,transform .25s;
+  pointer-events:none;z-index:9999}
+#toast.show{opacity:1;transform:none}
+#toast.error{background:var(--red)}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+</style>
+</head>
+<body>
+
+<!-- ════════════ LOGIN ════════════ -->
+<div id="login">
+  <div class="login-logo">RSX · Travel</div>
+  <div class="login-card">
+    <div class="login-title">Painel de Administração</div>
+    <div class="login-note">Acesso restrito. Digite a senha para gerenciar o conteúdo do site.</div>
+    <div class="field-group">
+      <label class="field-label">Senha</label>
+      <input type="password" id="passInput" class="field-input" placeholder="••••••••" autocomplete="current-password"/>
+    </div>
+    <button class="btn-primary" onclick="doLogin()">Entrar</button>
+    <div id="loginError" class="login-error">Senha incorreta. Tente novamente.</div>
+  </div>
+  <div class="default-pass-hint">Senha padrão: rsx2024</div>
+</div>
+
+<!-- ════════════ APP ════════════ -->
+<div id="app">
+  <header class="app-header">
+    <div class="app-brand">
+      <img src="design_handoff_rsx_travel_site/assets/rsx-logo-principal-crop.png" alt="RSX Travel"/>
+      <span class="app-brand-label">Painel de Conteúdo</span>
+    </div>
+    <div class="app-actions">
+      <a id="previewLink" href="index.html" target="_blank">
+        <button class="btn-ghost">Ver site ↗</button>
+      </a>
+      <button class="btn-save" onclick="CMS.save()">💾 Salvar</button>
+      <button class="btn-ghost" onclick="doLogout()">Sair</button>
+    </div>
+  </header>
+
+  <div class="app-body">
+    <aside class="sidebar">
+      <div class="sidebar-section-label">Configurações</div>
+      <button class="nav-btn active" data-page="geral" onclick="showPage('geral',this)">
+        <span class="nav-icon">⚙️</span>Geral
+      </button>
+
+      <div class="sidebar-section-label">Páginas</div>
+      <button class="nav-btn" data-page="index" onclick="showPage('index',this)">
+        <span class="nav-icon">🏠</span>Início
+      </button>
+      <button class="nav-btn" data-page="costao" onclick="showPage('costao',this)">
+        <span class="nav-icon">🏖️</span>Costão do Santinho
+      </button>
+      <button class="nav-btn" data-page="fazzenda" onclick="showPage('fazzenda',this)">
+        <span class="nav-icon">🌿</span>Fazzenda Park
+      </button>
+      <button class="nav-btn" data-page="japaratinga" onclick="showPage('japaratinga',this)">
+        <span class="nav-icon">🏝️</span>Japaratinga
+      </button>
+      <button class="nav-btn" data-page="sobre" onclick="showPage('sobre',this)">
+        <span class="nav-icon">👤</span>Sobre / Quem sou
+      </button>
+      <button class="nav-btn" data-page="contato" onclick="showPage('contato',this)">
+        <span class="nav-icon">✉️</span>Contato
+      </button>
+
+      <div class="sidebar-section-label">Criar</div>
+      <button class="nav-btn" data-page="novo" onclick="showPage('novo',this)">
+        <span class="nav-icon">➕</span>Novo Destino
+      </button>
+      <div id="custom-pages-nav"></div>
+    </aside>
+
+    <main class="main" id="mainContent">
+      <div class="main-inner" id="mainInner"></div>
+    </main>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+/* ══════════════════════════════════════════
+   CMS ENGINE
+══════════════════════════════════════════ */
+const CMS = {
+  KEY: 'rsx_cms_content',
+  PASS_KEY: 'rsx_admin_pass',
+  AUTH_KEY: 'rsx_admin_session',
+  DEFAULT: 'rsx2024',
+  data: {},
+
+  load() {
+    try { this.data = JSON.parse(localStorage.getItem(this.KEY) || '{}'); }
+    catch(e) { this.data = {}; }
+    if (!this.data.global) this.data.global = {};
+    if (!this.data.pages)  this.data.pages  = {};
+  },
+
+  save() {
+    localStorage.setItem(this.KEY, JSON.stringify(this.data));
+    toast('Conteúdo salvo com sucesso!');
+  },
+
+  get(page, key) {
+    if (page === 'global') return this.data.global[key] || '';
+    return (this.data.pages[page] || {})[key] || '';
+  },
+
+  set(page, key, val) {
+    if (page === 'global') {
+      this.data.global[key] = val;
+    } else {
+      if (!this.data.pages[page]) this.data.pages[page] = {};
+      this.data.pages[page][key] = val;
+    }
+  },
+
+  pass()       { return localStorage.getItem(this.PASS_KEY) || this.DEFAULT; },
+  checkPass(p) { return p === this.pass(); },
+  setPass(p)   { localStorage.setItem(this.PASS_KEY, p); }
+};
+
+/* ══════════════════════════════════════════
+   AUTH
+══════════════════════════════════════════ */
+function doLogin() {
+  const p = document.getElementById('passInput').value;
+  if (CMS.checkPass(p)) {
+    sessionStorage.setItem(CMS.AUTH_KEY, '1');
+    document.getElementById('login').style.display = 'none';
+    document.getElementById('app').classList.add('visible');
+    CMS.load();
+    renderCustomPageNav();
+    showPage('geral', document.querySelector('[data-page="geral"]'));
+  } else {
+    document.getElementById('loginError').classList.add('show');
+    document.getElementById('passInput').value = '';
+  }
+}
+function doLogout() {
+  sessionStorage.removeItem(CMS.AUTH_KEY);
+  location.reload();
+}
+document.getElementById('passInput').addEventListener('keydown', e => { if (e.key==='Enter') doLogin(); });
+
+if (sessionStorage.getItem(CMS.AUTH_KEY)) {
+  document.getElementById('login').style.display = 'none';
+  document.getElementById('app').classList.add('visible');
+  CMS.load();
+}
+
+/* ══════════════════════════════════════════
+   TOAST
+══════════════════════════════════════════ */
+let toastTimer;
+function toast(msg, isError) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'show' + (isError ? ' error' : '');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.className = '', 2800);
+}
+
+/* ══════════════════════════════════════════
+   HELPERS
+══════════════════════════════════════════ */
+function esc(s) {
+  return (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function ytId(url) {
+  const m = (url||'').match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([^&\s?\/]+)/);
+  return m ? m[1] : null;
+}
+
+/* ══════════════════════════════════════════
+   FIELD BUILDERS
+══════════════════════════════════════════ */
+function fText({ pg, key, label, help, rows, ph }) {
+  const val = CMS.get(pg, key);
+  const id  = `f_${pg}_${key}`;
+  const h   = help ? `<div class="field-help">${help}</div>` : '';
+  if (rows) {
+    return `<div class="field-row">
+      <label class="field-label" for="${id}">${label}</label>${h}
+      <textarea class="field-input" id="${id}" rows="${rows}" placeholder="${esc(ph||'')}"
+        oninput="CMS.set('${pg}','${key}',this.value)">${esc(val)}</textarea>
+    </div>`;
+  }
+  return `<div class="field-row">
+    <label class="field-label" for="${id}">${label}</label>${h}
+    <input class="field-input" id="${id}" value="${esc(val)}" placeholder="${esc(ph||'')}"
+      oninput="CMS.set('${pg}','${key}',this.value)"/>
+  </div>`;
+}
+
+function fImg({ pg, key, label, help, square }) {
+  const val = CMS.get(pg, key);
+  const id  = `img_${pg}_${key}`;
+  const style = val ? `background-image:url('${esc(val)}')` : '';
+  const ph    = val ? '' : `<div class="img-ph">📷<br/>Sem imagem</div>`;
+  return `<div class="field-row">
+    <label class="field-label">${label}</label>
+    ${help ? `<div class="field-help">${help}</div>` : ''}
+    <div class="img-picker">
+      <div class="img-preview${square?' square':''}" id="prev_${id}" style="${style}">${ph}</div>
+      <div class="img-actions">
+        <button class="btn-pick" onclick="document.getElementById('file_${id}').click()">📁 Escolher arquivo</button>
+        <input type="file" id="file_${id}" accept="image/*" onchange="onFilePick('${pg}','${key}','prev_${id}',this)"/>
+        <input class="field-input img-url" placeholder="Ou cole URL/caminho: assets/uploads/foto.jpg" value="${esc(val)}"
+          oninput="onUrlInput('${pg}','${key}','prev_${id}',this.value)"/>
+        ${val ? `<button class="btn-clear" onclick="clearImg('${pg}','${key}','prev_${id}')">✕</button>` : ''}
+      </div>
+    </div>
+  </div>`;
+}
+
+function fVideo({ pg, key, label, help }) {
+  const val = CMS.get(pg, key);
+  const id  = `vid_${pg}_${key}`;
+  const vid = ytId(val);
+  return `<div class="field-row">
+    <label class="field-label" for="${id}">${label}</label>
+    ${help ? `<div class="field-help">${help}</div>` : ''}
+    <input class="field-input" id="${id}" value="${esc(val)}" placeholder="https://www.youtube.com/watch?v=XXXXXXX"
+      oninput="onVideoInput('${pg}','${key}','vidprev_${id}',this.value)"/>
+    <div class="vid-preview" id="vidprev_${id}">
+      ${vid
+        ? `<iframe src="https://www.youtube-nocookie.com/embed/${vid}?mute=1" allow="autoplay" title="Preview"></iframe>`
+        : `<div class="vid-ph">🎬<br/>Cole a URL para ver o preview</div>`}
+    </div>
+  </div>`;
+}
+
+/* ══════════════════════════════════════════
+   IMAGE / VIDEO EVENT HANDLERS
+══════════════════════════════════════════ */
+function onFilePick(pg, key, prevId, input) {
+  const file = input.files[0];
+  if (!file) return;
+  if (file.size > 4 * 1024 * 1024) {
+    toast('Arquivo grande (>4MB). Para fotos grandes use a pasta assets/uploads/ e cole o caminho.', true);
+  }
+  const r = new FileReader();
+  r.onload = e => { CMS.set(pg,key,e.target.result); setImgPreview(prevId, e.target.result); };
+  r.readAsDataURL(file);
+}
+function onUrlInput(pg, key, prevId, val) {
+  CMS.set(pg, key, val.trim());
+  if (val.trim()) setImgPreview(prevId, val.trim());
+}
+function clearImg(pg, key, prevId) {
+  CMS.set(pg, key, '');
+  const el = document.getElementById(prevId);
+  if (el) { el.style.backgroundImage=''; el.innerHTML='<div class="img-ph">📷<br/>Sem imagem</div>'; }
+}
+function setImgPreview(prevId, url) {
+  const el = document.getElementById(prevId);
+  if (!el) return;
+  el.style.backgroundImage = `url('${url}')`;
+  el.style.backgroundSize  = 'cover';
+  el.style.backgroundPosition = 'center';
+  el.innerHTML = '';
+}
+function onVideoInput(pg, key, prevId, val) {
+  CMS.set(pg, key, val);
+  const vid = ytId(val);
+  const el  = document.getElementById(prevId);
+  if (!el) return;
+  el.innerHTML = vid
+    ? `<iframe src="https://www.youtube-nocookie.com/embed/${vid}?mute=1" allow="autoplay" title="Preview"></iframe>`
+    : `<div class="vid-ph">🎬<br/>Cole a URL para ver o preview</div>`;
+}
+
+/* ══════════════════════════════════════════
+   RESORT PAGE TEMPLATE
+══════════════════════════════════════════ */
+function resortHTML(pg, name, file) {
+  return `
+    <h1 class="page-title">${name}</h1>
+    <p class="page-subtitle">Edite o conteúdo exibido na página do resort. <a href="${file}" target="_blank">Ver página ↗</a></p>
+
+    <div class="cms-section">
+      <div class="cms-section-label">Imagem principal (hero)</div>
+      <div class="info-box">Proporção ideal: <strong>16:9 ou mais largo</strong>. Um overlay escuro é aplicado automaticamente sobre a foto para manter o texto legível.</div>
+      ${fImg({ pg, key:'hero_img', label:'Foto de fundo do banner' })}
+    </div>
+
+    <div class="cms-section">
+      <div class="cms-section-label">Descrição do resort</div>
+      ${fText({ pg, key:'overview_h2', label:'Título da seção', ph:'Ex: Onde a mata atlântica encontra o oceano.' })}
+      ${fText({ pg, key:'overview_p1', label:'Parágrafo 1', rows:4 })}
+      ${fText({ pg, key:'overview_p2', label:'Parágrafo 2', rows:4 })}
+      ${fText({ pg, key:'overview_p3', label:'Parágrafo 3', rows:3 })}
+    </div>
+
+    <div class="cms-section">
+      <div class="cms-section-label">Citação em destaque</div>
+      ${fText({ pg, key:'experience_quote', label:'Texto da citação', ph:'"Quando você está aqui, o mundo lá fora simplesmente para."' })}
+    </div>
+
+    <div class="cms-section">
+      <div class="cms-section-label">Galeria de fotos (5 imagens)</div>
+      <div class="info-box">
+        <strong>Como adicionar fotos:</strong><br/>
+        • <strong>Fotos pequenas (&lt;4MB):</strong> clique em "Escolher arquivo" — a foto fica salva diretamente.<br/>
+        • <strong>Fotos grandes:</strong> copie o arquivo para a pasta <code>assets/uploads/</code> e cole o nome aqui, ex: <code>assets/uploads/costao-piscina.jpg</code>
+      </div>
+      ${fImg({ pg, key:'gallery_1', label:'Foto 1 (destaque — ocupa mais espaço)' })}
+      ${fImg({ pg, key:'gallery_2', label:'Foto 2' })}
+      ${fImg({ pg, key:'gallery_3', label:'Foto 3' })}
+      ${fImg({ pg, key:'gallery_4', label:'Foto 4' })}
+      ${fImg({ pg, key:'gallery_5', label:'Foto 5' })}
+    </div>
+  `;
+}
+
+/* ══════════════════════════════════════════
+   PAGE DEFINITIONS
+══════════════════════════════════════════ */
+const PAGES = {
+  geral() { return `
+    <h1 class="page-title">Configurações Gerais</h1>
+    <p class="page-subtitle">Afetam todas as páginas do site.</p>
+
+    <div class="cms-section">
+      <div class="cms-section-label">WhatsApp</div>
+      ${fText({ pg:'global', key:'whatsapp', label:'Número do WhatsApp',
+        help:'Somente dígitos com código do país. Ex: 5541988429348 (55=Brasil, 41=Curitiba)',
+        ph:'5541988429348' })}
+    </div>
+
+    <div class="cms-section">
+      <div class="cms-section-label">Alterar senha de acesso</div>
+      <div class="field-row">
+        <label class="field-label">Nova senha</label>
+        <div class="pass-row">
+          <input type="password" id="p1" class="field-input" placeholder="Nova senha"/>
+          <input type="password" id="p2" class="field-input" placeholder="Confirmar senha"/>
+          <button class="btn-pick" onclick="changePass()">Alterar</button>
+        </div>
+      </div>
+    </div>
+  `; },
+
+  index() { return `
+    <h1 class="page-title">Página Inicial</h1>
+    <p class="page-subtitle">Configure o vídeo do banner principal. <a href="index.html" target="_blank">Ver página ↗</a></p>
+
+    <div class="cms-section">
+      <div class="cms-section-label">Vídeo hero</div>
+      <div class="info-box">O vídeo toca em silêncio e em loop no fundo do banner. Cole a URL do YouTube abaixo.</div>
+      ${fVideo({ pg:'index', key:'hero_video', label:'URL do vídeo (YouTube)',
+        help:'Ex: https://www.youtube.com/watch?v=WNF3LVPCTvU — ou https://youtu.be/WNF3LVPCTvU' })}
+    </div>
+  `; },
+
+  costao()      { return resortHTML('costao',      'Costão do Santinho',       'costao.html'); },
+  fazzenda()    { return resortHTML('fazzenda',    'Fazzenda Park Resort',     'fazzenda.html'); },
+  japaratinga() { return resortHTML('japaratinga', 'Japaratinga Lounge Resort','japaratinga.html'); },
+
+  sobre() { return `
+    <h1 class="page-title">Sobre / Quem sou</h1>
+    <p class="page-subtitle">Sua apresentação pessoal. <a href="sobre.html" target="_blank">Ver página ↗</a></p>
+
+    <div class="cms-section">
+      <div class="cms-section-label">Foto de perfil</div>
+      ${fImg({ pg:'sobre', key:'profile_img', label:'Sua foto', square:true,
+        help:'Foto quadrada ou vertical. Aparece ao lado da sua bio.' })}
+    </div>
+
+    <div class="cms-section">
+      <div class="cms-section-label">Apresentação</div>
+      ${fText({ pg:'sobre', key:'hero_h1', label:'Título principal', ph:'Sou a Rebeca. E cuido dos detalhes.' })}
+      ${fText({ pg:'sobre', key:'bio_p1', label:'Parágrafo 1', rows:4 })}
+      ${fText({ pg:'sobre', key:'bio_p2', label:'Parágrafo 2', rows:4 })}
+      ${fText({ pg:'sobre', key:'bio_p3', label:'Parágrafo 3', rows:4 })}
+    </div>
+  `; },
+
+  contato() {
+    const wa = CMS.get('global','whatsapp') || '5541988429348 (padrão)';
+    return `
+    <h1 class="page-title">Contato</h1>
+    <p class="page-subtitle">A página de contato usa automaticamente o número configurado em Geral.</p>
+    <div class="info-box">
+      O WhatsApp desta página vem de <strong>⚙️ Geral → Número do WhatsApp</strong>.<br/>
+      Número atual: <strong>${esc(wa)}</strong>
+    </div>
+  `; },
+};
+
+/* ══════════════════════════════════════════
+   NAVIGATION
+══════════════════════════════════════════ */
+const PAGE_LINKS = {
+  geral:'index.html', index:'index.html', costao:'costao.html',
+  fazzenda:'fazzenda.html', japaratinga:'japaratinga.html', sobre:'sobre.html', contato:'contato.html'
+};
+
+function showPage(id, btn) {
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  document.getElementById('previewLink').href = PAGE_LINKS[id] || 'index.html';
+  const inner = document.getElementById('mainInner');
+  inner.innerHTML = PAGES[id] ? PAGES[id]() : '<p>Não encontrado</p>';
+  document.querySelector('.main').scrollTop = 0;
+}
+
+// Init if session active
+if (sessionStorage.getItem(CMS.AUTH_KEY)) {
+  renderCustomPageNav();
+  showPage('geral', document.querySelector('[data-page="geral"]'));
+}
+
+
+/* ══════════════════════════════════════════
+   CUSTOM PAGES (gerados pelo admin)
+══════════════════════════════════════════ */
+const CUSTOM_KEY = 'rsx_custom_pages';
+
+function loadCustomPages() {
+  try { return JSON.parse(localStorage.getItem(CUSTOM_KEY) || '[]'); }
+  catch(e) { return []; }
+}
+function saveCustomPages(list) {
+  localStorage.setItem(CUSTOM_KEY, JSON.stringify(list));
+}
+function renderCustomPageNav() {
+  const list = loadCustomPages();
+  const nav  = document.getElementById('custom-pages-nav');
+  if (!nav) return;
+  nav.innerHTML = list.map(p => `
+    <button class="nav-btn" data-page="${esc(p.slug)}" onclick="showPage('${esc(p.slug)}',this)">
+      <span class="nav-icon">🏨</span><span style="flex:1;text-align:left">${esc(p.nome)}</span>
+    </button>
+  `).join('');
+  // Register page renderers for each custom page
+  list.forEach(p => {
+    if (!PAGES[p.slug]) {
+      PAGES[p.slug] = () => resortHTML(p.slug, p.nome, p.slug + '.html');
+    }
+  });
+}
+
+/* ══════════════════════════════════════════
+   NOVO DESTINO
+══════════════════════════════════════════ */
+function slugify(str) {
+  return (str || '').toLowerCase()
+    .normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-z0-9\s-]/g, '').trim().replace(/\s+/g, '-');
+}
+function updateSlug() {
+  const nome = document.getElementById('nd_nome')?.value || '';
+  const slugEl = document.getElementById('nd_slug');
+  if (slugEl && !slugEl.dataset.manual) slugEl.value = slugify(nome);
+}
+
+PAGES['novo'] = () => `
+  <h1 class="page-title">Novo Destino</h1>
+  <p class="page-subtitle">Preencha as informações, clique em "Gerar Página" e salve o arquivo baixado na pasta do site.</p>
+
+  <div class="cms-section">
+    <div class="cms-section-label">Identificação</div>
+    <div class="field-row">
+      <label class="field-label">Nome do resort / destino</label>
+      <input class="field-input" id="nd_nome" placeholder="Ex: Grand Hyatt São Paulo" oninput="updateSlug()"/>
+    </div>
+    <div class="field-row">
+      <label class="field-label">Nome do arquivo</label>
+      <div class="field-help">Será o nome do arquivo HTML gerado (sem espaços ou acentos).</div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <input class="field-input" id="nd_slug" placeholder="grand-hyatt-sao-paulo"
+          oninput="this.dataset.manual='1'"/>
+        <span style="font-size:12px;color:var(--text-dim);white-space:nowrap">.html</span>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="field-row">
+        <label class="field-label">Localização</label>
+        <input class="field-input" id="nd_loc" placeholder="São Paulo · SP"/>
+      </div>
+      <div class="field-row">
+        <label class="field-label">Regime</label>
+        <input class="field-input" id="nd_regime" placeholder="All-Inclusive"/>
+      </div>
+      <div class="field-row">
+        <label class="field-label">Categoria</label>
+        <input class="field-input" id="nd_cat" placeholder="5 Estrelas"/>
+      </div>
+      <div class="field-row">
+        <label class="field-label">Coordenadas (opcional)</label>
+        <input class="field-input" id="nd_coord" placeholder="−23.5505 · −46.6333"/>
+      </div>
+    </div>
+    <div class="field-row">
+      <label class="field-label">Tags do banner</label>
+      <div class="field-help">Subtítulo que aparece abaixo do nome no banner principal.</div>
+      <input class="field-input" id="nd_tags" placeholder="RESORT URBANO · ROOFTOP · SPA"/>
+    </div>
+  </div>
+
+  <div class="cms-section">
+    <div class="cms-section-label">Descrição</div>
+    <div class="field-row">
+      <label class="field-label">Título da seção "O Resort"</label>
+      <input class="field-input" id="nd_h2" placeholder="Ex: No coração da cidade, um refúgio de luxo."/>
+    </div>
+    <div class="field-row">
+      <label class="field-label">Parágrafo 1</label>
+      <textarea class="field-input" id="nd_p1" rows="4" placeholder="Descreva o resort..."></textarea>
+    </div>
+    <div class="field-row">
+      <label class="field-label">Parágrafo 2</label>
+      <textarea class="field-input" id="nd_p2" rows="4" placeholder="Estrutura, diferenciais..."></textarea>
+    </div>
+    <div class="field-row">
+      <label class="field-label">Parágrafo 3</label>
+      <textarea class="field-input" id="nd_p3" rows="3" placeholder="Curadoria RSX Travel..."></textarea>
+    </div>
+  </div>
+
+  <div class="cms-section">
+    <div class="cms-section-label">Destaques — 4 números / símbolos</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      ${[1,2,3,4].map(i=>`
+      <div>
+        <label class="field-label" style="margin-bottom:6px;display:block">Destaque ${i}</label>
+        <input class="field-input" id="nd_sn${i}" placeholder="Ex: 5★ ou 12+" style="margin-bottom:6px"/>
+        <input class="field-input" id="nd_sl${i}" placeholder="Label: Ex: Categoria"/>
+      </div>`).join('')}
+    </div>
+  </div>
+
+  <div class="cms-section">
+    <div class="cms-section-label">Citação em destaque</div>
+    <div class="field-row">
+      <label class="field-label">Citação da Rebeca</label>
+      <input class="field-input" id="nd_quote" placeholder='"Chegando aqui, parece que o mundo inteiro pausa."'/>
+    </div>
+  </div>
+
+  <div style="margin-top:8px;display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+    <button class="btn-save" style="width:auto;padding:12px 32px;font-size:12px" onclick="gerarDestino()">
+      ✨ Gerar Página HTML
+    </button>
+    <span style="font-size:12px;color:var(--text-dim)">O arquivo será baixado. Salve-o na pasta do site.</span>
+  </div>
+  <div id="nd_result" style="display:none;margin-top:20px"></div>
+`;
+
+async function gerarDestino() {
+  const nome = (document.getElementById('nd_nome')?.value || '').trim();
+  if (!nome) { toast('Preencha o nome do resort.', true); return; }
+
+  const slug   = (document.getElementById('nd_slug')?.value || '').trim() || slugify(nome);
+  const loc    = (document.getElementById('nd_loc')?.value   || '').trim() || 'Brasil';
+  const regime = (document.getElementById('nd_regime')?.value|| '').trim() || 'All-Inclusive';
+  const cat    = (document.getElementById('nd_cat')?.value   || '').trim() || '5 Estrelas';
+  const coord  = (document.getElementById('nd_coord')?.value || '').trim() || '—';
+  const tags   = (document.getElementById('nd_tags')?.value  || '').trim() || '';
+  const h2     = (document.getElementById('nd_h2')?.value    || '').trim() || `Descubra o ${nome}.`;
+  const p1     = (document.getElementById('nd_p1')?.value    || '').trim();
+  const p2     = (document.getElementById('nd_p2')?.value    || '').trim();
+  const p3     = (document.getElementById('nd_p3')?.value    || '').trim();
+  const quote  = (document.getElementById('nd_quote')?.value || '').trim() || `"${nome} é um destino que fica na memória."`;
+  const stats  = [1,2,3,4].map(i => ({
+    n: (document.getElementById(`nd_sn${i}`)?.value || '').trim() || '—',
+    l: (document.getElementById(`nd_sl${i}`)?.value || '').trim() || 'Destaque'
+  }));
+
+  try {
+    toast('Buscando template...');
+    const res = await fetch('costao.html');
+    if (!res.ok) throw new Error('Não conseguiu carregar o template');
+    const html = await res.text();
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+
+    // Title & meta
+    doc.title = `${nome} — RSX Travel · Rebeca Piccolo`;
+    const md = doc.querySelector('meta[name="description"]');
+    if (md) md.content = `${nome} — curadoria personalizada RSX Travel. ${loc}.`;
+
+    // Hero h1
+    const h1el = doc.querySelector('.page-hero h1');
+    if (h1el) {
+      const words = nome.split(' ');
+      h1el.innerHTML = words.length > 1
+        ? words.slice(0,-1).join(' ') + '<br/><em>' + words.slice(-1)[0] + '.</em>'
+        : '<em>' + nome + '.</em>';
+    }
+
+    // Badge
+    const badge = doc.querySelector('.hero-badge');
+    if (badge) badge.textContent = `${regime.toUpperCase()} · ${loc.toUpperCase()}`;
+
+    // Tags (subtitle)
+    const heroTags = doc.querySelector('.hero-tags');
+    if (heroTags) heroTags.textContent = tags || `RESORT · ${loc.toUpperCase()}`;
+
+    // Meta items
+    const metaDefs = [
+      { l: 'LOCALIZAÇÃO', v: loc },
+      { l: 'REGIME',      v: regime },
+      { l: 'CATEGORIA',   v: cat },
+      { l: 'COORDENADAS', v: coord },
+    ];
+    doc.querySelectorAll('.hero-meta-item').forEach((item, i) => {
+      if (!metaDefs[i]) return;
+      const lbl = item.querySelector('.meta-label, .hero-meta-label');
+      const val = item.querySelector('.meta-value, .hero-meta-value');
+      if (lbl) lbl.textContent = metaDefs[i].l;
+      if (val) val.textContent = metaDefs[i].v;
+    });
+
+    // Overview
+    const oh2 = doc.querySelector('.overview-text .section-h2');
+    if (oh2) oh2.innerHTML = h2;
+    const ps = doc.querySelectorAll('.overview-text > p');
+    [p1, p2, p3].forEach((txt, i) => { if (txt && ps[i]) ps[i].textContent = txt; });
+
+    // Stats
+    const sNums = doc.querySelectorAll('.stat-number');
+    const sLbls = doc.querySelectorAll('.stat-label');
+    stats.forEach((s,i) => {
+      if (sNums[i]) sNums[i].textContent = s.n;
+      if (sLbls[i]) sLbls[i].textContent = s.l;
+    });
+
+    // Experience quote & bg text
+    const q = doc.querySelector('.experience-quote');
+    if (q) q.textContent = quote;
+    const bgTxt = doc.querySelector('.experience-bg-text');
+    if (bgTxt) bgTxt.textContent = nome.split(' ')[0];
+
+    // WhatsApp links
+    const waMsg = encodeURIComponent(`Oi Rebeca, quero saber mais sobre ${nome}!`);
+    doc.querySelectorAll('a[href*="wa.me"]').forEach(a => {
+      a.href = `https://wa.me/5541988429348?text=${waMsg}`;
+    });
+
+    // Add content-override.js if not already there
+    if (!doc.querySelector('script[src="content-override.js"]')) {
+      const s = doc.createElement('script');
+      s.src = 'content-override.js';
+      doc.head.appendChild(s);
+    }
+
+    // Download
+    const final = '<!DOCTYPE html>\n' + doc.documentElement.outerHTML;
+    const blob  = new Blob([final], { type: 'text/html;charset=utf-8' });
+    const url   = URL.createObjectURL(blob);
+    const a     = document.createElement('a');
+    a.href = url; a.download = slug + '.html';
+    document.body.appendChild(a); a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    // Register custom page so it appears in sidebar + home page card
+    const existing = loadCustomPages().filter(p => p.slug !== slug);
+    saveCustomPages([...existing, {
+      slug, nome,
+      localizacao: loc,
+      regime,
+      desc: p1 ? p1.slice(0, 90).replace(/\s\S+$/, '…') : ''
+    }]);
+    renderCustomPageNav();
+
+    // Success message
+    const result = document.getElementById('nd_result');
+    if (result) {
+      result.style.display = 'block';
+      result.innerHTML = `<div class="info-box">
+        <strong>✅ Arquivo gerado: ${esc(slug)}.html</strong><br/><br/>
+        <strong>Próximos passos:</strong><br/>
+        1. Salve o arquivo <code>${esc(slug)}.html</code> na pasta do site (junto com index.html, costao.html, etc).<br/>
+        2. Para adicionar fotos e editar textos depois: o resort já aparece no painel à esquerda como <strong>🏨 ${esc(nome)}</strong>.<br/>
+        3. Para aparecer na página inicial, edite <code>index.html</code> e adicione um card para este destino.
+      </div>`;
+    }
+    toast(`✅ ${slug}.html gerado e registrado!`);
+  } catch(err) {
+    console.error(err);
+    toast('Erro ao gerar a página. Verifique se o servidor está rodando.', true);
+  }
+}
+
+/* ══════════════════════════════════════════
+   PASSWORD CHANGE
+══════════════════════════════════════════ */
+function changePass() {
+  const p1 = document.getElementById('p1').value;
+  const p2 = document.getElementById('p2').value;
+  if (!p1)        return toast('Digite a nova senha.', true);
+  if (p1 !== p2)  return toast('As senhas não coincidem.', true);
+  if (p1.length < 4) return toast('Senha muito curta (mín. 4 caracteres).', true);
+  CMS.setPass(p1);
+  document.getElementById('p1').value = '';
+  document.getElementById('p2').value = '';
+  toast('Senha alterada com sucesso!');
+}
+</script>
+</body>
+</html>
