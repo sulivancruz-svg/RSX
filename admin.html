@@ -179,7 +179,7 @@ input[type="file"]{display:none}
       <span class="app-brand-label">Painel de Conteúdo</span>
     </div>
     <div class="app-actions">
-      <button class="btn-ghost" onclick="window._previewWin = window.open('index.html','rsx_preview')">Ver Home ↗</button>
+      <a id="previewLink" href="index.html" target="rsx_preview" style="text-decoration:none"><button class="btn-ghost" onclick="window._previewWin=window.open(document.getElementById('previewLink').href,'rsx_preview');return false">Ver Home ↗</button></a>
       <button class="btn-save" onclick="CMS.save(); setTimeout(()=>{ if(window._previewWin && !window._previewWin.closed){ window._previewWin.location.reload(); } }, 300)">💾 Salvar</button>
       <button class="btn-ghost" onclick="doLogout()">Sair</button>
     </div>
