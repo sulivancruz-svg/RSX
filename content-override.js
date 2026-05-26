@@ -179,10 +179,15 @@
 
     var pid = pageId();
 
-    // Página inicial: atualiza cards dos resorts existentes + injeta novos
+    // Página inicial: atualiza cards dos resorts existentes + injeta novos + foto Rebeca
     if (pid === 'index') {
       applyIndexCards(data);
       applyCustomCards(data);
+      // foto da Rebeca na seção home — lida da página "sobre"
+      var sobreImg = data.pages && data.pages['sobre'] && data.pages['sobre']['profile_img'];
+      if (sobreImg) {
+        applyField({ k: 'profile_img', s: '.rebeca-portrait-bg', t: 'bg' }, sobreImg);
+      }
     }
 
     // Aplica campos da página atual
