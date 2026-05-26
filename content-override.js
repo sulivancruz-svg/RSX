@@ -184,9 +184,20 @@
       applyIndexCards(data);
       applyCustomCards(data);
       // foto da Rebeca na seção home — lida da página "sobre"
-      var sobreImg = data.pages && data.pages['sobre'] && data.pages['sobre']['profile_img'];
+      var sobreData = data.pages && data.pages['sobre'];
+      var sobreImg  = sobreData && (sobreData['profile_img'] || sobreData['card_img']);
       if (sobreImg) {
+        // aplica na seção Rebeca da home
         applyField({ k: 'profile_img', s: '.rebeca-portrait-bg', t: 'bg' }, sobreImg);
+        // aplica no card "Quem sou" do grid de resorts
+        var sobreCard = document.querySelector('a.tour-card[href="sobre.html"] .tour-img-inner');
+        if (sobreCard) {
+          sobreCard.style.backgroundImage = 'url("' + sobreImg + '")';
+          sobreCard.style.backgroundSize  = 'cover';
+          sobreCard.style.backgroundPosition = 'center';
+          var ph = sobreCard.querySelector('.tour-img-placeholder');
+          if (ph) ph.style.display = 'none';
+        }
       }
     }
 
