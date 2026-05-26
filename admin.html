@@ -246,8 +246,13 @@ const CMS = {
   },
 
   save(silent) {
-    localStorage.setItem(this.KEY, JSON.stringify(this.data));
-    if (!silent) toast('Conteúdo salvo com sucesso!');
+    try {
+      localStorage.setItem(this.KEY, JSON.stringify(this.data));
+      if (!silent) toast('Conteúdo salvo com sucesso!');
+    } catch(e) {
+      toast('❌ Erro ao salvar: armazenamento cheio. Remova fotos grandes ou use URLs externas.', true);
+      throw e; // repassa pro caller
+    }
   },
 
   get(page, key) {
@@ -420,15 +425,25 @@ function onFilePick(pg, key, prevId, input) {
   const file = input.files[0];
   if (!file) return;
   if (file.size > 4 * 1024 * 1024) {
-    toast('Arquivo grande (>4MB). Para fotos grandes use a pasta assets/uploads/ e cole o caminho.', true);
+    toast('⚠️ Foto grande (>4MB) — pode falhar. Reduza o tamanho ou use URL externa.', true);
   }
   const r = new FileReader();
-  r.onload = e => { CMS.set(pg,key,e.target.result); setImgPreview(prevId, e.target.result); };
+  r.onload = e => {
+    CMS.set(pg, key, e.target.result);
+    setImgPreview(prevId, e.target.result);
+    try {
+      CMS.save(true); // salva automaticamente (silencioso)
+      toast('✅ Foto salva!');
+    } catch(err) {
+      toast('❌ Foto muito grande para salvar. Use URL ou reduza o arquivo.', true);
+      CMS.set(pg, key, ''); // reverte
+    }
+  };
   r.readAsDataURL(file);
 }
 function onUrlInput(pg, key, prevId, val) {
   CMS.set(pg, key, val.trim());
-  if (val.trim()) setImgPreview(prevId, val.trim());
+  if (val.trim()) { setImgPreview(prevId, val.trim()); CMS.save(true); }
 }
 function clearImg(pg, key, prevId) {
   CMS.set(pg, key, '');
