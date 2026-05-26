@@ -422,10 +422,17 @@ function resortHTML(pg, name, file) {
     <h1 class="page-title">${name}</h1>
     <p class="page-subtitle">Edite o conteúdo exibido na página do resort. <a href="${file}" target="_blank">Ver página ↗</a></p>
 
+    <div class="info-box" style="margin-bottom:32px">
+      <strong>Como funciona:</strong> edite os campos abaixo e clique em <strong>💾 Salvar</strong> no topo da página. As alterações aparecem automaticamente quando você abre a página do resort.<br/>
+      <span style="color:rgba(232,221,208,.4);font-size:11px;margin-top:4px;display:block">⚠️ O site precisa estar aberto via <code>http://localhost:3456</code> para as edições funcionarem.</span>
+    </div>
+
     <div class="cms-section">
-      <div class="cms-section-label">Imagem principal (hero)</div>
-      <div class="info-box">Proporção ideal: <strong>16:9 ou mais largo</strong>. Um overlay escuro é aplicado automaticamente sobre a foto para manter o texto legível.</div>
-      ${fImg({ pg, key:'hero_img', label:'Foto de fundo do banner' })}
+      <div class="cms-section-label">Banner principal</div>
+      <div class="info-box">A imagem de fundo aparece atrás do título. Um overlay escuro é aplicado automaticamente para manter o texto legível.</div>
+      ${fImg({ pg, key:'hero_img', label:'Imagem de fundo do banner', help:'Proporção ideal: 16:9 ou mais largo. Formatos: JPG, PNG, WebP.' })}
+      ${fText({ pg, key:'hero_title', label:'Título principal (HTML aceito)', help:'Use &lt;br/&gt; para quebrar linha e &lt;em&gt;texto&lt;/em&gt; para itálico dourado. Ex: Costão do&lt;br/&gt;&lt;em&gt;Santinho.&lt;/em&gt;', rows:2 })}
+      ${fText({ pg, key:'hero_sub', label:'Subtítulo (tags do resort)', ph:'Ex: Resort à beira-mar · Mata Atlântica · Spa termal', rows:1 })}
     </div>
 
     <div class="cms-section">
@@ -446,7 +453,7 @@ function resortHTML(pg, name, file) {
       <div class="info-box">
         <strong>Como adicionar fotos:</strong><br/>
         • <strong>Fotos pequenas (&lt;4MB):</strong> clique em "Escolher arquivo" — a foto fica salva diretamente.<br/>
-        • <strong>Fotos grandes:</strong> copie o arquivo para a pasta <code>assets/uploads/</code> e cole o nome aqui, ex: <code>assets/uploads/costao-piscina.jpg</code>
+        • <strong>Fotos grandes:</strong> copie o arquivo para a pasta <code>assets/uploads/</code> e cole o caminho aqui, ex: <code>assets/uploads/costao-piscina.jpg</code>
       </div>
       ${fImg({ pg, key:'gallery_1', label:'Foto 1 (destaque — ocupa mais espaço)' })}
       ${fImg({ pg, key:'gallery_2', label:'Foto 2' })}
@@ -464,6 +471,14 @@ const PAGES = {
   geral() { return `
     <h1 class="page-title">Configurações Gerais</h1>
     <p class="page-subtitle">Afetam todas as páginas do site.</p>
+    <div class="info-box" style="margin-bottom:32px">
+      <strong>Como usar o painel:</strong><br/>
+      1. Escolha uma página no menu lateral.<br/>
+      2. Edite os campos desejados (textos, imagens, vídeo).<br/>
+      3. Clique em <strong>💾 Salvar</strong> no topo — as alterações ficam salvas.<br/>
+      4. Abra a página do site para ver as mudanças aplicadas.<br/>
+      <span style="color:rgba(232,221,208,.4);font-size:11px;margin-top:4px;display:block">⚠️ O site precisa estar rodando em <code>http://localhost:3456</code> para o sistema funcionar.</span>
+    </div>
 
     <div class="cms-section">
       <div class="cms-section-label">WhatsApp</div>
@@ -505,15 +520,24 @@ const PAGES = {
     <h1 class="page-title">Sobre / Quem sou</h1>
     <p class="page-subtitle">Sua apresentação pessoal. <a href="sobre.html" target="_blank">Ver página ↗</a></p>
 
-    <div class="cms-section">
-      <div class="cms-section-label">Foto de perfil</div>
-      ${fImg({ pg:'sobre', key:'profile_img', label:'Sua foto', square:true,
-        help:'Foto quadrada ou vertical. Aparece ao lado da sua bio.' })}
+    <div class="info-box" style="margin-bottom:32px">
+      Edite os campos abaixo e clique em <strong>💾 Salvar</strong>. As mudanças aparecem ao abrir <a href="sobre.html" target="_blank">sobre.html</a>.
     </div>
 
     <div class="cms-section">
-      <div class="cms-section-label">Apresentação</div>
-      ${fText({ pg:'sobre', key:'hero_h1', label:'Título principal', ph:'Sou a Rebeca. E cuido dos detalhes.' })}
+      <div class="cms-section-label">Foto de perfil</div>
+      ${fImg({ pg:'sobre', key:'profile_img', label:'Sua foto', square:true,
+        help:'Foto quadrada ou vertical. Aparece ao lado da sua bio na página Sobre.' })}
+    </div>
+
+    <div class="cms-section">
+      <div class="cms-section-label">Hero — título</div>
+      ${fText({ pg:'sobre', key:'hero_h1', label:'Título principal da página', ph:'Sou a Rebeca. E cuido dos detalhes.',
+        help:'Aparece em destaque no banner da página Sobre.' })}
+    </div>
+
+    <div class="cms-section">
+      <div class="cms-section-label">Bio — parágrafos</div>
       ${fText({ pg:'sobre', key:'bio_p1', label:'Parágrafo 1', rows:4 })}
       ${fText({ pg:'sobre', key:'bio_p2', label:'Parágrafo 2', rows:4 })}
       ${fText({ pg:'sobre', key:'bio_p3', label:'Parágrafo 3', rows:4 })}

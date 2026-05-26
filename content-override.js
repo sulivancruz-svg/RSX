@@ -15,6 +15,8 @@
 
   var RESORT_FIELDS = [
     { k: 'hero_img',         s: '.page-hero',                         t: 'bg'   },
+    { k: 'hero_title',       s: '.page-hero-title',                   t: 'html' },
+    { k: 'hero_sub',         s: '.page-hero-sub',                     t: 'html' },
     { k: 'overview_h2',      s: '.overview-text .section-h2',         t: 'html' },
     { k: 'overview_p1',      s: '.overview-text > p:nth-of-type(1)',  t: 'html' },
     { k: 'overview_p2',      s: '.overview-text > p:nth-of-type(2)',  t: 'html' },
