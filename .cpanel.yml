@@ -1,6 +1,8 @@
 ---
 deployment:
   tasks:
-    - /bin/cp -f index.html sobre.html contato.html costao.html fazzenda.html japaratinga.html admin.html content-override.js cms-save.php /home/rsxtrave/public_html/
+    - /bin/cp -f index.html sobre.html contato.html costao.html fazzenda.html japaratinga.html admin.html content-override.js cms-save.php upload.php /home/rsxtrave/public_html/
     - /bin/cp -n cms-data.json /home/rsxtrave/public_html/cms-data.json || true
     - /bin/cp -rf design_handoff_rsx_travel_site /home/rsxtrave/public_html/
+    - /bin/mkdir -p /home/rsxtrave/public_html/midia
+    - /bin/chmod 755 /home/rsxtrave/public_html/midia
