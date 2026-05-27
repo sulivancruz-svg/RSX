@@ -692,34 +692,28 @@ function resortHTML(pg, name, file) {
 
     <div class="cms-section">
       <div class="cms-section-label">Números em destaque (4 blocos)</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-        <div>
-          ${fText({ pg, key:'stat1_num',   label:'Número 1', ph:'86' })}
-          ${fText({ pg, key:'stat1_label', label:'Label 1',  ph:'Apartamentos' })}
-        </div>
-        <div>
-          ${fText({ pg, key:'stat2_num',   label:'Número 2', ph:'∞' })}
-          ${fText({ pg, key:'stat2_label', label:'Label 2',  ph:'Piscinas naturais' })}
-        </div>
-        <div>
-          ${fText({ pg, key:'stat3_num',   label:'Número 3', ph:'5★' })}
-          ${fText({ pg, key:'stat3_label', label:'Label 3',  ph:'Experiência' })}
-        </div>
-        <div>
-          ${fText({ pg, key:'stat4_num',   label:'Número 4', ph:'AL' })}
-          ${fText({ pg, key:'stat4_label', label:'Label 4',  ph:'Nordeste · Brasil' })}
-        </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:start">
+        ${fText({ pg, key:'stat1_num',   label:'Número 1', ph:'86' })}
+        ${fText({ pg, key:'stat1_label', label:'Label 1',  ph:'Apartamentos' })}
+        ${fText({ pg, key:'stat2_num',   label:'Número 2', ph:'∞' })}
+        ${fText({ pg, key:'stat2_label', label:'Label 2',  ph:'Piscinas naturais' })}
+        ${fText({ pg, key:'stat3_num',   label:'Número 3', ph:'5★' })}
+        ${fText({ pg, key:'stat3_label', label:'Label 3',  ph:'Experiência' })}
+        ${fText({ pg, key:'stat4_num',   label:'Número 4', ph:'AL' })}
+        ${fText({ pg, key:'stat4_label', label:'Label 4',  ph:'Nordeste · Brasil' })}
       </div>
     </div>
 
     <div class="cms-section">
       <div class="cms-section-label">Destaques do resort (3 cards)</div>
-      ${fText({ pg, key:'hl1_title', label:'Destaque 1 — Título', ph:'Piscinas Naturais' })}
-      ${fText({ pg, key:'hl1_desc',  label:'Destaque 1 — Descrição', rows:3 })}
-      ${fText({ pg, key:'hl2_title', label:'Destaque 2 — Título', ph:'Gastronomia' })}
-      ${fText({ pg, key:'hl2_desc',  label:'Destaque 2 — Descrição', rows:3 })}
-      ${fText({ pg, key:'hl3_title', label:'Destaque 3 — Título', ph:'Exclusividade' })}
-      ${fText({ pg, key:'hl3_desc',  label:'Destaque 3 — Descrição', rows:3 })}
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:start">
+        ${fText({ pg, key:'hl1_title', label:'Destaque 1 — Título', ph:'Piscinas Naturais' })}
+        ${fText({ pg, key:'hl1_desc',  label:'Destaque 1 — Descrição', rows:3 })}
+        ${fText({ pg, key:'hl2_title', label:'Destaque 2 — Título', ph:'Gastronomia' })}
+        ${fText({ pg, key:'hl2_desc',  label:'Destaque 2 — Descrição', rows:3 })}
+        ${fText({ pg, key:'hl3_title', label:'Destaque 3 — Título', ph:'Exclusividade' })}
+        ${fText({ pg, key:'hl3_desc',  label:'Destaque 3 — Descrição', rows:3 })}
+      </div>
     </div>
 
     <div class="cms-section">
@@ -1046,12 +1040,17 @@ PAGES['novo'] = () => `
 
   <div class="cms-section">
     <div class="cms-section-label">Destaques — 4 números / símbolos</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+    <div style="display:flex;flex-direction:column;gap:12px">
       ${[1,2,3,4].map(i=>`
-      <div>
-        <label class="field-label" style="margin-bottom:6px;display:block">Destaque ${i}</label>
-        <input class="field-input" id="nd_sn${i}" placeholder="Ex: 5★ ou 12+" style="margin-bottom:6px"/>
-        <input class="field-input" id="nd_sl${i}" placeholder="Label: Ex: Categoria"/>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:start">
+        <div class="field-row">
+          <label class="field-label">Número ${i}</label>
+          <input class="field-input" id="nd_sn${i}" placeholder="Ex: 5★ ou 12+"/>
+        </div>
+        <div class="field-row">
+          <label class="field-label">Label ${i}</label>
+          <input class="field-input" id="nd_sl${i}" placeholder="Ex: Categoria"/>
+        </div>
       </div>`).join('')}
     </div>
   </div>
