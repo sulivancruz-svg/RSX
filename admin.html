@@ -673,9 +673,11 @@ function resortHTML(pg, name, file) {
 
     <div class="cms-section">
       <div class="cms-section-label">Banner principal</div>
-      <div class="info-box">O vídeo tem prioridade sobre a imagem. Se não houver vídeo, a imagem é usada como fundo.</div>
-      ${fVideoUpload({ pg, key:'hero_video_file', label:'Vídeo de fundo (MP4)' })}
-      ${fImg({ pg, key:'hero_img', label:'Imagem de fundo (fallback sem vídeo)', help:'Proporção ideal: 16:9 ou mais largo. Formatos: JPG, PNG, WebP.' })}
+      <div class="info-box">Cole a URL do YouTube para usar como vídeo de fundo. O YouTube tem prioridade sobre o MP4.</div>
+      ${fVideo({ pg, key:'hero_video_yt', label:'URL do YouTube (vídeo de fundo)',
+        help:'Ex: https://youtu.be/NZNY3eIeIjE — igual à home. Deixe vazio para usar o MP4 abaixo.' })}
+      ${fVideoUpload({ pg, key:'hero_video_file', label:'Vídeo de fundo (MP4 — alternativa ao YouTube)' })}
+      ${fImg({ pg, key:'hero_img', label:'Imagem de fundo (fallback se não houver vídeo)', help:'Proporção ideal: 16:9 ou mais largo. Formatos: JPG, PNG, WebP.' })}
       ${fText({ pg, key:'hero_title', label:'Título principal (HTML aceito)', help:'Use &lt;br/&gt; para quebrar linha e &lt;em&gt;texto&lt;/em&gt; para itálico dourado. Ex: Costão do&lt;br/&gt;&lt;em&gt;Santinho.&lt;/em&gt;', rows:2 })}
       ${fText({ pg, key:'hero_sub', label:'Subtítulo (tags do resort)', ph:'Ex: Resort à beira-mar · Mata Atlântica · Spa termal', rows:1 })}
     </div>
@@ -845,6 +847,7 @@ const PAGE_LINKS = {
    FIELD MAP — mirrors content-override.js
 ══════════════════════════════════════════ */
 const RESORT_FIELD_MAP = [
+  { k:'hero_video_yt',       s:'.page-hero-video',                  t:'yt'   },
   { k:'hero_title',          s:'.page-hero-title',                  t:'html' },
   { k:'hero_sub',            s:'.page-hero-sub',                    t:'html' },
   { k:'meta_localizacao',    s:'.page-hero-meta-item:nth-child(1) .page-hero-meta-value', t:'html' },
