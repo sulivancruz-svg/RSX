@@ -64,7 +64,7 @@ nav.topnav.scrolled{background:rgba(8,15,31,.92);backdrop-filter:blur(20px) satu
 .reveal-delay-2{transition-delay:.3s}
 .reveal-delay-3{transition-delay:.45s}
 .page-hero{position:relative;min-height:72vh;background:var(--navy-950);display:flex;flex-direction:column;justify-content:flex-end;overflow:hidden}
-.page-hero-video{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:177.78vh;min-width:100%;height:100vh;min-height:56.25vw;z-index:0;filter:saturate(.75) brightness(.8);pointer-events:none;border:none}
+.page-hero-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;filter:saturate(.75) brightness(.8);pointer-events:none;border:none}
 .page-hero::before{content:'';position:absolute;inset:0;background-image:repeating-linear-gradient(45deg,rgba(201,165,116,.03) 0 14px,transparent 14px 28px);pointer-events:none}
 .page-hero::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,15,31,.4) 0%,transparent 40%,rgba(8,15,31,.7) 100%);pointer-events:none}
 .page-hero-deco{position:absolute;right:-80px;top:-80px;width:700px;height:700px;border-radius:50%;background:radial-gradient(circle,rgba(13,37,53,.7) 0%,transparent 70%);pointer-events:none}
@@ -204,11 +204,9 @@ footer{background:var(--navy-950);color:var(--cream);padding:100px var(--section
 </nav>
 
 <header class="page-hero">
-  <iframe class="page-hero-video"
-    src="https://player.vimeo.com/video/1196115791?autoplay=1&muted=1&loop=1&background=1&title=0&byline=0&portrait=0"
-    allow="autoplay; fullscreen"
-    allowfullscreen
-    title="Japaratinga Lounge Resort"></iframe>
+  <video class="page-hero-video" autoplay muted loop playsinline>
+    <source src="Videos/japaratinga2.mp4" type="video/mp4">
+  </video>
   <div class="page-hero-deco"></div>
   <a href="index.html#resorts" class="page-hero-back">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
@@ -302,11 +300,9 @@ footer{background:var(--navy-950);color:var(--cream);padding:100px var(--section
     <div class="section-eyebrow">O resort em vídeo</div>
     <h2 class="section-h2">Veja antes de <em>viver.</em></h2>
     <div class="resort-video-wrap">
-      <iframe class="resort-player"
-        src="https://player.vimeo.com/video/1196115791?title=0&byline=0&portrait=0&vq=1080p"
-        allow="autoplay; fullscreen; picture-in-picture"
-        allowfullscreen
-        title="Japaratinga Lounge Resort — Vídeo oficial"></iframe>
+      <video class="resort-player" controls>
+        <source src="Videos/japaratinga2.mp4" type="video/mp4">
+      </video>
     </div>
   </div>
 </section>
