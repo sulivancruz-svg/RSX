@@ -717,7 +717,7 @@ function resortHTML(pg, name, file) {
     </div>
 
     <div class="cms-section">
-      <div class="cms-section-label">Destaques do resort (3 cards)</div>
+      <div class="cms-section-label">Destaques do resort (6 cards)</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:start">
         ${fText({ pg, key:'hl1_title', label:'Destaque 1 — Título', ph:'Piscinas Naturais' })}
         ${fText({ pg, key:'hl1_desc',  label:'Destaque 1 — Descrição', rows:3 })}
@@ -725,6 +725,12 @@ function resortHTML(pg, name, file) {
         ${fText({ pg, key:'hl2_desc',  label:'Destaque 2 — Descrição', rows:3 })}
         ${fText({ pg, key:'hl3_title', label:'Destaque 3 — Título', ph:'Exclusividade' })}
         ${fText({ pg, key:'hl3_desc',  label:'Destaque 3 — Descrição', rows:3 })}
+        ${fText({ pg, key:'hl4_title', label:'Destaque 4 — Título', ph:'Spa' })}
+        ${fText({ pg, key:'hl4_desc',  label:'Destaque 4 — Descrição', rows:3 })}
+        ${fText({ pg, key:'hl5_title', label:'Destaque 5 — Título', ph:'Piscinas Aquecidas' })}
+        ${fText({ pg, key:'hl5_desc',  label:'Destaque 5 — Descrição', rows:3 })}
+        ${fText({ pg, key:'hl6_title', label:'Destaque 6 — Título', ph:'Passeios' })}
+        ${fText({ pg, key:'hl6_desc',  label:'Destaque 6 — Descrição', rows:3 })}
       </div>
     </div>
 
@@ -878,6 +884,12 @@ const RESORT_FIELD_MAP = [
   { k:'hl2_desc',    s:'.highlights-grid .highlight-card:nth-child(2) .highlight-desc',  t:'html' },
   { k:'hl3_title',   s:'.highlights-grid .highlight-card:nth-child(3) .highlight-title', t:'html' },
   { k:'hl3_desc',    s:'.highlights-grid .highlight-card:nth-child(3) .highlight-desc',  t:'html' },
+  { k:'hl4_title',   s:'.highlights-grid .highlight-card:nth-child(4) .highlight-title', t:'html' },
+  { k:'hl4_desc',    s:'.highlights-grid .highlight-card:nth-child(4) .highlight-desc',  t:'html' },
+  { k:'hl5_title',   s:'.highlights-grid .highlight-card:nth-child(5) .highlight-title', t:'html' },
+  { k:'hl5_desc',    s:'.highlights-grid .highlight-card:nth-child(5) .highlight-desc',  t:'html' },
+  { k:'hl6_title',   s:'.highlights-grid .highlight-card:nth-child(6) .highlight-title', t:'html' },
+  { k:'hl6_desc',    s:'.highlights-grid .highlight-card:nth-child(6) .highlight-desc',  t:'html' },
 ];
 const SOBRE_FIELD_MAP = [
   { k:'hero_h1', s:'.sobre-hero h1',               t:'html' },

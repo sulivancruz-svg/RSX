@@ -47,6 +47,12 @@
     { k: 'hl2_desc',         s: '.highlights-grid .highlight-card:nth-child(2) .highlight-desc',  t: 'html' },
     { k: 'hl3_title',        s: '.highlights-grid .highlight-card:nth-child(3) .highlight-title', t: 'html' },
     { k: 'hl3_desc',         s: '.highlights-grid .highlight-card:nth-child(3) .highlight-desc',  t: 'html' },
+    { k: 'hl4_title',        s: '.highlights-grid .highlight-card:nth-child(4) .highlight-title', t: 'html' },
+    { k: 'hl4_desc',         s: '.highlights-grid .highlight-card:nth-child(4) .highlight-desc',  t: 'html' },
+    { k: 'hl5_title',        s: '.highlights-grid .highlight-card:nth-child(5) .highlight-title', t: 'html' },
+    { k: 'hl5_desc',         s: '.highlights-grid .highlight-card:nth-child(5) .highlight-desc',  t: 'html' },
+    { k: 'hl6_title',        s: '.highlights-grid .highlight-card:nth-child(6) .highlight-title', t: 'html' },
+    { k: 'hl6_desc',         s: '.highlights-grid .highlight-card:nth-child(6) .highlight-desc',  t: 'html' },
   ];
 
   var FIELDS = {
