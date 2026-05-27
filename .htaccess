@@ -4,3 +4,10 @@ php_value post_max_size       260M
 php_value memory_limit        256M
 php_value max_execution_time  300
 php_value max_input_time      300
+
+# MIME types para vídeo
+AddType video/mp4  .mp4
+AddType video/webm .webm
+
+# Suporte a range requests (necessário para vídeo funcionar no browser)
+Header set Accept-Ranges bytes
