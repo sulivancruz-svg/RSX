@@ -111,6 +111,13 @@ nav.topnav.scrolled{background:rgba(8,15,31,.92);backdrop-filter:blur(20px) satu
 .experience-eyebrow{font-size:10px;letter-spacing:.5em;text-transform:uppercase;color:var(--gold-300);margin-bottom:24px}
 .experience-quote{font-family:'Cormorant Garamond',serif;font-size:clamp(32px,4vw,56px);font-weight:300;font-style:italic;color:var(--cream);line-height:1.2;margin-bottom:32px}
 .experience-attr{font-size:10px;letter-spacing:.4em;text-transform:uppercase;color:rgba(245,239,230,.45)}
+.resort-video-section{padding:var(--section-py) var(--section-px);background:var(--navy-950);color:var(--cream)}
+.resort-video-inner{max-width:960px;margin:0 auto;text-align:center}
+.resort-video-inner .section-eyebrow{color:var(--gold-400);margin-bottom:16px}
+.resort-video-inner .section-h2{color:var(--cream);margin-bottom:56px}
+.resort-video-inner .section-h2 em{color:var(--gold-300)}
+.resort-video-wrap{position:relative;aspect-ratio:16/9;background:#000;border-radius:4px;overflow:hidden;box-shadow:0 48px 96px -24px rgba(0,0,0,.6),0 0 0 1px rgba(201,165,116,.12)}
+.resort-player{position:absolute;inset:0;width:100%;height:100%;border:none}
 .gallery{padding:var(--section-py) var(--section-px);background:var(--paper)}
 .gallery-head{max-width:1400px;margin:0 auto 48px;display:flex;align-items:flex-end;justify-content:space-between}
 .gallery-grid{display:grid;grid-template-columns:2fr 1fr 1fr;grid-template-rows:360px 240px;gap:4px;max-width:1400px;margin:0 auto}
@@ -287,6 +294,20 @@ footer{background:var(--navy-950);color:var(--cream);padding:100px var(--section
     <div class="experience-eyebrow">— A experiência</div>
     <p class="experience-quote">"A água do Japaratinga tem uma cor que não existe em mais nenhum lugar."</p>
     <div class="experience-attr">Rebeca Piccolo · RSX Travel</div>
+  </div>
+</section>
+
+<section class="resort-video-section">
+  <div class="resort-video-inner reveal">
+    <div class="section-eyebrow">O resort em vídeo</div>
+    <h2 class="section-h2">Veja antes de <em>viver.</em></h2>
+    <div class="resort-video-wrap">
+      <iframe class="resort-player"
+        src="https://www.youtube-nocookie.com/embed/TgM-2MJvnDs?rel=0&modestbranding=1&iv_load_policy=3&color=white"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        allowfullscreen
+        title="Japaratinga Lounge Resort — Vídeo oficial"></iframe>
+    </div>
   </div>
 </section>
 

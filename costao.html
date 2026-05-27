@@ -345,6 +345,13 @@ nav.topnav.dark-mode{background:rgba(8,15,31,.92);backdrop-filter:blur(20px) sat
   text-transform:uppercase;
   color:rgba(245,239,230,.45);
 }
+.resort-video-section{padding:var(--section-py) var(--section-px);background:var(--navy-950);color:var(--cream)}
+.resort-video-inner{max-width:960px;margin:0 auto;text-align:center}
+.resort-video-inner .section-eyebrow{color:var(--gold-400);margin-bottom:16px}
+.resort-video-inner .section-h2{color:var(--cream);margin-bottom:56px}
+.resort-video-inner .section-h2 em{color:var(--gold-300)}
+.resort-video-wrap{position:relative;aspect-ratio:16/9;background:#000;border-radius:4px;overflow:hidden;box-shadow:0 48px 96px -24px rgba(0,0,0,.6),0 0 0 1px rgba(201,165,116,.12);display:none}
+.resort-player{position:absolute;inset:0;width:100%;height:100%;border:none}
 
 /* GALLERY */
 .gallery{
@@ -690,6 +697,20 @@ footer{background:var(--navy-950);color:var(--cream);padding:100px var(--section
     <div class="experience-eyebrow">— A experiência</div>
     <p class="experience-quote">"Quando você está no Costão, o mundo lá fora simplesmente para."</p>
     <div class="experience-attr">Rebeca Piccolo · RSX Travel</div>
+  </div>
+</section>
+
+<section class="resort-video-section">
+  <div class="resort-video-inner reveal">
+    <div class="section-eyebrow">O resort em vídeo</div>
+    <h2 class="section-h2">Veja antes de <em>viver.</em></h2>
+    <div class="resort-video-wrap">
+      <iframe class="resort-player"
+        src=""
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        allowfullscreen
+        title="Costão do Santinho — Vídeo oficial"></iframe>
+    </div>
   </div>
 </section>
 

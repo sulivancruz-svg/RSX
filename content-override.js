@@ -14,8 +14,9 @@
   }
 
   var RESORT_FIELDS = [
-    { k: 'hero_video_yt',    s: '.page-hero-video',                   t: 'yt'   },
-    { k: 'hero_video_file',  s: '.page-hero-video source',            t: 'src'  },
+    { k: 'hero_video_yt',    s: '.page-hero-video',                   t: 'yt'        },
+    { k: 'hero_video_yt',    s: '.resort-player',                     t: 'yt-player' },
+    { k: 'hero_video_file',  s: '.page-hero-video source',            t: 'src'       },
     { k: 'hero_img',         s: '.page-hero',                         t: 'bg'   },
     { k: 'hero_title',       s: '.page-hero-title',                   t: 'html' },
     { k: 'hero_sub',         s: '.page-hero-sub',                     t: 'html' },
@@ -65,12 +66,24 @@
     contato: [],
   };
 
-  function ytEmbed(url) {
+  function ytId(url) {
     var m = (url || '').match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([^&\s?\/]+)/);
-    var id = m ? m[1] : url;
+    return m ? m[1] : url;
+  }
+
+  // Embed mudo em loop — fundo do banner
+  function ytEmbed(url) {
+    var id = ytId(url);
     return 'https://www.youtube-nocookie.com/embed/' + id +
       '?autoplay=1&mute=1&loop=1&playlist=' + id +
       '&controls=0&showinfo=0&rel=0&iv_load_policy=3&modestbranding=1&playsinline=1&enablejsapi=0&cc_load_policy=0';
+  }
+
+  // Embed com controles — player assistível dentro da página
+  function ytPlayer(url) {
+    var id = ytId(url);
+    return 'https://www.youtube-nocookie.com/embed/' + id +
+      '?rel=0&modestbranding=1&iv_load_policy=3&color=white';
   }
 
   // Regex para detectar coordenadas GPS (ex: −9.1583 · −35.2736)
@@ -96,6 +109,10 @@
       if (ph) ph.style.display = 'none';
     } else if (f.t === 'yt') {
       el.src = ytEmbed(val);
+    } else if (f.t === 'yt-player') {
+      el.src = ytPlayer(val);
+      var wrap = el.closest('.resort-video-wrap');
+      if (wrap) wrap.style.display = 'block';
     } else if (f.t === 'src') {
       el.src = val;
       var vid = el.closest('video');
