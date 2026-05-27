@@ -14,8 +14,6 @@
   }
 
   var RESORT_FIELDS = [
-    { k: 'hero_video_yt',    s: '.page-hero-video',                   t: 'yt'        },
-    { k: 'hero_video_yt',    s: '.resort-player',                     t: 'yt-player' },
     { k: 'hero_video_file',  s: '.page-hero-video source',            t: 'src'       },
     { k: 'hero_img',         s: '.page-hero',                         t: 'bg'   },
     { k: 'hero_title',       s: '.page-hero-title',                   t: 'html' },
