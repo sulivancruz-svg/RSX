@@ -71,19 +71,23 @@
     return m ? m[1] : url;
   }
 
+  var ORIGIN = 'https://rsxtravel.com.br';
+
   // Embed mudo em loop — fundo do banner
   function ytEmbed(url) {
     var id = ytId(url);
     return 'https://www.youtube-nocookie.com/embed/' + id +
       '?autoplay=1&mute=1&loop=1&playlist=' + id +
-      '&controls=0&showinfo=0&rel=0&iv_load_policy=3&modestbranding=1&playsinline=1&enablejsapi=0&cc_load_policy=0';
+      '&controls=0&showinfo=0&rel=0&iv_load_policy=3&modestbranding=1&playsinline=1&enablejsapi=0&cc_load_policy=0' +
+      '&origin=' + ORIGIN;
   }
 
   // Embed com controles — player assistível dentro da página
   function ytPlayer(url) {
     var id = ytId(url);
     return 'https://www.youtube-nocookie.com/embed/' + id +
-      '?rel=0&modestbranding=1&iv_load_policy=3&color=white&vq=hd1080';
+      '?rel=0&modestbranding=1&iv_load_policy=3&color=white&vq=hd1080' +
+      '&origin=' + ORIGIN;
   }
 
   // Regex para detectar coordenadas GPS (ex: −9.1583 · −35.2736)
