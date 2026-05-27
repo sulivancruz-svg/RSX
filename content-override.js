@@ -72,8 +72,13 @@
       '&controls=0&showinfo=0&rel=0&iv_load_policy=3&modestbranding=1&playsinline=1&enablejsapi=0&cc_load_policy=0';
   }
 
+  // Regex para detectar coordenadas GPS (ex: −9.1583 · −35.2736)
+  var GPS_RE = /^[\-−]?\d+\.\d+\s*[·•]\s*[\-−]?\d+\.\d+$/;
+
   function applyField(f, val) {
     if (!val) return;
+    // Ignora valores com formato GPS — campo foi migrado para "Região"
+    if (GPS_RE.test(val.trim())) return;
     var el = document.querySelector(f.s);
     if (!el) return;
     if (f.t === 'html') {

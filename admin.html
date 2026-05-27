@@ -272,6 +272,14 @@ const CMS = {
   },
 
   save(silent) {
+    // Migração: remove chaves depreciadas de todas as páginas
+    if (this.data.pages) {
+      Object.keys(this.data.pages).forEach(function(pg) {
+        if (!CMS.data.pages[pg]) return;
+        // meta_coordenadas foi renomeado para meta_regiao — apagar do servidor
+        delete CMS.data.pages[pg].meta_coordenadas;
+      });
+    }
     // 1. Salva no localStorage (rápido, local)
     try {
       localStorage.setItem(this.KEY, JSON.stringify(this.data));
