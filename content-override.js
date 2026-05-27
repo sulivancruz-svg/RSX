@@ -66,6 +66,13 @@
     contato: [],
   };
 
+  function isVimeo(url) {
+    return (url || '').indexOf('vimeo.com') !== -1;
+  }
+  function vimeoId(url) {
+    var m = (url || '').match(/vimeo\.com\/(\d+)/);
+    return m ? m[1] : null;
+  }
   function ytId(url) {
     var m = (url || '').match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([^&\s?\/]+)/);
     return m ? m[1] : url;
@@ -75,6 +82,11 @@
 
   // Embed mudo em loop — fundo do banner
   function ytEmbed(url) {
+    if (isVimeo(url)) {
+      var vid = vimeoId(url);
+      return 'https://player.vimeo.com/video/' + vid +
+        '?autoplay=1&muted=1&loop=1&background=1&title=0&byline=0&portrait=0';
+    }
     var id = ytId(url);
     return 'https://www.youtube-nocookie.com/embed/' + id +
       '?autoplay=1&mute=1&loop=1&playlist=' + id +
@@ -84,6 +96,11 @@
 
   // Embed com controles — player assistível dentro da página
   function ytPlayer(url) {
+    if (isVimeo(url)) {
+      var vid = vimeoId(url);
+      return 'https://player.vimeo.com/video/' + vid +
+        '?title=0&byline=0&portrait=0&vq=1080p';
+    }
     var id = ytId(url);
     return 'https://www.youtube-nocookie.com/embed/' + id +
       '?rel=0&modestbranding=1&iv_load_policy=3&color=white&vq=hd1080' +
