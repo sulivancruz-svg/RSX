@@ -83,7 +83,7 @@
   function ytPlayer(url) {
     var id = ytId(url);
     return 'https://www.youtube-nocookie.com/embed/' + id +
-      '?rel=0&modestbranding=1&iv_load_policy=3&color=white';
+      '?rel=0&modestbranding=1&iv_load_policy=3&color=white&vq=hd1080';
   }
 
   // Regex para detectar coordenadas GPS (ex: −9.1583 · −35.2736)
