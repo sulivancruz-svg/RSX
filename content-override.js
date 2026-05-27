@@ -52,7 +52,7 @@
   ];
 
   var FIELDS = {
-    index:       [{ k: 'hero_video', s: '#heroIframe', t: 'yt' }],
+    index:       [{ k: 'hero_video_file', s: '#homeVideoSource', t: 'src' }],
     costao:      RESORT_FIELDS,
     fazzenda:    RESORT_FIELDS,
     japaratinga: RESORT_FIELDS,

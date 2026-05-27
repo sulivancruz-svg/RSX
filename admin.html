@@ -478,13 +478,22 @@ function fVideo({ pg, key, label, help }) {
   </div>`;
 }
 
+// Nomes fixos dos arquivos de vídeo por página
+const VIDEO_FILENAMES = {
+  costao:      'costao.mp4',
+  fazzenda:    'fazzenda.mp4',
+  japaratinga: 'japaratinga2.mp4',
+  index:       'home.mp4',
+};
+
 function fVideoUpload({ pg, key, label }) {
   const val = CMS.get(pg, key) || '';
   const id  = `vup_${pg}_${key}`;
-  const hasVideo = val && val.startsWith('/midia/');
+  const hasVideo = val && (val.includes('/midia/') || val.includes('Videos/'));
+  const fname = VIDEO_FILENAMES[pg] || '';
   return `<div class="field-row">
     <label class="field-label">${label}</label>
-    <div class="field-help">Vídeo MP4 enviado para o servidor — aparece em qualquer navegador sem depender do YouTube.</div>
+    <div class="field-help">Vídeo MP4 enviado para o servidor — aparece em qualquer navegador sem depender do YouTube.${fname ? ' Será salvo como <strong>' + fname + '</strong> na pasta Videos/.' : ''}</div>
     <div class="img-actions" style="gap:8px;flex-wrap:wrap">
       <button class="btn-pick" onclick="document.getElementById('${id}').click()">🎬 Escolher vídeo MP4</button>
       <input type="file" id="${id}" accept="video/mp4,video/*" onchange="onVideoFilePick('${pg}','${key}',this)"/>
@@ -586,6 +595,9 @@ function onVideoFilePick(pg, key, input) {
   const form = new FormData();
   form.append('file', file);
   form.append('_pass', pass);
+  // Passa nome fixo para salvar na pasta Videos/ com nome correto
+  const fixedName = VIDEO_FILENAMES[pg];
+  if (fixedName) form.append('filename', fixedName);
 
   const xhr = new XMLHttpRequest();
   xhr.open('POST', 'upload.php');
@@ -779,9 +791,8 @@ const PAGES = {
 
     <div class="cms-section">
       <div class="cms-section-label">Vídeo hero</div>
-      <div class="info-box">O vídeo toca em silêncio e em loop no fundo do banner. Cole a URL do YouTube abaixo.</div>
-      ${fVideo({ pg:'index', key:'hero_video', label:'URL do vídeo (YouTube)',
-        help:'Ex: https://www.youtube.com/watch?v=WNF3LVPCTvU — ou https://youtu.be/WNF3LVPCTvU' })}
+      <div class="info-box">O vídeo toca em silêncio e em loop no fundo do banner. Use o upload MP4 abaixo (recomendado) — sem dependência do YouTube.</div>
+      ${fVideoUpload({ pg:'index', key:'hero_video_file', label:'Vídeo de fundo (MP4) — será salvo como home.mp4' })}
     </div>
   `; },
 

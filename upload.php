@@ -1,7 +1,7 @@
 <?php
 /**
  * RSX Travel — Media Upload Endpoint
- * Recebe multipart/form-data, salva em /midia/, retorna URL.
+ * Recebe multipart/form-data, salva em /midia/ (ou /Videos/ para MP4 de resort), retorna URL.
  */
 
 header('Content-Type: application/json');
@@ -14,9 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 
-$PASS_FILE  = __DIR__ . '/cms-pass.txt';
-$MEDIA_DIR  = __DIR__ . '/midia';
-$MEDIA_URL  = '/midia'; // caminho público
+$PASS_FILE = __DIR__ . '/cms-pass.txt';
 
 function getPass($file) {
     if (file_exists($file)) {
@@ -35,13 +33,18 @@ function fail($msg, $code = 400) {
 // GET ?diag=1 — diagnóstico
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     if (isset($_GET['diag'])) {
+        $midiaDir  = __DIR__ . '/midia';
+        $videosDir = __DIR__ . '/Videos';
         echo json_encode([
-            'php'          => phpversion(),
-            'upload_max'   => ini_get('upload_max_filesize'),
-            'post_max'     => ini_get('post_max_size'),
-            'midia_exists' => is_dir($MEDIA_DIR),
-            'midia_write'  => is_dir($MEDIA_DIR) && is_writable($MEDIA_DIR),
-            'dir_write'    => is_writable(__DIR__),
+            'php'            => phpversion(),
+            'upload_max'     => ini_get('upload_max_filesize'),
+            'post_max'       => ini_get('post_max_size'),
+            'memory_limit'   => ini_get('memory_limit'),
+            'midia_exists'   => is_dir($midiaDir),
+            'midia_write'    => is_dir($midiaDir) && is_writable($midiaDir),
+            'videos_exists'  => is_dir($videosDir),
+            'videos_write'   => is_dir($videosDir) && is_writable($videosDir),
+            'dir_write'      => is_writable(__DIR__),
         ], JSON_PRETTY_PRINT);
     } else {
         echo json_encode(['ok' => true, 'status' => 'upload endpoint ready']);
@@ -63,11 +66,21 @@ if ($pass !== getPass($PASS_FILE)) {
 }
 
 if (!isset($_FILES['file']) || $_FILES['file']['error'] !== UPLOAD_ERR_OK) {
-    $err = isset($_FILES['file']) ? $_FILES['file']['error'] : 'no file';
-    fail('Upload error: ' . $err);
+    $errCodes = [
+        UPLOAD_ERR_INI_SIZE   => 'Arquivo maior que upload_max_filesize (' . ini_get('upload_max_filesize') . ')',
+        UPLOAD_ERR_FORM_SIZE  => 'Arquivo maior que MAX_FILE_SIZE do formulário',
+        UPLOAD_ERR_PARTIAL    => 'Upload incompleto',
+        UPLOAD_ERR_NO_FILE    => 'Nenhum arquivo enviado',
+        UPLOAD_ERR_NO_TMP_DIR => 'Pasta temporária não encontrada',
+        UPLOAD_ERR_CANT_WRITE => 'Falha ao escrever no disco',
+        UPLOAD_ERR_EXTENSION  => 'Upload bloqueado por extensão PHP',
+    ];
+    $errCode = isset($_FILES['file']) ? $_FILES['file']['error'] : UPLOAD_ERR_NO_FILE;
+    $errMsg  = isset($errCodes[$errCode]) ? $errCodes[$errCode] : 'Erro desconhecido: ' . $errCode;
+    fail('Upload error: ' . $errMsg);
 }
 
-// Tipos permitidos (imagens + vídeos)
+// Tipos permitidos
 $allowed = [
     'image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/svg+xml',
     'video/mp4', 'video/webm', 'video/ogg', 'video/quicktime',
@@ -77,28 +90,43 @@ if (!in_array($mime, $allowed)) {
     fail('Tipo de arquivo não permitido: ' . $mime);
 }
 
-// Cria pasta midia/ se não existir
-if (!is_dir($MEDIA_DIR)) {
-    if (!@mkdir($MEDIA_DIR, 0755, true)) {
-        fail('Não foi possível criar a pasta midia/. Verifique permissões.', 500);
+$isVideo = strpos($mime, 'video/') === 0;
+
+// Destino: Videos/ para MP4 com nome fixo, midia/ para o resto
+$fixedName = isset($_POST['filename']) ? preg_replace('/[^a-z0-9_\-\.]/i', '', $_POST['filename']) : '';
+
+if ($isVideo && $fixedName) {
+    // Salva em Videos/ com o nome exato passado pelo admin
+    $destDir  = __DIR__ . '/Videos';
+    $destUrl  = 'Videos/' . $fixedName;
+    $fname    = $fixedName;
+} else {
+    // Salva em midia/ com nome único
+    $destDir  = __DIR__ . '/midia';
+    $destUrl  = '/midia';
+    $orig     = pathinfo($_FILES['file']['name'], PATHINFO_FILENAME);
+    $orig     = preg_replace('/[^a-z0-9_-]/i', '-', $orig);
+    $orig     = strtolower(substr($orig, 0, 40));
+    $ext      = strtolower(pathinfo($_FILES['file']['name'], PATHINFO_EXTENSION));
+    if (!$ext) {
+        $extMap = ['image/jpeg'=>'jpg','image/png'=>'png','image/webp'=>'webp','image/gif'=>'gif','image/svg+xml'=>'svg','video/mp4'=>'mp4','video/webm'=>'webm'];
+        $ext = $extMap[$mime] ?? 'bin';
+    }
+    $fname    = $orig . '-' . time() . '.' . $ext;
+    $destUrl  = '/midia/' . $fname;
+}
+
+// Cria pasta se não existir
+if (!is_dir($destDir)) {
+    if (!@mkdir($destDir, 0755, true)) {
+        fail('Não foi possível criar a pasta ' . basename($destDir) . '/. Verifique permissões.', 500);
     }
 }
 
-// Nome de arquivo seguro: slug + timestamp + extensão original
-$orig = pathinfo($_FILES['file']['name'], PATHINFO_FILENAME);
-$orig = preg_replace('/[^a-z0-9_-]/i', '-', $orig);
-$orig = strtolower(substr($orig, 0, 40));
-$ext  = strtolower(pathinfo($_FILES['file']['name'], PATHINFO_EXTENSION));
-if (!$ext) {
-    $extMap = ['image/jpeg'=>'jpg','image/png'=>'png','image/webp'=>'webp','image/gif'=>'gif','image/svg+xml'=>'svg'];
-    $ext = $extMap[$mime] ?? 'jpg';
-}
-$fname = $orig . '-' . time() . '.' . $ext;
-$dest  = $MEDIA_DIR . '/' . $fname;
+$dest = $destDir . '/' . $fname;
 
 if (!move_uploaded_file($_FILES['file']['tmp_name'], $dest)) {
-    fail('Falha ao mover o arquivo. Verifique permissões em midia/.', 500);
+    fail('Falha ao mover o arquivo. Verifique permissões em ' . basename($destDir) . '/.', 500);
 }
 
-$url = $MEDIA_URL . '/' . $fname;
-echo json_encode(['ok' => true, 'url' => $url, 'filename' => $fname]);
+echo json_encode(['ok' => true, 'url' => $destUrl, 'filename' => $fname]);
