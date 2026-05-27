@@ -22,7 +22,7 @@
     { k: 'regime',           s: '.page-hero-meta-item:nth-child(2) .page-hero-meta-value', t: 'html' },
     { k: 'meta_localizacao', s: '.page-hero-meta-item:nth-child(1) .page-hero-meta-value', t: 'html' },
     { k: 'meta_categoria',   s: '.page-hero-meta-item:nth-child(3) .page-hero-meta-value', t: 'html' },
-    { k: 'meta_coordenadas', s: '.page-hero-meta-item:nth-child(4) .page-hero-meta-value', t: 'html' },
+    { k: 'meta_regiao',      s: '.page-hero-meta-item:nth-child(4) .page-hero-meta-value', t: 'html' },
     { k: 'overview_h2',      s: '.overview-text .section-h2',         t: 'html' },
     { k: 'overview_p1',      s: '.overview-text > p:nth-of-type(1)',  t: 'html' },
     { k: 'overview_p2',      s: '.overview-text > p:nth-of-type(2)',  t: 'html' },

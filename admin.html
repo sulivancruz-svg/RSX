@@ -648,7 +648,7 @@ function resortHTML(pg, name, file) {
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
           ${fText({ pg, key:'meta_localizacao', label:'Localização', ph:'Ex: Japaratinga · AL' })}
           ${fText({ pg, key:'meta_categoria',   label:'Categoria',   ph:'Ex: Premium' })}
-          ${fText({ pg, key:'meta_coordenadas', label:'Coordenadas', ph:'Ex: -9.1583 · -35.2736' })}
+          ${fText({ pg, key:'meta_regiao', label:'Região', ph:'Ex: Litoral Alagoano' })}
         </div>
         <p style="font-size:11px;color:rgba(232,221,208,.4);margin-top:6px">O campo <strong>Regime</strong> acima atualiza automaticamente o metadado de regime no banner.</p>
       </div>
@@ -841,7 +841,7 @@ const RESORT_FIELD_MAP = [
   { k:'hero_sub',            s:'.page-hero-sub',                    t:'html' },
   { k:'meta_localizacao',    s:'.page-hero-meta-item:nth-child(1) .page-hero-meta-value', t:'html' },
   { k:'meta_categoria',      s:'.page-hero-meta-item:nth-child(3) .page-hero-meta-value', t:'html' },
-  { k:'meta_coordenadas',    s:'.page-hero-meta-item:nth-child(4) .page-hero-meta-value', t:'html' },
+  { k:'meta_regiao',         s:'.page-hero-meta-item:nth-child(4) .page-hero-meta-value', t:'html' },
   { k:'overview_h2',      s:'.overview-text .section-h2',        t:'html' },
   { k:'overview_p1',      s:'.overview-text > p:nth-of-type(1)', t:'html' },
   { k:'overview_p2',      s:'.overview-text > p:nth-of-type(2)', t:'html' },
@@ -1001,8 +1001,8 @@ PAGES['novo'] = () => `
         <input class="field-input" id="nd_cat" placeholder="5 Estrelas"/>
       </div>
       <div class="field-row">
-        <label class="field-label">Coordenadas (opcional)</label>
-        <input class="field-input" id="nd_coord" placeholder="−23.5505 · −46.6333"/>
+        <label class="field-label">Região (opcional)</label>
+        <input class="field-input" id="nd_coord" placeholder="Ex: Litoral Catarinense"/>
       </div>
     </div>
     <div class="field-row">

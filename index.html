@@ -935,12 +935,8 @@ nav.topnav.scrolled {
    ============================ */
 .feature {
   position: relative;
-  min-height: 760px;
   overflow: hidden;
   color: var(--cream);
-  display: flex;
-  align-items: flex-end;
-  padding: 100px var(--section-px);
 }
 .feature-bg {
   position: absolute;
@@ -959,14 +955,13 @@ nav.topnav.scrolled {
   justify-content: center;
 }
 .feature-bg-inner::after {
-  content: 'COSTÃO\A DO\A SANTINHO';
-  white-space: pre;
+  content: 'RSX';
   font-family: 'Cormorant Garamond', serif;
-  font-size: clamp(80px, 12vw, 180px);
-  color: rgba(201,165,116,.06);
+  font-size: clamp(160px, 22vw, 360px);
+  color: rgba(201,165,116,.05);
   font-style: italic;
   letter-spacing: -.03em;
-  line-height: .9;
+  line-height: 1;
   text-align: center;
 }
 .feature::after {
@@ -1076,6 +1071,145 @@ nav.topnav.scrolled {
 @keyframes mapPulse {
   0%,100% { box-shadow: 0 0 0 5px rgba(201,165,116,.18); }
   50%      { box-shadow: 0 0 0 10px rgba(201,165,116,.06); }
+}
+
+/* ============================
+   DESTINOS GRID
+   ============================ */
+.destinos-wrap {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+}
+.destinos-header {
+  padding: 100px var(--section-px) 72px;
+  text-align: center;
+}
+.destinos-header h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(36px, 5vw, 72px);
+  font-weight: 300;
+  color: var(--cream);
+  letter-spacing: -.02em;
+  line-height: 1;
+  margin-top: 16px;
+}
+.destinos-header h2 em { color: var(--gold-300); font-style: italic; }
+.destinos-route {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  padding: 0 var(--section-px) 64px;
+  position: relative;
+  z-index: 2;
+}
+.destinos-route-dot {
+  width: 10px; height: 10px;
+  background: var(--gold-400);
+  border-radius: 50%;
+  box-shadow: 0 0 0 5px rgba(201,165,116,.18);
+  flex-shrink: 0;
+  animation: mapPulse 3s ease-in-out infinite;
+}
+.destinos-route-dot:nth-child(3) { animation-delay: .6s; }
+.destinos-route-dot:nth-child(5) { animation-delay: 1.2s; }
+.destinos-route-line {
+  flex: 1;
+  height: 1px;
+  background: repeating-linear-gradient(90deg,rgba(201,165,116,.4) 0 6px,transparent 6px 14px);
+  max-width: 340px;
+}
+.destinos-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border-top: 1px solid rgba(201,165,116,.12);
+}
+.destino-item {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 52px 44px 60px;
+  background: rgba(8,15,31,.45);
+  border-right: 1px solid rgba(201,165,116,.12);
+  text-decoration: none;
+  position: relative;
+  transition: background .4s;
+  overflow: hidden;
+}
+.destino-item:last-child { border-right: none; }
+.destino-item::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--gold-400), transparent);
+  transform: scaleX(0);
+  transition: transform .5s var(--ease-out);
+}
+.destino-item:hover { background: rgba(8,15,31,.75); }
+.destino-item:hover::after { transform: scaleX(1); }
+.destino-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: rgba(201,165,116,.35);
+  letter-spacing: .25em;
+}
+.destino-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(24px, 2.5vw, 34px);
+  font-weight: 400;
+  color: var(--cream);
+  line-height: 1.1;
+}
+.destino-loc {
+  font-size: 10px;
+  letter-spacing: .32em;
+  text-transform: uppercase;
+  color: var(--gold-400);
+}
+.destino-divider {
+  width: 28px; height: 1px;
+  background: rgba(201,165,116,.3);
+}
+.destino-desc {
+  font-size: 14px;
+  line-height: 1.75;
+  color: rgba(245,239,230,.55);
+  font-weight: 300;
+  flex: 1;
+}
+.destino-tags {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.destino-tags span {
+  font-size: 9px;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  padding: 5px 11px;
+  border: 1px solid rgba(201,165,116,.22);
+  color: rgba(220,192,147,.6);
+}
+.destino-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 10px;
+  letter-spacing: .28em;
+  text-transform: uppercase;
+  color: var(--gold-300);
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(201,165,116,.3);
+  width: fit-content;
+  transition: color .3s, letter-spacing .3s, border-color .3s;
+  margin-top: 8px;
+}
+.destino-item:hover .destino-cta {
+  color: var(--gold-200);
+  letter-spacing: .35em;
+  border-color: rgba(201,165,116,.6);
 }
 
 /* ============================
@@ -1477,6 +1611,10 @@ footer {
   .hero-content { padding: 0 32px; padding-bottom: 100px; }
   .rebeca-grid { grid-template-columns: 1fr; gap: 60px; }
   .feature-content { grid-template-columns: 1fr; }
+  .destinos-cards { grid-template-columns: 1fr; }
+  .destinos-route { display: none; }
+  .destino-item { border-right: none; border-bottom: 1px solid rgba(201,165,116,.12); }
+  .destino-item:last-child { border-bottom: none; }
   .footer-top { grid-template-columns: 1fr 1fr; }
 }
 @media (max-width: 760px) {
@@ -1669,7 +1807,6 @@ footer {
       </p>
       <div class="hero-meta">
         <div class="hero-meta-top">Curitiba — PR · Brasil</div>
-        <div class="hero-meta-coord">−25.4284 · −49.2733</div>
       </div>
     </div>
   </div>
@@ -1749,7 +1886,7 @@ footer {
     <!-- Card 3: Fazzenda -->
     <a href="fazzenda.html" class="tour-card reveal reveal-delay-2">
       <div class="tour-img">
-        <div class="tour-badge">Família</div>
+        <div class="tour-badge">All-Inclusive</div>
         <div class="tour-img-inner" style="background-image:repeating-linear-gradient(135deg,rgba(201,165,116,.07) 0 14px,transparent 14px 28px),linear-gradient(150deg,#1e3020,#0a1810)">
           <p class="tour-img-placeholder">Fazzenda<br/>Park Resort</p>
         </div>
@@ -1758,7 +1895,7 @@ footer {
         </div>
       </div>
       <div class="tour-body">
-        <div class="tour-meta"><span>Gaspar · SC</span><span>Família</span></div>
+        <div class="tour-meta"><span>Gaspar · SC</span><span>All-Inclusive</span></div>
         <h3 class="tour-name">Fazzenda Park Resort</h3>
         <p class="tour-desc">Vida no campo com o conforto de um resort premiado. Aventura, descanso e gastronomia em um só lugar.</p>
         <div class="tour-cta-row">
@@ -1773,7 +1910,7 @@ footer {
     <!-- Card 4: Japaratinga -->
     <a href="japaratinga.html" class="tour-card reveal reveal-delay-3">
       <div class="tour-img">
-        <div class="tour-badge">Premium</div>
+        <div class="tour-badge">Semi-All-Inclusive</div>
         <div class="tour-img-inner" style="background-image:repeating-linear-gradient(135deg,rgba(201,165,116,.07) 0 14px,transparent 14px 28px),linear-gradient(150deg,#1a2e40,#081525)">
           <p class="tour-img-placeholder">Japaratinga<br/>Lounge Resort</p>
         </div>
@@ -1782,7 +1919,7 @@ footer {
         </div>
       </div>
       <div class="tour-body">
-        <div class="tour-meta"><span>Japaratinga · AL</span><span>Premium</span></div>
+        <div class="tour-meta"><span>Japaratinga · AL</span><span>Semi-All-Inclusive</span></div>
         <h3 class="tour-name">Japaratinga Lounge</h3>
         <p class="tour-desc">Águas calmas, areia branca e piscinas naturais. Refúgio premium no litoral norte de Alagoas.</p>
         <div class="tour-cta-row">
@@ -1846,32 +1983,70 @@ footer {
   <div class="feature-bg" data-parallax="-0.15">
     <div class="feature-bg-inner"></div>
   </div>
-  <svg class="map-overlay" viewBox="0 0 1400 720" preserveAspectRatio="none">
-    <line x1="240" y1="190" x2="580" y2="310" stroke="rgba(220,192,147,.4)" stroke-width="1" stroke-dasharray="4 5"/>
-    <line x1="580" y1="310" x2="960" y2="225" stroke="rgba(220,192,147,.4)" stroke-width="1" stroke-dasharray="4 5"/>
-    <line x1="960" y1="225" x2="1160" y2="410" stroke="rgba(220,192,147,.4)" stroke-width="1" stroke-dasharray="4 5"/>
-  </svg>
-  <div class="map-dot" style="top:26%;left:17%;" data-label="Costão"></div>
-  <div class="map-dot" style="top:43%;left:41%;" data-label="Fazzenda" data-delay="0.5"></div>
-  <div class="map-dot" style="top:31%;left:68%;" data-label="Japaratinga" data-delay="1"></div>
-  <div class="map-dot" style="top:57%;left:83%;" data-label="Maragogi" data-delay="1.5"></div>
+  <div class="feature::after"></div>
 
-  <div class="feature-content reveal">
-    <div>
-      <div class="feature-eyebrow">Conheça</div>
-      <h2>Costão do<br/><em>Santinho.</em></h2>
+  <div class="destinos-wrap reveal">
+    <div class="destinos-header">
+      <div class="feature-eyebrow">Curadoria RSX Travel</div>
+      <h2>Nossos <em>destinos.</em></h2>
     </div>
-    <div class="feature-side">
-      <p>Resort all-inclusive à beira-mar em Florianópolis, com mata atlântica preservada, sítios arqueológicos, gastronomia premiada e spa de águas termais. Um dos mais completos do Brasil.</p>
-      <div class="feature-pills">
-        <span class="pill">All-Inclusive</span>
-        <span class="pill">Spa Termal</span>
-        <span class="pill">Mata Atlântica</span>
-        <span class="pill">Kids Club</span>
-        <span class="pill">Gastronomia</span>
-      </div>
-      <a href="costao.html" class="feature-cta">
-        Explorar o destino →
+
+    <!-- Rota abstrata -->
+    <div class="destinos-route">
+      <div class="destinos-route-dot"></div>
+      <div class="destinos-route-line"></div>
+      <div class="destinos-route-dot"></div>
+      <div class="destinos-route-line"></div>
+      <div class="destinos-route-dot"></div>
+    </div>
+
+    <div class="destinos-cards">
+      <!-- Costão do Santinho -->
+      <a href="costao.html" class="destino-item">
+        <div class="destino-num">01</div>
+        <div class="destino-name">Costão do Santinho</div>
+        <div class="destino-loc">Florianópolis · SC</div>
+        <div class="destino-divider"></div>
+        <p class="destino-desc">Resort à beira-mar com mata atlântica preservada, sítios arqueológicos, gastronomia premiada e spa de águas termais. Um dos mais completos do Brasil.</p>
+        <div class="destino-tags">
+          <span>All-Inclusive</span>
+          <span>Beira-mar</span>
+          <span>Spa Termal</span>
+          <span>Kids Club</span>
+        </div>
+        <span class="destino-cta">Explorar o destino →</span>
+      </a>
+
+      <!-- Fazzenda Park Resort -->
+      <a href="fazzenda.html" class="destino-item">
+        <div class="destino-num">02</div>
+        <div class="destino-name">Fazzenda Park Resort</div>
+        <div class="destino-loc">Gaspar · SC</div>
+        <div class="destino-divider"></div>
+        <p class="destino-desc">Vida no campo com o conforto de um resort premiado. Aventura, descanso e gastronomia em família — no coração de Santa Catarina.</p>
+        <div class="destino-tags">
+          <span>All-Inclusive</span>
+          <span>Família</span>
+          <span>Natureza</span>
+          <span>Gastronomia</span>
+        </div>
+        <span class="destino-cta">Explorar o destino →</span>
+      </a>
+
+      <!-- Japaratinga Lounge Resort -->
+      <a href="japaratinga.html" class="destino-item">
+        <div class="destino-num">03</div>
+        <div class="destino-name">Japaratinga Lounge</div>
+        <div class="destino-loc">Japaratinga · AL</div>
+        <div class="destino-divider"></div>
+        <p class="destino-desc">Piscinas naturais, areia branca e águas cristalinas no litoral norte de Alagoas. Refúgio premium com a curadoria exclusiva RSX Travel.</p>
+        <div class="destino-tags">
+          <span>Semi-All-Inclusive</span>
+          <span>Premium</span>
+          <span>Praia</span>
+          <span>Piscinas Naturais</span>
+        </div>
+        <span class="destino-cta">Explorar o destino →</span>
       </a>
     </div>
   </div>
