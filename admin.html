@@ -735,6 +735,15 @@ function resortHTML(pg, name, file) {
     </div>
 
     <div class="cms-section">
+      <div class="cms-section-label">CTA Final — chamada para ação</div>
+      ${fText({ pg, key:'cta_h2', label:'Título (HTML aceito)', rows:2,
+        ph:'Quer ir ao<br/>Nome do <em>Resort?</em>',
+        help:'Use &lt;br/&gt; para quebrar linha e &lt;em&gt;texto&lt;/em&gt; para itálico dourado.' })}
+      ${fText({ pg, key:'cta_sub', label:'Subtítulo', rows:2,
+        ph:'Me conta a data e o tamanho do grupo. Eu monto a estadia ideal.' })}
+    </div>
+
+    <div class="cms-section">
       <div class="cms-section-label">Citação em destaque</div>
       ${fText({ pg, key:'experience_quote', label:'Texto da citação', ph:'"Quando você está aqui, o mundo lá fora simplesmente para."' })}
     </div>
@@ -832,6 +841,15 @@ const PAGES = {
       ${fText({ pg:'sobre', key:'bio_p2', label:'Parágrafo 2', rows:4 })}
       ${fText({ pg:'sobre', key:'bio_p3', label:'Parágrafo 3', rows:4 })}
     </div>
+
+    <div class="cms-section">
+      <div class="cms-section-label">CTA Final — chamada para ação</div>
+      ${fText({ pg:'sobre', key:'cta_h2', label:'Título (HTML aceito)', rows:2,
+        ph:'Pronta para planejar<br/>a sua próxima <em>viagem?</em>',
+        help:'Use &lt;br/&gt; para quebrar linha e &lt;em&gt;texto&lt;/em&gt; para itálico dourado.' })}
+      ${fText({ pg:'sobre', key:'cta_sub', label:'Subtítulo', rows:2,
+        ph:'Me conta para onde você quer ir, quantas pessoas vão junto e quando.' })}
+    </div>
   `; },
 
   contato() {
@@ -890,12 +908,16 @@ const RESORT_FIELD_MAP = [
   { k:'hl5_desc',    s:'.highlights-grid .highlight-card:nth-child(5) .highlight-desc',  t:'html' },
   { k:'hl6_title',   s:'.highlights-grid .highlight-card:nth-child(6) .highlight-title', t:'html' },
   { k:'hl6_desc',    s:'.highlights-grid .highlight-card:nth-child(6) .highlight-desc',  t:'html' },
+  { k:'cta_h2',      s:'.final-cta h2',                                                   t:'html' },
+  { k:'cta_sub',     s:'.final-cta .final-cta-sub',                                       t:'html' },
 ];
 const SOBRE_FIELD_MAP = [
-  { k:'hero_h1', s:'.sobre-hero h1',               t:'html' },
-  { k:'bio_p1',  s:'.bio-text > p:nth-of-type(1)', t:'html' },
-  { k:'bio_p2',  s:'.bio-text > p:nth-of-type(2)', t:'html' },
-  { k:'bio_p3',  s:'.bio-text > p:nth-of-type(3)', t:'html' },
+  { k:'hero_h1',  s:'.sobre-hero h1',               t:'html' },
+  { k:'bio_p1',   s:'.bio-text > p:nth-of-type(1)', t:'html' },
+  { k:'bio_p2',   s:'.bio-text > p:nth-of-type(2)', t:'html' },
+  { k:'bio_p3',   s:'.bio-text > p:nth-of-type(3)', t:'html' },
+  { k:'cta_h2',   s:'.final-cta h2',                t:'html' },
+  { k:'cta_sub',  s:'.final-cta .final-cta-sub',    t:'html' },
 ];
 const PAGE_FIELD_MAPS = {
   costao: RESORT_FIELD_MAP, fazzenda: RESORT_FIELD_MAP, japaratinga: RESORT_FIELD_MAP,

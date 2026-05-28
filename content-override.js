@@ -53,10 +53,16 @@
     { k: 'hl5_desc',         s: '.highlights-grid .highlight-card:nth-child(5) .highlight-desc',  t: 'html' },
     { k: 'hl6_title',        s: '.highlights-grid .highlight-card:nth-child(6) .highlight-title', t: 'html' },
     { k: 'hl6_desc',         s: '.highlights-grid .highlight-card:nth-child(6) .highlight-desc',  t: 'html' },
+    { k: 'cta_h2',           s: '.final-cta h2',                                                   t: 'html' },
+    { k: 'cta_sub',          s: '.final-cta .final-cta-sub',                                       t: 'html' },
   ];
 
   var FIELDS = {
-    index:       [{ k: 'hero_video_file', s: '#homeVideoSource', t: 'src' }],
+    index:       [
+      { k: 'hero_video_file', s: '#homeVideoSource',              t: 'src'  },
+      { k: 'cta_h2',         s: '.final-cta h2',                 t: 'html' },
+      { k: 'cta_sub',        s: '.final-cta .final-cta-sub',     t: 'html' },
+    ],
     costao:      RESORT_FIELDS,
     fazzenda:    RESORT_FIELDS,
     japaratinga: RESORT_FIELDS,
@@ -66,6 +72,8 @@
       { k: 'bio_p2',      s: '.bio-text > p:nth-of-type(2)', t: 'html' },
       { k: 'bio_p3',      s: '.bio-text > p:nth-of-type(3)', t: 'html' },
       { k: 'profile_img', s: '.bio-portrait-img',             t: 'bg'   },
+      { k: 'cta_h2',      s: '.final-cta h2',                t: 'html' },
+      { k: 'cta_sub',     s: '.final-cta .final-cta-sub',    t: 'html' },
     ],
     contato: [],
   };
