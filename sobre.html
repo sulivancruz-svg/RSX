@@ -238,6 +238,51 @@ nav.topnav.scrolled{background:rgba(8,15,31,.92);backdrop-filter:blur(20px) satu
 .bio-social a:hover{background:var(--navy-900);color:var(--gold-400);border-color:var(--navy-900)}
 .bio-social svg{width:16px;height:16px}
 
+/* VIDEO REBECA */
+.rebeca-video-section{
+  padding:var(--section-py) var(--section-px);
+  background:var(--navy-950);
+  color:var(--cream);
+}
+.rebeca-video-inner{
+  max-width:960px;
+  margin:0 auto;
+  text-align:center;
+}
+.rebeca-video-inner .section-eyebrow{
+  color:var(--gold-400);
+  margin-bottom:16px;
+}
+.rebeca-video-inner .rebeca-video-h2{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(36px,5vw,64px);
+  font-weight:400;
+  line-height:1.05;
+  color:var(--cream);
+  letter-spacing:-.01em;
+  margin-bottom:56px;
+}
+.rebeca-video-inner .rebeca-video-h2 em{
+  font-style:italic;
+  color:var(--gold-300);
+  font-weight:300;
+}
+.rebeca-video-wrap{
+  position:relative;
+  aspect-ratio:16/9;
+  background:#000;
+  border-radius:4px;
+  overflow:hidden;
+  box-shadow:0 48px 96px -24px rgba(0,0,0,.7),0 0 0 1px rgba(201,165,116,.12);
+}
+.rebeca-video-wrap iframe{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  border:none;
+}
+
 /* FILOSOFIA */
 .filosofia{
   padding:var(--section-py) var(--section-px);
@@ -444,6 +489,17 @@ footer{background:var(--navy-950);color:var(--cream);padding:100px var(--section
         <div class="bio-sig-name">Rebeca Piccolo</div>
         <div class="bio-sig-role">Founder &amp; Travel<br/>Designer</div>
       </div>
+    </div>
+  </div>
+</section>
+
+<!-- VIDEO REBECA -->
+<section class="rebeca-video-section">
+  <div class="rebeca-video-inner reveal">
+    <div class="section-eyebrow">Conheça a Rebeca</div>
+    <h2 class="rebeca-video-h2">Uma viagem começa com<br/>a <em>pessoa certa.</em></h2>
+    <div class="rebeca-video-wrap">
+      <iframe src="https://www.youtube-nocookie.com/embed/p9isB-St7Tc?rel=0&modestbranding=1&iv_load_policy=3&color=white" title="Rebeca Piccolo — RSX Travel" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
     </div>
   </div>
 </section>
