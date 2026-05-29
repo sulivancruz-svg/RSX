@@ -115,7 +115,9 @@ a{color:inherit;text-decoration:none}
   }
   function ytId(url) {
     var m = (url||'').match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([^&\s?\/]+)/);
-    return m ? m[1] : null;
+    if (!m) return null;
+    // Strict validation: YouTube IDs are alphanumeric + _ and -
+    return /^[a-zA-Z0-9_-]{6,15}$/.test(m[1]) ? m[1] : null;
   }
   function render(p, cmsData) {
     const app = document.getElementById('app');
@@ -129,8 +131,14 @@ a{color:inherit;text-decoration:none}
       const videoYt = pageData.hero_video_yt || pageData.hero_video_file || '';
       if (videoYt) videoId = ytId(videoYt) || '';
     }
+    const nights = (p.stay.checkin && p.stay.checkout)
+      ? parseInt(p.stay.checkout.split('-')[2],10) - parseInt(p.stay.checkin.split('-')[2],10)
+      : 0;
+    const accDesc = p.stay.room_type
+      ? `${p.stay.room_type}${nights > 0 ? ' · ' + nights + ' noites' : ''}`.trim()
+      : 'Hospedagem';
     const allServices = [
-      { icon:'🏨', description: p.stay.room_type ? `${p.stay.room_type} · ${p.stay.checkin ? (parseInt(p.stay.checkout.split('-')[2],10) - parseInt(p.stay.checkin.split('-')[2],10)) + ' noites' : ''}`.trim() : 'Hospedagem', price: p.accommodation_price },
+      { icon:'🏨', description: accDesc, price: p.accommodation_price },
       ...(p.services||[])
     ];
     const servicesHtml = allServices.map(sv => sv.price > 0 ? `
@@ -158,7 +166,7 @@ a{color:inherit;text-decoration:none}
           ${p.resort.regime ? `<div class="hero-regime">${esc(p.resort.regime)}</div>` : ''}
           <div class="hero-name">${esc(p.resort.name)}</div>
           ${p.resort.location ? `<div class="hero-location">${esc(p.resort.location)}</div>` : ''}
-          ${videoId ? `<button class="hero-video-btn" onclick="toggleVideo(this,'${esc(videoId)}')">▶ Ver vídeo do resort</button>` : ''}
+          ${videoId ? `<button class="hero-video-btn" data-vid="${esc(videoId)}">▶ Ver vídeo do resort</button>` : ''}
         </div>
       </div>
       ${videoId ? `<div class="video-expand" id="videoExpand"></div>` : ''}
@@ -191,6 +199,9 @@ a{color:inherit;text-decoration:none}
         <div class="prop-footer-tag">Rebeca Piccolo · Curitiba PR · rsxtravel.com.br</div>
       </div>
     `;
+    // Wire video button via event delegation (avoids onclick+JS string injection)
+    const vidBtn = app.querySelector('.hero-video-btn');
+    if (vidBtn) vidBtn.addEventListener('click', function() { toggleVideo(this, this.dataset.vid); });
   }
   function toggleVideo(btn, videoId) {
     const wrap = document.getElementById('videoExpand');
@@ -232,6 +243,7 @@ a{color:inherit;text-decoration:none}
       }
       render(proposal, cmsData);
     } catch(e) {
+      console.error('proposta.html init error:', e);
       showError('Erro ao carregar a proposta. Tente novamente em alguns segundos.');
     }
   }
