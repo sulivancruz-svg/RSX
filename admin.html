@@ -200,7 +200,7 @@ input[type="file"]{display:none}
 .wiz-total-lbl{font-size:9px;text-transform:uppercase;letter-spacing:.12em;color:var(--text-dim)}
 .wiz-total-val{font-size:20px;color:var(--gold-dim);font-family:'Cormorant Garamond',serif}
 .children-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
-.children-age-input{width:70px}
+.children-age-input{width:70px !important;flex-shrink:0}
 .link-result{background:rgba(74,222,128,.08);border:1px solid rgba(74,222,128,.25);border-radius:4px;padding:16px;margin-bottom:16px}
 .link-result-url{font-size:11px;color:#4ade80;word-break:break-all;margin-bottom:10px;font-family:monospace}
 .link-copy-btn{background:#4ade80;color:#000;border:none;padding:7px 16px;border-radius:2px;font-size:10px;letter-spacing:.12em;font-weight:700;cursor:pointer}
@@ -1526,8 +1526,10 @@ const WIZ = {
 
   // ── STEP 5: Condições ──
   renderStep5() {
+    const checkin = this.data.stay.checkin ? ' de ' + this.data.stay.checkin.split('-').reverse().join('/') : '';
+    const checkout = this.data.stay.checkout ? ' a ' + this.data.stay.checkout.split('-').reverse().join('/') : '';
     const autoMsg = this.data.conditions.whatsapp_message ||
-      `Oi Rebeca! Quero confirmar minha proposta de viagem para ${this.data.resort.name||'o resort'}. Pode me ajudar?`;
+      `Oi Rebeca! Sou ${this.data.client.name||'seu cliente'}, quero confirmar minha proposta de viagem para o ${this.data.resort.name||'resort'}${checkin}${checkout}. Pode me ajudar?`;
     return `
       <div class="wiz-body-title">Condições e informações</div>
       <div class="field-row">

@@ -122,13 +122,15 @@ a{color:inherit;text-decoration:none}
   function render(p, cmsData) {
     const app = document.getElementById('app');
     let heroBg = '';
+    let videoId = '';
     if (p.resort.type === 'custom' && p.resort.images && p.resort.images.length) {
       heroBg = `background-image:url('${esc(p.resort.images[0])}')`;
-    }
-    let videoId = '';
-    if (p.resort.type === 'existing' && cmsData) {
+    } else if (p.resort.type === 'existing' && cmsData) {
+      // Pull gallery image + video from cms-data.json for existing resorts
       const pageData = (cmsData.pages||{})[p.resort.slug]||{};
-      const videoYt = pageData.hero_video_yt || pageData.hero_video_file || '';
+      const img = pageData.gallery_1 || pageData.gallery_2 || pageData.gallery_3 || pageData.hero_img || '';
+      if (img) heroBg = `background-image:url('${esc(img)}')`;
+      const videoYt = pageData.hero_video_yt || '';
       if (videoYt) videoId = ytId(videoYt) || '';
     }
     const nights = (p.stay.checkin && p.stay.checkout)
@@ -153,9 +155,13 @@ a{color:inherit;text-decoration:none}
         ${p.conditions.cancellation ? `<div class="cond-item"><div class="cond-label">Cancelamento</div><div class="cond-text">${esc(p.conditions.cancellation)}</div></div>` : ''}
         ${p.conditions.legal_notes ? `<div class="cond-item"><div class="cond-label">Informações</div><div class="cond-text">${esc(p.conditions.legal_notes)}</div></div>` : ''}
       </div>` : '';
-    const waMsg = encodeURIComponent(p.conditions && p.conditions.whatsapp_message
-      ? p.conditions.whatsapp_message
-      : `Oi Rebeca, quero confirmar minha proposta de viagem! (Ref: ${p.id})`);
+    const defaultMsg = `Oi Rebeca! Sou ${p.client.name||'seu cliente'}, quero confirmar minha proposta para o ${p.resort.name||'resort'}` +
+      (p.stay.checkin ? ` de ${fmtDate(p.stay.checkin)}` : '') +
+      (p.stay.checkout ? ` a ${fmtDate(p.stay.checkout)}` : '') +
+      `. Pode me ajudar? (Ref: ${p.id})`;
+    const waMsg = encodeURIComponent(
+      (p.conditions && p.conditions.whatsapp_message) ? p.conditions.whatsapp_message : defaultMsg
+    );
     const waLink = `https://wa.me/5541988429348?text=${waMsg}`;
     document.title = `Proposta ${esc(p.client.name)} — RSX Travel`;
     app.innerHTML = `
