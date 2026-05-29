@@ -7,7 +7,7 @@
 <meta name="robots" content="noindex,nofollow"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
 <style>
 :root{
   --navy-950:#080f1f;--navy-900:#0e1a35;--navy-800:#1a2847;--navy-700:#233357;
@@ -18,219 +18,416 @@
 html{scroll-behavior:smooth;font-size:16px}
 body{font-family:'Inter',sans-serif;background:var(--navy-950);color:var(--cream);-webkit-font-smoothing:antialiased;min-height:100vh}
 a{color:inherit;text-decoration:none}
-.topbar{display:flex;align-items:center;justify-content:space-between;padding:20px 32px;border-bottom:1px solid var(--line)}
-.topbar-logo{font-family:'Cormorant Garamond',serif;font-size:18px;letter-spacing:.2em;color:var(--gold-300)}
-.topbar-tag{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:rgba(245,239,230,.4)}
-.hero{position:relative;min-height:420px;display:flex;align-items:flex-end;overflow:hidden}
-.hero-bg{position:absolute;inset:0;background-size:cover;background-position:center;background-color:var(--navy-800)}
-.hero-overlay{position:absolute;inset:0;background:linear-gradient(to top,var(--navy-950) 0%,rgba(8,15,31,.6) 50%,rgba(8,15,31,.2) 100%)}
-.hero-content{position:relative;z-index:1;padding:40px 32px;width:100%}
-.hero-regime{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold-300);margin-bottom:8px}
-.hero-name{font-family:'Cormorant Garamond',serif;font-size:clamp(36px,7vw,72px);font-weight:400;line-height:.95;color:var(--cream);letter-spacing:-.02em;margin-bottom:8px}
-.hero-location{font-size:12px;color:rgba(245,239,230,.5);letter-spacing:.06em}
-.hero-video-btn{display:inline-flex;align-items:center;gap:8px;margin-top:16px;background:rgba(201,165,116,.12);border:1px solid rgba(201,165,116,.3);border-radius:20px;padding:6px 14px;font-size:11px;color:var(--gold-300);cursor:pointer;transition:.2s}
-.hero-video-btn:hover{background:rgba(201,165,116,.2)}
-.video-expand{display:none;padding:0 32px 32px}
+img{display:block;max-width:100%}
+
+/* ── TOPBAR ── */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:20px 40px;border-bottom:1px solid var(--line)}
+.topbar-logo{font-family:'Cormorant Garamond',serif;font-size:18px;letter-spacing:.25em;color:var(--gold-300)}
+.topbar-tag{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:rgba(245,239,230,.35)}
+
+/* ── HERO ── */
+.hero{position:relative;min-height:500px;display:flex;align-items:flex-end;overflow:hidden}
+.hero-bg{position:absolute;inset:0;background-size:cover;background-position:center;background-color:var(--navy-800);transition:opacity .5s}
+.hero-overlay{position:absolute;inset:0;background:linear-gradient(to top,var(--navy-950) 0%,rgba(8,15,31,.55) 55%,rgba(8,15,31,.15) 100%)}
+.hero-content{position:relative;z-index:1;padding:48px 40px;width:100%;max-width:900px}
+.hero-eyebrow{font-size:9px;letter-spacing:.25em;text-transform:uppercase;color:var(--gold-300);margin-bottom:10px}
+.hero-name{font-family:'Cormorant Garamond',serif;font-size:clamp(40px,7vw,80px);font-weight:400;line-height:.92;color:var(--cream);letter-spacing:-.02em;margin-bottom:10px}
+.hero-location{font-size:12px;color:rgba(245,239,230,.5);letter-spacing:.08em}
+.hero-video-btn{display:inline-flex;align-items:center;gap:8px;margin-top:20px;background:rgba(201,165,116,.12);border:1px solid rgba(201,165,116,.3);border-radius:20px;padding:7px 16px;font-size:11px;color:var(--gold-300);cursor:pointer;transition:.2s;letter-spacing:.04em}
+.hero-video-btn:hover{background:rgba(201,165,116,.22)}
+.video-expand{display:none;padding:0 40px 32px}
 .video-expand.open{display:block}
 .video-wrap{position:relative;aspect-ratio:16/9;border-radius:4px;overflow:hidden;background:#000}
 .video-wrap iframe{position:absolute;inset:0;width:100%;height:100%;border:none}
-.client-bar{display:flex;align-items:center;justify-content:space-between;padding:14px 32px;background:rgba(201,165,116,.06);border-top:1px solid var(--line);border-bottom:1px solid var(--line);flex-wrap:wrap;gap:8px}
+
+/* ── CLIENT BAR ── */
+.client-bar{display:flex;align-items:center;justify-content:space-between;padding:14px 40px;background:rgba(201,165,116,.06);border-top:1px solid var(--line);border-bottom:1px solid var(--line);flex-wrap:wrap;gap:8px}
 .client-name{font-size:13px;color:var(--cream);font-weight:500}
-.client-validity{font-size:11px;color:rgba(245,239,230,.4)}
-.prop-body{max-width:680px;margin:0 auto;padding:40px 32px 80px}
-.section-label{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold-400);font-weight:600;margin-bottom:14px}
-.stay-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:36px}
-.stay-item{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:3px;padding:12px 14px}
-.stay-item-lbl{font-size:8px;text-transform:uppercase;letter-spacing:.12em;color:rgba(245,239,230,.35);margin-bottom:4px}
-.stay-item-val{font-size:13px;color:var(--cream)}
-.services{margin-bottom:28px}
-.service-row{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+.client-validity{font-size:11px;color:rgba(245,239,230,.4);letter-spacing:.03em}
+
+/* ── GALLERY STRIP ── */
+.gallery-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;height:200px;overflow:hidden}
+.gallery-strip-img{background-size:cover;background-position:center;background-color:var(--navy-800)}
+
+/* ── LAYOUT ── */
+.prop-body{max-width:720px;margin:0 auto;padding:48px 40px 100px}
+.section-eyebrow{font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold-400);font-weight:600;margin-bottom:14px}
+.section-title{font-family:'Cormorant Garamond',serif;font-size:clamp(28px,4vw,40px);font-weight:400;color:var(--cream);margin-bottom:20px;line-height:1.1}
+
+/* ── RESORT OVERVIEW ── */
+.resort-overview{margin-bottom:48px}
+.resort-overview-text{font-size:15px;color:rgba(245,239,230,.7);line-height:1.8;font-weight:300}
+.resort-overview-text + .resort-overview-text{margin-top:12px}
+
+/* ── STATS BAR ── */
+.stats-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:4px;overflow:hidden;margin-bottom:48px}
+.stat-item{background:rgba(255,255,255,.025);padding:18px 16px;text-align:center}
+.stat-num{font-family:'Cormorant Garamond',serif;font-size:32px;color:var(--gold-300);line-height:1;margin-bottom:4px}
+.stat-lbl{font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:rgba(245,239,230,.4)}
+
+/* ── HIGHLIGHTS ── */
+.highlights-section{margin-bottom:48px}
+.highlights-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.highlight-card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:4px;padding:20px}
+.highlight-title{font-size:13px;color:var(--gold-300);font-weight:600;margin-bottom:6px}
+.highlight-desc{font-size:12px;color:rgba(245,239,230,.55);line-height:1.6}
+
+/* ── ESTADIA ── */
+.stay-section{margin-bottom:40px}
+.stay-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stay-item{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:3px;padding:14px 16px}
+.stay-item-lbl{font-size:8px;text-transform:uppercase;letter-spacing:.14em;color:rgba(245,239,230,.3);margin-bottom:5px}
+.stay-item-val{font-size:14px;color:var(--cream);font-weight:400}
+.stay-nights-badge{display:inline-block;background:rgba(201,165,116,.12);border:1px solid rgba(201,165,116,.25);border-radius:20px;padding:3px 12px;font-size:10px;color:var(--gold-300);letter-spacing:.06em;margin-top:12px}
+
+/* ── SERVICES ── */
+.services-section{margin-bottom:32px}
+.service-row{display:flex;align-items:center;justify-content:space-between;padding:13px 0;border-bottom:1px solid rgba(255,255,255,.05)}
 .service-row:last-child{border-bottom:none}
-.service-left{display:flex;align-items:center;gap:10px;font-size:13px;color:rgba(245,239,230,.75)}
-.service-icon{font-size:16px;width:22px;text-align:center;flex-shrink:0}
-.service-price{font-size:13px;color:var(--gold-300);font-weight:500;white-space:nowrap}
-.total-box{background:rgba(201,165,116,.07);border:1px solid rgba(201,165,116,.22);border-radius:4px;padding:18px 20px;display:flex;align-items:center;justify-content:space-between;margin-bottom:32px}
-.total-lbl{font-size:9px;text-transform:uppercase;letter-spacing:.15em;color:rgba(245,239,230,.5)}
-.total-val{font-family:'Cormorant Garamond',serif;font-size:36px;color:var(--gold-300);letter-spacing:-.01em}
-.cta-btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;background:#25D366;color:#fff;font-size:10px;letter-spacing:.2em;text-transform:uppercase;font-weight:700;border:none;padding:16px;border-radius:3px;cursor:pointer;transition:.2s;text-decoration:none;margin-bottom:28px}
+.service-left{display:flex;align-items:center;gap:12px;font-size:13px;color:rgba(245,239,230,.75);flex:1;min-width:0}
+.service-icon{font-size:18px;width:24px;text-align:center;flex-shrink:0}
+.service-desc{flex:1;min-width:0}
+.service-price{font-size:13px;color:var(--gold-300);font-weight:500;white-space:nowrap;margin-left:16px}
+
+/* ── TOTAL ── */
+.total-box{background:rgba(201,165,116,.07);border:1px solid rgba(201,165,116,.22);border-radius:4px;padding:22px 24px;display:flex;align-items:center;justify-content:space-between;margin-bottom:36px}
+.total-lbl{font-size:9px;text-transform:uppercase;letter-spacing:.18em;color:rgba(245,239,230,.45)}
+.total-val{font-family:'Cormorant Garamond',serif;font-size:42px;color:var(--gold-300);letter-spacing:-.01em;line-height:1}
+
+/* ── CTA ── */
+.cta-btn{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;background:#25D366;color:#fff;font-size:10px;letter-spacing:.22em;text-transform:uppercase;font-weight:700;border:none;padding:18px;border-radius:3px;cursor:pointer;transition:.2s;text-decoration:none;margin-bottom:32px}
 .cta-btn:hover{background:#1da855}
-.cta-btn svg{flex-shrink:0}
-.conditions{border-top:1px solid var(--line);padding-top:24px}
-.cond-item{margin-bottom:16px}
-.cond-label{font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold-400);margin-bottom:4px}
-.cond-text{font-size:12px;color:rgba(245,239,230,.5);line-height:1.7}
-.prop-footer{text-align:center;padding:24px 32px;border-top:1px solid var(--line)}
-.prop-footer-logo{font-family:'Cormorant Garamond',serif;font-size:14px;letter-spacing:.2em;color:var(--gold-400);margin-bottom:4px}
-.prop-footer-tag{font-size:10px;color:rgba(245,239,230,.25);letter-spacing:.05em}
-.error-state{min-height:60vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px 32px;gap:16px}
-.error-title{font-family:'Cormorant Garamond',serif;font-size:32px;color:var(--gold-300)}
-.error-sub{font-size:14px;color:rgba(245,239,230,.45);max-width:360px;line-height:1.6}
+
+/* ── DIVIDER ── */
+.divider{height:1px;background:var(--line);margin:40px 0}
+
+/* ── CONDITIONS ── */
+.conditions{}
+.cond-item{margin-bottom:20px}
+.cond-label{font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold-400);margin-bottom:5px}
+.cond-text{font-size:12px;color:rgba(245,239,230,.45);line-height:1.75}
+
+/* ── FOOTER ── */
+.prop-footer{text-align:center;padding:28px 40px 40px;border-top:1px solid var(--line)}
+.prop-footer-logo{font-family:'Cormorant Garamond',serif;font-size:15px;letter-spacing:.25em;color:var(--gold-400);margin-bottom:5px}
+.prop-footer-tag{font-size:10px;color:rgba(245,239,230,.2);letter-spacing:.06em}
+
+/* ── ERROR / LOADING ── */
+.error-state{min-height:60vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px;gap:16px}
+.error-title{font-family:'Cormorant Garamond',serif;font-size:36px;color:var(--gold-300)}
+.error-sub{font-size:14px;color:rgba(245,239,230,.4);max-width:360px;line-height:1.7}
 .loading-state{min-height:60vh;display:flex;align-items:center;justify-content:center}
 .loading-bar{width:120px;height:1px;background:rgba(201,165,116,.15);position:relative;overflow:hidden}
 .loading-bar::after{content:'';position:absolute;left:-50%;width:50%;height:100%;background:var(--gold-300);animation:load .8s ease-in-out infinite}
 @keyframes load{to{left:100%}}
-@media(max-width:600px){
-  .topbar,.hero-content,.prop-body,.video-expand,.client-bar{padding-left:20px;padding-right:20px}
-  .stay-grid{grid-template-columns:1fr}
-  .hero-name{font-size:clamp(30px,9vw,48px)}
+
+/* ── RESPONSIVE ── */
+@media(max-width:640px){
+  .topbar,.hero-content,.prop-body,.video-expand,.client-bar,.gallery-strip{padding-left:20px;padding-right:20px}
+  .gallery-strip{height:140px}
+  .stay-grid,.highlights-grid{grid-template-columns:1fr}
+  .stats-bar{grid-template-columns:1fr 1fr}
+  .hero-name{font-size:clamp(32px,9vw,52px)}
+  .total-val{font-size:32px}
 }
 </style>
 </head>
 <body>
+
 <div class="topbar">
   <div class="topbar-logo">RSX TRAVEL</div>
   <div class="topbar-tag">Proposta de Viagem</div>
 </div>
+
 <div id="app">
   <div class="loading-state"><div class="loading-bar"></div></div>
 </div>
+
 <script>
 (function() {
   'use strict';
-  function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  /* ── Helpers ── */
+  function esc(s) {
+    return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  }
+
+  function stripHtml(s) {
+    return String(s||'').replace(/<[^>]*>/g,' ').replace(/\s+/g,' ').trim();
+  }
+
   function fmtDate(iso) {
     if (!iso) return '—';
-    const [y,m,d] = iso.split('-');
+    const parts = String(iso).split('-');
+    if (parts.length < 3) return iso;
+    const y = parseInt(parts[0], 10);
+    const m = parseInt(parts[1], 10);
+    const d = parseInt(parts[2], 10);
+    if (y < 2000 || y > 2100 || m < 1 || m > 12 || d < 1 || d > 31) return iso;
     const months = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
-    return `${parseInt(d,10)} ${months[parseInt(m,10)-1]} ${y}`;
+    return `${d} ${months[m-1]} ${y}`;
   }
+
+  function calcNights(checkin, checkout) {
+    if (!checkin || !checkout) return 0;
+    const a = new Date(checkin), b = new Date(checkout);
+    const diff = Math.round((b - a) / 86400000);
+    return diff > 0 ? diff : 0;
+  }
+
   function fmtMoney(v) {
-    return 'R$ ' + Number(v||0).toLocaleString('pt-BR',{minimumFractionDigits:0,maximumFractionDigits:0});
+    const n = Number(v) || 0;
+    return 'R$ ' + n.toLocaleString('pt-BR', {minimumFractionDigits:0, maximumFractionDigits:0});
   }
+
   function fmtGuests(stay) {
     const parts = [];
-    const adults = parseInt(stay.adults,10)||0;
-    if (adults) parts.push(adults + (adults===1?' adulto':' adultos'));
+    const adults = parseInt(stay.adults, 10) || 0;
+    if (adults) parts.push(adults + (adults === 1 ? ' adulto' : ' adultos'));
     const children = stay.children || [];
-    if (children.length) parts.push(children.length + (children.length===1?' criança':' crianças'));
+    if (children.length) {
+      const ages = children.map(a => a + ' ano' + (a === 1 ? '' : 's')).join(', ');
+      parts.push(children.length + (children.length === 1 ? ' criança' : ' crianças') + ' (' + ages + ')');
+    }
     return parts.join(' · ') || '—';
   }
+
   function calcTotal(p) {
-    const acc = Number(p.accommodation_price||0);
-    const svcs = (p.services||[]).reduce((s,sv)=>s+Number(sv.price||0),0);
-    return acc + svcs;
+    return (Number(p.accommodation_price) || 0) +
+      (p.services || []).reduce((s, sv) => s + (Number(sv.price) || 0), 0);
   }
+
   function getParam(name) {
     return new URLSearchParams(window.location.search).get(name);
   }
+
   function ytId(url) {
     var m = (url||'').match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([^&\s?\/]+)/);
     if (!m) return null;
-    // Strict validation: YouTube IDs are alphanumeric + _ and -
     return /^[a-zA-Z0-9_-]{6,15}$/.test(m[1]) ? m[1] : null;
   }
+
+  /* ── Render ── */
   function render(p, cmsData) {
     const app = document.getElementById('app');
+    const pd = cmsData && p.resort.type === 'existing'
+      ? ((cmsData.pages || {})[p.resort.slug] || {})
+      : {};
+
+    /* Hero image */
     let heroBg = '';
-    let videoId = '';
     if (p.resort.type === 'custom' && p.resort.images && p.resort.images.length) {
-      heroBg = `background-image:url('${esc(p.resort.images[0])}')`;
-    } else if (p.resort.type === 'existing' && cmsData) {
-      // Pull gallery image + video from cms-data.json for existing resorts
-      const pageData = (cmsData.pages||{})[p.resort.slug]||{};
-      const img = pageData.gallery_1 || pageData.gallery_2 || pageData.gallery_3 || pageData.hero_img || '';
-      if (img) heroBg = `background-image:url('${esc(img)}')`;
-      const videoYt = pageData.hero_video_yt || '';
-      if (videoYt) videoId = ytId(videoYt) || '';
+      heroBg = p.resort.images[0];
+    } else {
+      heroBg = pd.gallery_1 || pd.gallery_2 || pd.gallery_3 || pd.hero_img || '';
     }
-    const nights = (p.stay.checkin && p.stay.checkout)
-      ? parseInt(p.stay.checkout.split('-')[2],10) - parseInt(p.stay.checkin.split('-')[2],10)
-      : 0;
+
+    /* Video */
+    let videoId = '';
+    if (pd.hero_video_yt) videoId = ytId(pd.hero_video_yt) || '';
+
+    /* Gallery images */
+    const galleryImgs = [];
+    if (p.resort.type === 'custom') {
+      (p.resort.images || []).slice(0, 3).forEach(u => galleryImgs.push(u));
+    } else {
+      ['gallery_1','gallery_2','gallery_3','gallery_4','gallery_5'].forEach(k => {
+        if (pd[k] && galleryImgs.length < 3) galleryImgs.push(pd[k]);
+      });
+    }
+
+    /* Nights */
+    const nights = calcNights(p.stay.checkin, p.stay.checkout);
+    const nightsLabel = nights > 0 ? nights + (nights === 1 ? ' noite' : ' noites') : '';
+
+    /* Resort overview from CMS */
+    const overviewP1 = stripHtml(pd.overview_p1 || '');
+    const overviewP2 = stripHtml(pd.overview_p2 || '');
+    const hasOverview = overviewP1 || overviewP2;
+
+    /* Stats */
+    const stats = [];
+    for (let i = 1; i <= 4; i++) {
+      const num = stripHtml(pd['stat' + i + '_num'] || '');
+      const lbl = stripHtml(pd['stat' + i + '_label'] || '');
+      if (num && lbl) stats.push({ num, lbl });
+    }
+
+    /* Highlights */
+    const highlights = [];
+    for (let i = 1; i <= 6; i++) {
+      const title = stripHtml(pd['hl' + i + '_title'] || '');
+      const desc  = stripHtml(pd['hl' + i + '_desc']  || '');
+      if (title) highlights.push({ title, desc });
+    }
+
+    /* Services list */
     const accDesc = p.stay.room_type
-      ? `${p.stay.room_type}${nights > 0 ? ' · ' + nights + ' noites' : ''}`.trim()
-      : 'Hospedagem';
+      ? esc(p.stay.room_type) + (nightsLabel ? ' · ' + esc(nightsLabel) : '')
+      : 'Hospedagem' + (nightsLabel ? ' · ' + esc(nightsLabel) : '');
+
     const allServices = [
-      { icon:'🏨', description: accDesc, price: p.accommodation_price },
-      ...(p.services||[])
-    ];
-    const servicesHtml = allServices.map(sv => sv.price > 0 ? `
+      { icon: '🏨', description: accDesc, price: p.accommodation_price, raw: true },
+      ...(p.services || [])
+    ].filter(sv => Number(sv.price) > 0);
+
+    const servicesHtml = allServices.map(sv => `
       <div class="service-row">
-        <div class="service-left"><span class="service-icon">${esc(sv.icon||'🏨')}</span>${esc(sv.description)}</div>
+        <div class="service-left">
+          <span class="service-icon">${esc(sv.icon || '🏨')}</span>
+          <span class="service-desc">${sv.raw ? sv.description : esc(sv.description)}</span>
+        </div>
         <div class="service-price">${fmtMoney(sv.price)}</div>
-      </div>` : '').join('');
-    const hasConditions = p.conditions && (p.conditions.payment_info || p.conditions.cancellation || p.conditions.legal_notes);
-    const condHtml = hasConditions ? `
+      </div>`).join('');
+
+    /* Conditions */
+    const conds = p.conditions || {};
+    const condHtml = (conds.payment_info || conds.cancellation || conds.legal_notes) ? `
+      <div class="divider"></div>
       <div class="conditions">
-        ${p.conditions.payment_info ? `<div class="cond-item"><div class="cond-label">Forma de pagamento</div><div class="cond-text">${esc(p.conditions.payment_info)}</div></div>` : ''}
-        ${p.conditions.cancellation ? `<div class="cond-item"><div class="cond-label">Cancelamento</div><div class="cond-text">${esc(p.conditions.cancellation)}</div></div>` : ''}
-        ${p.conditions.legal_notes ? `<div class="cond-item"><div class="cond-label">Informações</div><div class="cond-text">${esc(p.conditions.legal_notes)}</div></div>` : ''}
+        ${conds.payment_info ? `<div class="cond-item"><div class="cond-label">Forma de pagamento</div><div class="cond-text">${esc(conds.payment_info)}</div></div>` : ''}
+        ${conds.cancellation ? `<div class="cond-item"><div class="cond-label">Cancelamento</div><div class="cond-text">${esc(conds.cancellation)}</div></div>` : ''}
+        ${conds.legal_notes  ? `<div class="cond-item"><div class="cond-label">Informações gerais</div><div class="cond-text">${esc(conds.legal_notes)}</div></div>` : ''}
       </div>` : '';
+
+    /* WhatsApp */
     const defaultMsg = `Oi Rebeca! Sou ${p.client.name||'seu cliente'}, quero confirmar minha proposta para o ${p.resort.name||'resort'}` +
       (p.stay.checkin ? ` de ${fmtDate(p.stay.checkin)}` : '') +
       (p.stay.checkout ? ` a ${fmtDate(p.stay.checkout)}` : '') +
       `. Pode me ajudar? (Ref: ${p.id})`;
-    const waMsg = encodeURIComponent(
-      (p.conditions && p.conditions.whatsapp_message) ? p.conditions.whatsapp_message : defaultMsg
-    );
+    const waMsg  = encodeURIComponent(conds.whatsapp_message || defaultMsg);
     const waLink = `https://wa.me/5541988429348?text=${waMsg}`;
+
+    /* ── Build HTML ── */
     document.title = `Proposta ${esc(p.client.name)} — RSX Travel`;
+
     app.innerHTML = `
+
+      <!-- HERO -->
       <div class="hero">
-        <div class="hero-bg" style="${heroBg}"></div>
+        <div class="hero-bg" style="${heroBg ? 'background-image:url(&#39;' + esc(heroBg) + '&#39;)' : ''}"></div>
         <div class="hero-overlay"></div>
         <div class="hero-content">
-          ${p.resort.regime ? `<div class="hero-regime">${esc(p.resort.regime)}</div>` : ''}
+          ${p.resort.regime ? `<div class="hero-eyebrow">${esc(p.resort.regime)}</div>` : ''}
           <div class="hero-name">${esc(p.resort.name)}</div>
           ${p.resort.location ? `<div class="hero-location">${esc(p.resort.location)}</div>` : ''}
-          ${videoId ? `<button class="hero-video-btn" data-vid="${esc(videoId)}">▶ Ver vídeo do resort</button>` : ''}
+          ${videoId ? `<button class="hero-video-btn" data-vid="${esc(videoId)}">▶&nbsp; Ver vídeo do resort</button>` : ''}
         </div>
       </div>
       ${videoId ? `<div class="video-expand" id="videoExpand"></div>` : ''}
+
+      <!-- GALLERY STRIP -->
+      ${galleryImgs.length >= 2 ? `
+        <div class="gallery-strip" style="grid-template-columns:repeat(${galleryImgs.length},1fr)">
+          ${galleryImgs.map(u => `<div class="gallery-strip-img" style="background-image:url('${esc(u)}')"></div>`).join('')}
+        </div>` : ''}
+
+      <!-- CLIENT BAR -->
       <div class="client-bar">
         <div class="client-name">Proposta para <strong>${esc(p.client.name)}</strong></div>
         ${p.validity ? `<div class="client-validity">Válida até ${fmtDate(p.validity)}</div>` : ''}
       </div>
+
       <div class="prop-body">
-        <div class="section-label">Sua estadia</div>
-        <div class="stay-grid">
-          <div class="stay-item"><div class="stay-item-lbl">Check-in</div><div class="stay-item-val">${fmtDate(p.stay.checkin)}</div></div>
-          <div class="stay-item"><div class="stay-item-lbl">Check-out</div><div class="stay-item-val">${fmtDate(p.stay.checkout)}</div></div>
-          ${p.stay.room_type ? `<div class="stay-item"><div class="stay-item-lbl">Acomodação</div><div class="stay-item-val">${esc(p.stay.room_type)}</div></div>` : ''}
-          <div class="stay-item"><div class="stay-item-lbl">Hóspedes</div><div class="stay-item-val">${esc(fmtGuests(p.stay))}</div></div>
+
+        <!-- RESORT OVERVIEW -->
+        ${hasOverview ? `
+          <div class="resort-overview">
+            <div class="section-eyebrow">Sobre o resort</div>
+            ${overviewP1 ? `<p class="resort-overview-text">${esc(overviewP1)}</p>` : ''}
+            ${overviewP2 ? `<p class="resort-overview-text">${esc(overviewP2)}</p>` : ''}
+          </div>` : ''}
+
+        <!-- STATS -->
+        ${stats.length >= 2 ? `
+          <div class="stats-bar" style="grid-template-columns:repeat(${stats.length},1fr)">
+            ${stats.map(s => `
+              <div class="stat-item">
+                <div class="stat-num">${esc(s.num)}</div>
+                <div class="stat-lbl">${esc(s.lbl)}</div>
+              </div>`).join('')}
+          </div>` : ''}
+
+        <!-- HIGHLIGHTS -->
+        ${highlights.length ? `
+          <div class="highlights-section">
+            <div class="section-eyebrow">O que tem no resort</div>
+            <div class="highlights-grid">
+              ${highlights.map(h => `
+                <div class="highlight-card">
+                  <div class="highlight-title">${esc(h.title)}</div>
+                  ${h.desc ? `<div class="highlight-desc">${esc(h.desc)}</div>` : ''}
+                </div>`).join('')}
+            </div>
+          </div>` : ''}
+
+        <!-- ESTADIA -->
+        <div class="stay-section">
+          <div class="section-eyebrow">Sua estadia</div>
+          <div class="stay-grid">
+            <div class="stay-item"><div class="stay-item-lbl">Check-in</div><div class="stay-item-val">${fmtDate(p.stay.checkin)}</div></div>
+            <div class="stay-item"><div class="stay-item-lbl">Check-out</div><div class="stay-item-val">${fmtDate(p.stay.checkout)}</div></div>
+            ${p.stay.room_type ? `<div class="stay-item"><div class="stay-item-lbl">Acomodação</div><div class="stay-item-val">${esc(p.stay.room_type)}</div></div>` : ''}
+            <div class="stay-item"><div class="stay-item-lbl">Hóspedes</div><div class="stay-item-val">${esc(fmtGuests(p.stay))}</div></div>
+          </div>
+          ${nightsLabel ? `<div class="stay-nights-badge">🌙 ${esc(nightsLabel)}</div>` : ''}
         </div>
-        <div class="section-label">O que está incluído</div>
-        <div class="services">${servicesHtml}</div>
+
+        <!-- SERVICES + TOTAL -->
+        <div class="section-eyebrow">O que está incluído</div>
+        <div class="services-section">${servicesHtml}</div>
+
         <div class="total-box">
           <div class="total-lbl">Total da viagem</div>
           <div class="total-val">${fmtMoney(calcTotal(p))}</div>
         </div>
+
+        <!-- WHATSAPP CTA -->
         <a href="${waLink}" target="_blank" rel="noopener" class="cta-btn">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 14.4c-.3-.1-1.8-.9-2.1-1-.3-.1-.5-.1-.7.1-.2.3-.7 1-.9 1.1-.2.2-.3.2-.6.1-.3-.1-1.3-.5-2.4-1.5-.9-.8-1.5-1.8-1.7-2.1-.2-.3 0-.5.1-.6l.4-.5c.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5 0-.1-.7-1.7-1-2.3-.3-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1.1 1.1-1.1 2.6 0 1.6 1.1 3.1 1.3 3.3.2.2 2.3 3.5 5.6 4.9.8.3 1.4.5 1.9.7.8.2 1.5.2 2.1.1.6-.1 1.8-.7 2.1-1.5.3-.7.3-1.4.2-1.5-.1-.2-.3-.3-.6-.4zM12 2C6.5 2 2 6.5 2 12c0 1.8.5 3.5 1.3 5L2 22l5.2-1.4c1.5.8 3.1 1.2 4.8 1.2 5.5 0 10-4.5 10-10S17.5 2 12 2z"/></svg>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 14.4c-.3-.1-1.8-.9-2.1-1-.3-.1-.5-.1-.7.1-.2.3-.7 1-.9 1.1-.2.2-.3.2-.6.1-.3-.1-1.3-.5-2.4-1.5-.9-.8-1.5-1.8-1.7-2.1-.2-.3 0-.5.1-.6l.4-.5c.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5 0-.1-.7-1.7-1-2.3-.3-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1.1 1.1-1.1 2.6 0 1.6 1.1 3.1 1.3 3.3.2.2 2.3 3.5 5.6 4.9.8.3 1.4.5 1.9.7.8.2 1.5.2 2.1.1.6-.1 1.8-.7 2.1-1.5.3-.7.3-1.4.2-1.5-.1-.2-.3-.3-.6-.4zM12 2C6.5 2 2 6.5 2 12c0 1.8.5 3.5 1.3 5L2 22l5.2-1.4c1.5.8 3.1 1.2 4.8 1.2 5.5 0 10-4.5 10-10S17.5 2 12 2z"/></svg>
           Quero essa viagem!
         </a>
+
+        <!-- CONDITIONS -->
         ${condHtml}
-      </div>
+
+      </div><!-- /prop-body -->
+
       <div class="prop-footer">
         <div class="prop-footer-logo">RSX TRAVEL</div>
         <div class="prop-footer-tag">Rebeca Piccolo · Curitiba PR · rsxtravel.com.br</div>
       </div>
     `;
-    // Wire video button via event delegation (avoids onclick+JS string injection)
+
+    /* Wire video button */
     const vidBtn = app.querySelector('.hero-video-btn');
     if (vidBtn) vidBtn.addEventListener('click', function() { toggleVideo(this, this.dataset.vid); });
   }
-  function toggleVideo(btn, videoId) {
+
+  function toggleVideo(btn, vid) {
     const wrap = document.getElementById('videoExpand');
     if (!wrap) return;
     if (wrap.classList.contains('open')) {
       wrap.classList.remove('open');
       wrap.innerHTML = '';
-      btn.textContent = '▶ Ver vídeo do resort';
+      btn.innerHTML = '▶&nbsp; Ver vídeo do resort';
     } else {
       wrap.classList.add('open');
-      wrap.innerHTML = `<div class="video-wrap"><iframe src="https://www.youtube-nocookie.com/embed/${videoId}?rel=0&modestbranding=1&iv_load_policy=3" title="Vídeo do resort" frameborder="0" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowfullscreen></iframe></div>`;
+      wrap.innerHTML = `<div class="video-wrap"><iframe src="https://www.youtube-nocookie.com/embed/${vid}?rel=0&modestbranding=1&iv_load_policy=3" title="Vídeo do resort" frameborder="0" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowfullscreen></iframe></div>`;
       btn.textContent = '✕ Fechar vídeo';
     }
   }
   window.toggleVideo = toggleVideo;
+
   function showError(msg) {
     document.getElementById('app').innerHTML = `
       <div class="error-state">
         <div class="error-title">Proposta não encontrada</div>
         <div class="error-sub">${esc(msg)}</div>
-        <a href="index.html" style="margin-top:8px;font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:rgba(201,165,116,.6)">← Voltar ao site</a>
+        <a href="index.html" style="margin-top:8px;font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:rgba(201,165,116,.5)">← Voltar ao site</a>
       </div>`;
   }
+
   async function init() {
     const id = getParam('id');
     if (!id) { showError('Nenhum ID de proposta foi informado na URL.'); return; }
@@ -238,8 +435,9 @@ a{color:inherit;text-decoration:none}
       const r = await fetch('proposals-save.php?_=' + Date.now());
       if (!r.ok) throw new Error('Servidor indisponível');
       const json = await r.json();
-      const proposal = (json.proposals||{})[id];
+      const proposal = (json.proposals || {})[id];
       if (!proposal) { showError('A proposta "' + id + '" não existe ou foi removida.'); return; }
+
       let cmsData = null;
       if (proposal.resort && proposal.resort.type === 'existing') {
         try {
@@ -249,10 +447,11 @@ a{color:inherit;text-decoration:none}
       }
       render(proposal, cmsData);
     } catch(e) {
-      console.error('proposta.html init error:', e);
+      console.error('proposta.html error:', e);
       showError('Erro ao carregar a proposta. Tente novamente em alguns segundos.');
     }
   }
+
   init();
 }());
 </script>

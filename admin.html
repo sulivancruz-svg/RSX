@@ -1466,14 +1466,14 @@ const WIZ = {
   // ── STEP 4: Serviços ──
   renderStep4() {
     const presets = [
-      { icon:'✈️', type:'flight',    label:'Aéreo' },
-      { icon:'🚐', type:'transfer',  label:'Transfer' },
-      { icon:'🛡️', type:'insurance', label:'Seguro' },
-      { icon:'🏖️', type:'tour',      label:'Passeio' },
-      { icon:'➕', type:'other',     label:'Outro' },
+      { icon:'✈️', type:'flight',    label:'CWB → ??? · Ida e volta' },
+      { icon:'🚐', type:'transfer',  label:'Transfer aeroporto → resort' },
+      { icon:'🛡️', type:'insurance', label:'Seguro viagem completo' },
+      { icon:'🏖️', type:'tour',      label:'Passeio — descreva aqui' },
+      { icon:'➕', type:'other',     label:'Descreva o serviço aqui' },
     ];
     const presetsHtml = presets.map(p =>
-      `<button class="svc-preset-btn" onclick="WIZ.addService('${p.icon}','${p.type}','${p.label}')">${p.icon} ${p.label}</button>`
+      `<button class="svc-preset-btn" onclick="WIZ.addService('${p.icon}','${p.type}','${p.label}')">${p.icon} ${p.icon==='✈️'?'Aéreo':p.icon==='🚐'?'Transfer':p.icon==='🛡️'?'Seguro':p.icon==='🏖️'?'Passeio':'Outro'}</button>`
     ).join('');
 
     const svcsHtml = (this.data.services||[]).map((sv, i) => `
