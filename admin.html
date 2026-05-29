@@ -201,6 +201,10 @@ input[type="file"]{display:none}
 .wiz-total-val{font-size:20px;color:var(--gold-dim);font-family:'Cormorant Garamond',serif}
 .children-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
 .children-age-input{width:70px !important;flex-shrink:0}
+/* ── ACCOMMODATION OPTIONS ── */
+.accom-opt-card{background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:5px;padding:16px;margin-bottom:10px}
+.accom-opt-header{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.accom-opt-label{flex:1;font-weight:600;font-size:12px}
 .link-result{background:rgba(74,222,128,.08);border:1px solid rgba(74,222,128,.25);border-radius:4px;padding:16px;margin-bottom:16px}
 .link-result-url{font-size:11px;color:#4ade80;word-break:break-all;margin-bottom:10px;font-family:monospace}
 .link-copy-btn{background:#4ade80;color:#000;border:none;padding:7px 16px;border-radius:2px;font-size:10px;letter-spacing:.12em;font-weight:700;cursor:pointer}
@@ -1167,6 +1171,7 @@ const WIZ = {
       resort: { type: 'existing', slug: '', name: '', location: '', regime: '', images: [] },
       stay: { checkin: '', checkout: '', room_type: '', adults: 2, children: [] },
       accommodation_price: 0,
+      accommodation_options: [],
       services: [],
       conditions: { payment_info: '', cancellation: '', legal_notes: '', whatsapp_message: '' }
     };
@@ -1178,6 +1183,7 @@ const WIZ = {
       this.editId = editData.id || null;
       this.data = JSON.parse(JSON.stringify(editData));
       if (!this.data.resort.images) this.data.resort.images = [];
+      if (!this.data.accommodation_options) this.data.accommodation_options = [];
       if (!this.data.conditions) this.data.conditions = { payment_info: '', cancellation: '', legal_notes: '', whatsapp_message: '' };
     } else {
       this.editId = null;
@@ -1398,6 +1404,13 @@ const WIZ = {
   },
 
   // ── STEP 3: Hospedagem ──
+  _resortName(slug) {
+    const names = { costao:'Costão do Santinho', fazzenda:'Fazzenda Park Resort', japaratinga:'Japaratinga Lounge Resort' };
+    if (names[slug]) return names[slug];
+    try { const c = JSON.parse(localStorage.getItem('rsx_custom_pages')||'[]'); const p = c.find(x=>x.slug===slug); if(p) return p.nome; } catch(e){}
+    return slug;
+  },
+
   renderStep3() {
     const children = this.data.stay.children || [];
     const childrenHtml = children.map((age, i) => `
@@ -1406,9 +1419,61 @@ const WIZ = {
         <button class="btn-ghost" style="padding:4px 8px" onclick="WIZ.removeChild(${i})">✕</button>
       </div>`).join('');
 
+    // Options — always start with at least the primary option
+    const opts = this.data.accommodation_options && this.data.accommodation_options.length
+      ? this.data.accommodation_options
+      : [{ label:'Opção 1', resort_slug: this.data.resort.slug||'', resort_name: this.data.resort.name||'', room_type: this.data.stay.room_type||'', price: this.data.accommodation_price||0, notes:'' }];
+
+    const mainSlug = this.data.resort.slug || '';
+    const mainName = this.data.resort.name || '';
+
+    const optCards = opts.map((opt, i) => {
+      const isDiff = opt.resort_slug && opt.resort_slug !== mainSlug;
+      return `
+        <div class="accom-opt-card" data-opt="${i}">
+          <div class="accom-opt-header">
+            <input class="field-input accom-opt-label" value="${esc(opt.label||('Opção '+(i+1)))}" placeholder="Ex: Opção Econômica"/>
+            ${opts.length > 1 ? `<button class="btn-ghost" style="padding:4px 10px;font-size:11px;color:rgba(248,113,113,.7)" onclick="WIZ.removeAccomOpt(${i})">✕ Remover</button>` : ''}
+          </div>
+          <div style="margin-bottom:10px">
+            <label style="display:flex;align-items:center;gap:8px;font-size:11px;color:var(--text-dim);cursor:pointer;margin-bottom:8px">
+              <input type="checkbox" id="opt-diff-${i}" ${isDiff?'checked':''} onchange="WIZ.toggleOptResort(${i},this.checked)"/>
+              Resort diferente do principal (${esc(mainName||'selecione no passo 2')})
+            </label>
+            ${isDiff ? `
+              <div class="wiz-field-grid" style="margin-bottom:8px">
+                <div class="field-row wiz-field">
+                  <label class="field-label">Nome do hotel / resort</label>
+                  <input class="field-input accom-opt-resort-name" value="${esc(opt.resort_name)}" placeholder="Ex: Japaratinga Lounge Resort"/>
+                </div>
+                <div class="field-row wiz-field">
+                  <label class="field-label">Regime</label>
+                  <input class="field-input accom-opt-resort-regime" value="${esc(opt.resort_regime||'')}" placeholder="Ex: All-Inclusive Premium"/>
+                </div>
+              </div>` : ''}
+          </div>
+          <div class="wiz-field-grid">
+            <div class="field-row wiz-field">
+              <label class="field-label">Tipo de quarto / acomodação</label>
+              <input class="field-input accom-opt-room" value="${esc(opt.room_type)}" placeholder="Ex: Chalé Vista Mar · Superior"/>
+            </div>
+            <div class="field-row wiz-field">
+              <label class="field-label">Valor da hospedagem (R$)</label>
+              <input class="field-input accom-opt-price" type="number" min="0" value="${opt.price||0}" oninput="WIZ.updateTotal()"/>
+            </div>
+          </div>
+          <div class="field-row">
+            <label class="field-label">Observações desta opção (opcional)</label>
+            <textarea class="field-input accom-opt-notes" rows="2" placeholder="Ex: Vista para o mar · Varanda privativa · Inclui frigobar">${esc(opt.notes||'')}</textarea>
+          </div>
+        </div>`;
+    }).join('');
+
     return `
-      <div class="wiz-body-title">Detalhes da hospedagem</div>
-      <div class="wiz-field-grid">
+      <div class="wiz-body-title">Hospedagem & opções</div>
+      <div class="info-box" style="margin-bottom:20px">Você pode apresentar <strong>até 3 opções de quarto ou hotel</strong> na mesma proposta — o cliente vê todas e escolhe a que preferir.</div>
+
+      <div class="wiz-field-grid" style="margin-bottom:20px">
         <div class="field-row wiz-field">
           <label class="field-label">Check-in</label>
           <input id="w-checkin" class="field-input" type="date" value="${esc(this.data.stay.checkin)}"/>
@@ -1417,26 +1482,46 @@ const WIZ = {
           <label class="field-label">Check-out</label>
           <input id="w-checkout" class="field-input" type="date" value="${esc(this.data.stay.checkout)}"/>
         </div>
-      </div>
-      <div class="field-row">
-        <label class="field-label">Tipo de acomodação / quarto</label>
-        <input id="w-room" class="field-input" value="${esc(this.data.stay.room_type)}" placeholder="Ex: Chalé Vista Mar · Superior"/>
-      </div>
-      <div class="wiz-field-grid">
         <div class="field-row wiz-field">
           <label class="field-label">Nº de adultos</label>
           <input id="w-adults" class="field-input" type="number" min="1" max="20" value="${this.data.stay.adults||2}"/>
         </div>
         <div class="field-row wiz-field">
-          <label class="field-label">Valor da hospedagem (R$)</label>
-          <input id="w-acc-price" class="field-input" type="number" min="0" value="${this.data.accommodation_price||0}" oninput="WIZ.updateTotal()"/>
+          <label class="field-label">Crianças</label>
+          <div id="w-children-list">${childrenHtml}</div>
+          <button class="btn-ghost" style="margin-top:4px;font-size:11px" onclick="WIZ.addChild()">+ Adicionar criança</button>
         </div>
       </div>
-      <div class="field-row">
-        <label class="field-label">Crianças (informe a idade de cada uma)</label>
-        <div id="w-children-list">${childrenHtml}</div>
-        <button class="btn-ghost" style="margin-top:6px;font-size:11px" onclick="WIZ.addChild()">+ Adicionar criança</button>
-      </div>`;
+
+      <div style="font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-dim);font-weight:600;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border)">
+        Opções de acomodação
+      </div>
+      <div id="w-accom-opts">${optCards}</div>
+      ${opts.length < 3 ? `<button class="btn-ghost" style="width:100%;margin-top:8px;font-size:12px" onclick="WIZ.addAccomOpt()">+ Adicionar outra opção de quarto / hotel</button>` : ''}
+    `;
+  },
+
+  addAccomOpt() {
+    this._collect3();
+    const i = this.data.accommodation_options.length + 1;
+    this.data.accommodation_options.push({ label:'Opção '+(i+1), resort_slug:'', resort_name:'', resort_regime:'', room_type:'', price:0, notes:'' });
+    this.renderBody();
+  },
+
+  removeAccomOpt(i) {
+    this._collect3();
+    this.data.accommodation_options.splice(i, 1);
+    this.renderBody();
+  },
+
+  toggleOptResort(i, checked) {
+    this._collect3();
+    if (!checked) {
+      this.data.accommodation_options[i].resort_slug = '';
+      this.data.accommodation_options[i].resort_name = '';
+      this.data.accommodation_options[i].resort_regime = '';
+    }
+    this.renderBody();
   },
 
   addChild() {
@@ -1452,15 +1537,32 @@ const WIZ = {
   },
 
   _collect3() {
-    this.data.stay.checkin    = document.getElementById('w-checkin')?.value || '';
-    this.data.stay.checkout   = document.getElementById('w-checkout')?.value || '';
-    this.data.stay.room_type  = document.getElementById('w-room')?.value || '';
-    this.data.stay.adults     = parseInt(document.getElementById('w-adults')?.value||2, 10);
-    this.data.accommodation_price = parseFloat(document.getElementById('w-acc-price')?.value||0);
+    this.data.stay.checkin  = document.getElementById('w-checkin')?.value || '';
+    this.data.stay.checkout = document.getElementById('w-checkout')?.value || '';
+    this.data.stay.adults   = parseInt(document.getElementById('w-adults')?.value||2, 10);
     document.querySelectorAll('[data-child]').forEach(inp => {
       const i = parseInt(inp.dataset.child, 10);
       this.data.stay.children[i] = parseInt(inp.value||0, 10);
     });
+    // Collect accommodation options
+    const cards = document.querySelectorAll('[data-opt]');
+    this.data.accommodation_options = Array.from(cards).map((card, i) => {
+      const isDiff = card.querySelector('#opt-diff-'+i)?.checked;
+      return {
+        label:         card.querySelector('.accom-opt-label')?.value || ('Opção '+(i+1)),
+        resort_slug:   isDiff ? (this.data.resort.slug||'') : (this.data.resort.slug||''),
+        resort_name:   isDiff ? (card.querySelector('.accom-opt-resort-name')?.value||'') : (this.data.resort.name||''),
+        resort_regime: isDiff ? (card.querySelector('.accom-opt-resort-regime')?.value||'') : (this.data.resort.regime||''),
+        room_type:     card.querySelector('.accom-opt-room')?.value || '',
+        price:         parseFloat(card.querySelector('.accom-opt-price')?.value||0),
+        notes:         card.querySelector('.accom-opt-notes')?.value || '',
+      };
+    });
+    // Sync primary fields for backward compat
+    if (this.data.accommodation_options.length) {
+      this.data.stay.room_type        = this.data.accommodation_options[0].room_type;
+      this.data.accommodation_price   = this.data.accommodation_options[0].price;
+    }
   },
 
   // ── STEP 4: Serviços ──
@@ -1476,13 +1578,19 @@ const WIZ = {
       `<button class="svc-preset-btn" onclick="WIZ.addService('${p.icon}','${p.type}','${p.label}')">${p.icon} ${p.icon==='✈️'?'Aéreo':p.icon==='🚐'?'Transfer':p.icon==='🛡️'?'Seguro':p.icon==='🏖️'?'Passeio':'Outro'}</button>`
     ).join('');
 
-    const svcsHtml = (this.data.services||[]).map((sv, i) => `
-      <div class="svc-row" data-svc="${i}">
-        <input class="svc-icon-input" value="${esc(sv.icon||'➕')}" maxlength="2" title="Emoji"/>
-        <input class="svc-desc-input" value="${esc(sv.description)}" placeholder="Descrição do serviço"/>
-        <input class="svc-price-input" type="number" min="0" value="${sv.price||0}" placeholder="R$" oninput="WIZ.updateTotal()"/>
-        <button class="svc-remove-btn" onclick="WIZ.removeService(${i})">✕</button>
-      </div>`).join('');
+    const svcPlaceholders = { flight:'Ex: CWB → FLN · Ida e volta · 2 adultos + 1 criança (8a)', transfer:'Ex: Transfer aeroporto → resort · 3 pessoas', insurance:'Ex: Seguro viagem completo · 8 dias · 3 pessoas', tour:'Ex: Passeio de barco pelas piscinas naturais', other:'Descreva o serviço aqui' };
+    const svcsHtml = (this.data.services||[]).map((sv, i) => {
+      const ph = svcPlaceholders[sv.type||'other'] || 'Descreva o serviço';
+      return `
+      <div class="svc-row" data-svc="${i}" style="flex-direction:column;align-items:stretch;gap:6px">
+        <div style="display:flex;align-items:center;gap:8px">
+          <input class="svc-icon-input" value="${esc(sv.icon||'➕')}" maxlength="2" title="Emoji"/>
+          <input class="svc-price-input" type="number" min="0" value="${sv.price||0}" placeholder="R$" oninput="WIZ.updateTotal()" style="width:120px;text-align:left"/>
+          <button class="svc-remove-btn" onclick="WIZ.removeService(${i})">✕ Remover</button>
+        </div>
+        <textarea class="svc-desc-input" rows="2" placeholder="${esc(ph)}" style="width:100%;resize:vertical">${esc(sv.description)}</textarea>
+      </div>`;
+    }).join('');
 
     return `
       <div class="wiz-body-title">Serviços incluídos na proposta</div>

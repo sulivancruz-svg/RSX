@@ -72,6 +72,19 @@ img{display:block;max-width:100%}
 .highlight-title{font-size:13px;color:var(--gold-300);font-weight:600;margin-bottom:6px}
 .highlight-desc{font-size:12px;color:rgba(245,239,230,.55);line-height:1.6}
 
+/* ── ACCOMMODATION OPTIONS ── */
+.accom-opts-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:32px}
+.accom-opt-card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:6px;padding:18px;display:flex;flex-direction:column;gap:6px}
+.accom-opt-badge{display:inline-block;background:rgba(201,165,116,.12);border:1px solid rgba(201,165,116,.25);border-radius:20px;padding:3px 12px;font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold-300);width:fit-content;margin-bottom:4px}
+.accom-opt-resort{font-size:11px;color:var(--gold-400);font-weight:500}
+.accom-opt-room{font-size:15px;color:var(--cream);font-weight:500;line-height:1.3}
+.accom-opt-notes{font-size:11px;color:rgba(245,239,230,.45);line-height:1.5}
+.accom-opt-price-row{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:rgba(245,239,230,.55);margin-top:4px}
+.accom-opt-acc{font-size:12px}
+.accom-opt-acc-val{font-size:12px;color:rgba(245,239,230,.7)}
+.accom-opt-total{display:flex;justify-content:space-between;align-items:baseline;margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,.07)}
+.accom-opt-total span:first-child{font-size:9px;text-transform:uppercase;letter-spacing:.12em;color:rgba(245,239,230,.4)}
+.accom-opt-total span:last-child{font-family:'Cormorant Garamond',serif;font-size:26px;color:var(--gold-300)}
 /* ── ESTADIA ── */
 .stay-section{margin-bottom:40px}
 .stay-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
@@ -195,6 +208,58 @@ img{display:block;max-width:100%}
   function calcTotal(p) {
     return (Number(p.accommodation_price) || 0) +
       (p.services || []).reduce((s, sv) => s + (Number(sv.price) || 0), 0);
+  }
+
+  function svcsTotal(p) {
+    return (p.services || []).reduce((s, sv) => s + (Number(sv.price) || 0), 0);
+  }
+
+  function renderOptions(p, svcsTotalFn) {
+    const opts = p.accommodation_options;
+    const svc = svcsTotalFn(p);
+
+    // Single option or no options — show classic layout
+    if (!opts || opts.length <= 1) {
+      const opt = (opts && opts[0]) || null;
+      const roomType = (opt && opt.room_type) || p.stay.room_type || '';
+      const price = (opt && opt.price) || p.accommodation_price || 0;
+      const notes = opt && opt.notes;
+      return `
+        ${roomType ? `<div class="stay-item" style="margin-bottom:32px;padding:14px 16px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:3px">
+          <div class="stay-item-lbl">Acomodação</div>
+          <div class="stay-item-val">${esc(roomType)}</div>
+          ${notes ? `<div style="font-size:11px;color:rgba(245,239,230,.4);margin-top:5px">${esc(notes)}</div>` : ''}
+        </div>` : ''}`;
+    }
+
+    // Multiple options — show comparison cards
+    const cards = opts.map((opt, i) => {
+      const optPrice = Number(opt.price) || 0;
+      const total = optPrice + svc;
+      const isDiff = opt.resort_name && opt.resort_name !== p.resort.name;
+      return `
+        <div class="accom-opt-card">
+          <div class="accom-opt-badge">${esc(opt.label || ('Opção '+(i+1)))}</div>
+          ${isDiff ? `<div class="accom-opt-resort">${esc(opt.resort_name)}${opt.resort_regime ? ' · ' + esc(opt.resort_regime) : ''}</div>` : ''}
+          <div class="accom-opt-room">${esc(opt.room_type || '—')}</div>
+          ${opt.notes ? `<div class="accom-opt-notes">${esc(opt.notes)}</div>` : ''}
+          <div class="accom-opt-price-row">
+            <span class="accom-opt-acc">Hospedagem</span>
+            <span class="accom-opt-acc-val">${fmtMoney(optPrice)}</span>
+          </div>
+          ${svc > 0 ? `<div class="accom-opt-price-row" style="font-size:11px;opacity:.6">
+            <span>+ Serviços</span><span>${fmtMoney(svc)}</span>
+          </div>` : ''}
+          <div class="accom-opt-total">
+            <span>Total</span><span>${fmtMoney(total)}</span>
+          </div>
+        </div>`;
+    }).join('');
+
+    return `
+      <div class="section-eyebrow">Opções de acomodação</div>
+      <p style="font-size:12px;color:rgba(245,239,230,.45);margin-bottom:16px;line-height:1.6">Preparei ${opts.length} opções para você — escolha a que preferir e me chame no WhatsApp!</p>
+      <div class="accom-opts-grid">${cards}</div>`;
   }
 
   function getParam(name) {
@@ -367,20 +432,34 @@ img{display:block;max-width:100%}
           <div class="stay-grid">
             <div class="stay-item"><div class="stay-item-lbl">Check-in</div><div class="stay-item-val">${fmtDate(p.stay.checkin)}</div></div>
             <div class="stay-item"><div class="stay-item-lbl">Check-out</div><div class="stay-item-val">${fmtDate(p.stay.checkout)}</div></div>
-            ${p.stay.room_type ? `<div class="stay-item"><div class="stay-item-lbl">Acomodação</div><div class="stay-item-val">${esc(p.stay.room_type)}</div></div>` : ''}
-            <div class="stay-item"><div class="stay-item-lbl">Hóspedes</div><div class="stay-item-val">${esc(fmtGuests(p.stay))}</div></div>
+            <div class="stay-item" style="grid-column:1/-1"><div class="stay-item-lbl">Hóspedes</div><div class="stay-item-val">${esc(fmtGuests(p.stay))}</div></div>
           </div>
           ${nightsLabel ? `<div class="stay-nights-badge">🌙 ${esc(nightsLabel)}</div>` : ''}
         </div>
 
-        <!-- SERVICES + TOTAL -->
-        <div class="section-eyebrow">O que está incluído</div>
-        <div class="services-section">${servicesHtml}</div>
+        <!-- ACCOMMODATION OPTIONS -->
+        ${renderOptions(p, svcsTotal)}
 
+        <!-- SERVICES (non-accommodation) -->
+        ${(p.services||[]).filter(sv=>Number(sv.price)>0).length ? `
+        <div class="section-eyebrow" style="margin-top:8px">Serviços incluídos</div>
+        <div class="services-section">
+          ${(p.services||[]).filter(sv=>Number(sv.price)>0).map(sv=>`
+          <div class="service-row">
+            <div class="service-left"><span class="service-icon">${esc(sv.icon||'➕')}</span><span class="service-desc">${esc(sv.description)}</span></div>
+            <div class="service-price">${fmtMoney(sv.price)}</div>
+          </div>`).join('')}
+        </div>` : ''}
+
+        <!-- TOTAL (only show single total if ONE option) -->
+        ${(!p.accommodation_options || p.accommodation_options.length <= 1) ? `
         <div class="total-box">
           <div class="total-lbl">Total da viagem</div>
           <div class="total-val">${fmtMoney(calcTotal(p))}</div>
-        </div>
+        </div>` : `
+        <div style="background:rgba(201,165,116,.05);border:1px solid var(--line);border-radius:4px;padding:14px 18px;margin-bottom:32px;font-size:12px;color:rgba(245,239,230,.5);text-align:center">
+          Os totais de cada opção estão indicados nos cards acima · os serviços incluídos são os mesmos para todas as opções
+        </div>`}
 
         <!-- WHATSAPP CTA -->
         <a href="${waLink}" target="_blank" rel="noopener" class="cta-btn">
