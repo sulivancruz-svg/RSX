@@ -1463,14 +1463,186 @@ const WIZ = {
     });
   },
 
-  // Steps 4-6 and updateTotal/saveAndFinish will be added in Task 5
-  renderStep4() { return '<div class="wiz-body-title">Serviços — em breve (Task 5)</div>'; },
-  renderStep5() { return '<div class="wiz-body-title">Condições — em breve (Task 5)</div>'; },
-  renderStep6() { return '<div class="wiz-body-title">Revisão — em breve (Task 5)</div>'; },
-  _collect4() {},
-  _collect5() {},
-  updateTotal() {},
-  saveAndFinish() { toast('Steps 4-6 ainda não implementados.', true); },
+  // ── STEP 4: Serviços ──
+  renderStep4() {
+    const presets = [
+      { icon:'✈️', type:'flight',    label:'Aéreo' },
+      { icon:'🚐', type:'transfer',  label:'Transfer' },
+      { icon:'🛡️', type:'insurance', label:'Seguro' },
+      { icon:'🏖️', type:'tour',      label:'Passeio' },
+      { icon:'➕', type:'other',     label:'Outro' },
+    ];
+    const presetsHtml = presets.map(p =>
+      `<button class="svc-preset-btn" onclick="WIZ.addService('${p.icon}','${p.type}','${p.label}')">${p.icon} ${p.label}</button>`
+    ).join('');
+
+    const svcsHtml = (this.data.services||[]).map((sv, i) => `
+      <div class="svc-row" data-svc="${i}">
+        <input class="svc-icon-input" value="${esc(sv.icon||'➕')}" maxlength="2" title="Emoji"/>
+        <input class="svc-desc-input" value="${esc(sv.description)}" placeholder="Descrição do serviço"/>
+        <input class="svc-price-input" type="number" min="0" value="${sv.price||0}" placeholder="R$" oninput="WIZ.updateTotal()"/>
+        <button class="svc-remove-btn" onclick="WIZ.removeService(${i})">✕</button>
+      </div>`).join('');
+
+    return `
+      <div class="wiz-body-title">Serviços incluídos na proposta</div>
+      <div class="svc-add-presets">${presetsHtml}</div>
+      <div id="w-svc-list">${svcsHtml || '<div style="color:var(--text-dim);font-size:12px;margin-bottom:10px">Nenhum serviço adicionado ainda.</div>'}</div>
+      <div class="wiz-total">
+        <span class="wiz-total-lbl">Total geral (hospedagem + serviços)</span>
+        <span class="wiz-total-val" id="w-total">R$ 0</span>
+      </div>`;
+  },
+
+  addService(icon, type, label) {
+    this._collect4();
+    this.data.services.push({ icon, type, description: label, price: 0 });
+    this.renderBody();
+  },
+
+  removeService(i) {
+    this._collect4();
+    this.data.services.splice(i, 1);
+    this.renderBody();
+  },
+
+  updateTotal() {
+    const acc = parseFloat(document.getElementById('w-acc-price')?.value || this.data.accommodation_price || 0);
+    const svcTotal = Array.from(document.querySelectorAll('.svc-price-input'))
+      .reduce((s, inp) => s + parseFloat(inp.value||0), 0);
+    const total = acc + svcTotal;
+    const el = document.getElementById('w-total');
+    if (el) el.textContent = 'R$ ' + total.toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+  },
+
+  _collect4() {
+    this.data.services = Array.from(document.querySelectorAll('[data-svc]')).map(row => ({
+      icon:        row.querySelector('.svc-icon-input')?.value || '➕',
+      type:        'other',
+      description: row.querySelector('.svc-desc-input')?.value || '',
+      price:       parseFloat(row.querySelector('.svc-price-input')?.value || 0),
+    }));
+  },
+
+  // ── STEP 5: Condições ──
+  renderStep5() {
+    const autoMsg = this.data.conditions.whatsapp_message ||
+      `Oi Rebeca! Quero confirmar minha proposta de viagem para ${this.data.resort.name||'o resort'}. Pode me ajudar?`;
+    return `
+      <div class="wiz-body-title">Condições e informações</div>
+      <div class="field-row">
+        <label class="field-label">Forma de pagamento</label>
+        <textarea id="w-payment" class="field-input" rows="2" placeholder="Ex: 30% de entrada + 70% até 30 dias antes">${esc(this.data.conditions.payment_info)}</textarea>
+      </div>
+      <div class="field-row">
+        <label class="field-label">Política de cancelamento</label>
+        <textarea id="w-cancel" class="field-input" rows="2" placeholder="Ex: Cancelamento gratuito até 60 dias antes do check-in">${esc(this.data.conditions.cancellation)}</textarea>
+      </div>
+      <div class="field-row">
+        <label class="field-label">Informações legais / observações gerais</label>
+        <textarea id="w-legal" class="field-input" rows="2" placeholder="Proposta sujeita à disponibilidade...">${esc(this.data.conditions.legal_notes)}</textarea>
+      </div>
+      <div class="field-row">
+        <label class="field-label">Mensagem WhatsApp pré-preenchida para o cliente</label>
+        <textarea id="w-wa-msg" class="field-input" rows="2">${esc(autoMsg)}</textarea>
+        <div class="field-help">O cliente verá essa mensagem ao clicar em "Quero essa viagem!"</div>
+      </div>`;
+  },
+
+  _collect5() {
+    this.data.conditions.payment_info      = document.getElementById('w-payment')?.value || '';
+    this.data.conditions.cancellation      = document.getElementById('w-cancel')?.value || '';
+    this.data.conditions.legal_notes       = document.getElementById('w-legal')?.value || '';
+    this.data.conditions.whatsapp_message  = document.getElementById('w-wa-msg')?.value || '';
+  },
+
+  // ── STEP 6: Revisão ──
+  renderStep6() {
+    const total = [this.data.accommodation_price, ...(this.data.services||[]).map(s=>s.price)]
+      .reduce((a,b) => a + Number(b||0), 0);
+    const fmtMoney = v => 'R$ ' + Number(v||0).toLocaleString('pt-BR',{minimumFractionDigits:0});
+    const fmtDate = iso => { if(!iso) return '—'; const [y,m,d]=iso.split('-'); const ms=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez']; return `${parseInt(d,10)} ${ms[parseInt(m,10)-1]} ${y}`; };
+
+    const svcsRows = [
+      { icon:'🏨', description: this.data.stay.room_type || 'Hospedagem', price: this.data.accommodation_price },
+      ...(this.data.services||[])
+    ].filter(s => Number(s.price) > 0).map(s =>
+      `<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:12px"><span>${esc(s.icon||'🏨')} ${esc(s.description)}</span><span style="color:var(--gold-dim)">${fmtMoney(s.price)}</span></div>`
+    ).join('');
+
+    return `
+      <div class="wiz-body-title">Revisão — como o cliente vai ver</div>
+      <div style="background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:4px;padding:20px;margin-bottom:16px">
+        <div style="font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold-dim);margin-bottom:4px">${esc(this.data.resort.regime||'')}</div>
+        <div style="font-family:'Cormorant Garamond',serif;font-size:28px;color:var(--text);margin-bottom:4px">${esc(this.data.resort.name||'—')}</div>
+        <div style="font-size:11px;color:var(--text-dim);margin-bottom:16px">${esc(this.data.resort.location||'')}</div>
+        <div style="font-size:11px;color:var(--text-dim);margin-bottom:16px">Proposta para <strong>${esc(this.data.client.name||'—')}</strong>${this.data.validity?' · Válida até '+fmtDate(this.data.validity):''}</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px">
+          <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:3px;padding:10px"><div style="font-size:8px;text-transform:uppercase;letter-spacing:.1em;color:var(--text-dim);margin-bottom:3px">Check-in</div>${fmtDate(this.data.stay.checkin)}</div>
+          <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:3px;padding:10px"><div style="font-size:8px;text-transform:uppercase;letter-spacing:.1em;color:var(--text-dim);margin-bottom:3px">Check-out</div>${fmtDate(this.data.stay.checkout)}</div>
+        </div>
+        ${svcsRows}
+        <div style="background:rgba(220,192,147,.07);border:1px solid rgba(220,192,147,.2);border-radius:3px;padding:10px;display:flex;justify-content:space-between;align-items:center;margin-top:12px">
+          <span style="font-size:9px;text-transform:uppercase;letter-spacing:.12em;color:var(--text-dim)">Total da viagem</span>
+          <span style="font-family:'Cormorant Garamond',serif;font-size:28px;color:var(--gold-dim)">${fmtMoney(total)}</span>
+        </div>
+      </div>
+      <div id="wiz-link-result"></div>
+      <p style="font-size:11px;color:var(--text-dim)">Clique em "💾 Gerar link" para salvar e obter o link do cliente.</p>`;
+  },
+
+  // ── SAVE ──
+  async saveAndFinish() {
+    this.collect();
+
+    if (!this.editId) {
+      const slugify = s => String(s||'').toLowerCase()
+        .normalize('NFD').replace(/[̀-ͯ]/g,'')
+        .replace(/[^a-z0-9]/g,'-').replace(/-+/g,'-').replace(/^-|-$/g,'');
+      const clientPart = slugify(this.data.client.name).substring(0, 15);
+      const resortPart = slugify(this.data.resort.name).substring(0, 10);
+      const monthPart  = (this.data.stay.checkin || new Date().toISOString())
+        .substring(0, 7).replace('-', '');
+      let base = `${clientPart}-${resortPart}-${monthPart}`;
+      let candidate = base;
+      const all = PROPOSALS.all();
+      let n = 2;
+      while (all.find(p => p.id === candidate)) { candidate = base + '-' + n++; }
+      this.data.id = candidate;
+      this.data.created_at = new Date().toISOString().substring(0, 10);
+      this.data.status = 'open';
+    } else {
+      this.data.id = this.editId;
+    }
+
+    const btn = document.querySelector('.wiz-footer .btn-save');
+    if (btn) { btn.disabled = true; btn.textContent = 'Salvando...'; }
+
+    const res = await PROPOSALS.save(this.data);
+
+    if (btn) { btn.disabled = false; btn.textContent = '💾 Gerar link'; }
+
+    if (res.ok) {
+      await PROPOSALS.load();
+      const link = PROPOSALS.propLink(this.data.id);
+      const el = document.getElementById('wiz-link-result');
+      if (el) {
+        el.innerHTML = `
+          <div class="link-result">
+            <div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:rgba(74,222,128,.7);margin-bottom:8px">✓ Proposta salva com sucesso!</div>
+            <div class="link-result-url">${esc(link)}</div>
+            <div style="display:flex;gap:8px">
+              <button class="link-copy-btn" onclick="navigator.clipboard.writeText('${esc(link)}').then(()=>toast('🔗 Link copiado!'))">📋 Copiar link</button>
+              <a href="${esc(link)}" target="_blank" class="btn-ghost" style="font-size:10px;padding:7px 14px">↗ Abrir proposta</a>
+            </div>
+          </div>`;
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      toast('✅ Proposta salva!');
+    } else {
+      toast('❌ Erro ao salvar: ' + (res.error || 'desconhecido'), true);
+    }
+  },
 };
 
 // Init if session active
