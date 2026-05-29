@@ -42,12 +42,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $action = $body['action'] ?? '';
     if ($action === 'save') {
-        $p = $body['proposal'];
+        $p = $body['proposal'] ?? null;
+        if (!is_array($p)) { http_response_code(400); echo json_encode(['ok'=>false,'error'=>'Missing proposal']); exit; }
         if (empty($p['id'])) { http_response_code(400); echo json_encode(['ok'=>false,'error'=>'Missing id']); exit; }
         $current['proposals'][$p['id']] = $p;
     } elseif ($action === 'delete') {
         $id = $body['id'] ?? '';
-        if ($id) unset($current['proposals'][$id]);
+        if (!$id || !isset($current['proposals'][$id])) {
+            http_response_code(404); echo json_encode(['ok'=>false,'error'=>'Not found']); exit;
+        }
+        unset($current['proposals'][$id]);
     } else {
         http_response_code(400); echo json_encode(['ok'=>false,'error'=>'Unknown action']); exit;
     }
