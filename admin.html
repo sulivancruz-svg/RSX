@@ -1152,6 +1152,327 @@ async function propDelete(id) {
   }
 }
 
+/* ══════════════════════════════════════════
+   PROPOSAL WIZARD
+══════════════════════════════════════════ */
+const WIZ = {
+  step: 1,
+  data: {},
+  editId: null,
+
+  _blank() {
+    return {
+      client: { name: '', internal_note: '' },
+      validity: '',
+      resort: { type: 'existing', slug: '', name: '', location: '', regime: '', images: [] },
+      stay: { checkin: '', checkout: '', room_type: '', adults: 2, children: [] },
+      accommodation_price: 0,
+      services: [],
+      conditions: { payment_info: '', cancellation: '', legal_notes: '', whatsapp_message: '' }
+    };
+  },
+
+  init(editData) {
+    this.step = 1;
+    if (editData) {
+      this.editId = editData.id || null;
+      this.data = JSON.parse(JSON.stringify(editData));
+      if (!this.data.resort.images) this.data.resort.images = [];
+      if (!this.data.conditions) this.data.conditions = { payment_info: '', cancellation: '', legal_notes: '', whatsapp_message: '' };
+    } else {
+      this.editId = null;
+      this.data = this._blank();
+    }
+    this.render();
+  },
+
+  render() {
+    const stepNames = ['Cliente','Resort','Hospedagem','Serviços','Condições','Revisão'];
+    const stepsHtml = stepNames.map((s, i) => {
+      const n = i + 1;
+      const cls = n < this.step ? 'done' : n === this.step ? 'active' : '';
+      const clickable = n < this.step ? `onclick="WIZ.jumpTo(${n})"` : '';
+      return `<div class="wiz-step-item ${cls}" ${clickable}>${n}. ${s}</div>`;
+    }).join('');
+
+    const isLast = this.step === 6;
+    document.getElementById('mainInner').innerHTML = `
+      <div class="wiz-container">
+        <div class="wiz-header">
+          <h1 class="page-title">${this.editId ? 'Editar Proposta' : 'Nova Proposta'}</h1>
+          <button class="btn-ghost" onclick="WIZ.close()">← Voltar</button>
+        </div>
+        <div class="wiz-steps-bar">${stepsHtml}</div>
+        <div class="wiz-body" id="wiz-body"></div>
+        <div class="wiz-footer">
+          <button class="btn-ghost" onclick="WIZ.prev()" style="visibility:${this.step === 1 ? 'hidden' : 'visible'}">← Voltar</button>
+          <span class="wiz-progress">Passo ${this.step} de 6</span>
+          ${isLast
+            ? `<button class="btn-save" onclick="WIZ.saveAndFinish()">💾 Gerar link</button>`
+            : `<button class="btn-save" onclick="WIZ.next()">Próximo →</button>`
+          }
+        </div>
+      </div>`;
+    this.renderBody();
+  },
+
+  renderBody() {
+    const body = document.getElementById('wiz-body');
+    if (body) body.innerHTML = this['renderStep' + this.step]();
+    if (this.step === 4) this.updateTotal();
+  },
+
+  collect() {
+    if (this.step === 1) this._collect1();
+    if (this.step === 2) this._collect2();
+    if (this.step === 3) this._collect3();
+    if (this.step === 4) this._collect4();
+    if (this.step === 5) this._collect5();
+  },
+
+  validate() {
+    if (this.step === 1 && !this.data.client.name.trim()) {
+      toast('⚠️ Informe o nome do cliente.', true); return false;
+    }
+    if (this.step === 2 && !this.data.resort.name.trim()) {
+      toast('⚠️ Selecione ou informe o resort.', true); return false;
+    }
+    return true;
+  },
+
+  next() { this.collect(); if (!this.validate()) return; if (this.step < 6) { this.step++; this.render(); } },
+  prev() { this.collect(); if (this.step > 1) { this.step--; this.render(); } },
+  jumpTo(n) { this.collect(); this.step = n; this.render(); },
+  close() { showPage('propostas', document.querySelector('[data-page="propostas"]')); },
+
+  // ── STEP 1: Cliente ──
+  renderStep1() {
+    return `
+      <div class="wiz-body-title">Dados do cliente</div>
+      <div class="wiz-field-grid">
+        <div class="field-row wiz-field">
+          <label class="field-label">Nome do cliente *</label>
+          <input id="w-name" class="field-input" value="${esc(this.data.client.name)}" placeholder="Ex: Ana Lima"/>
+        </div>
+        <div class="field-row wiz-field">
+          <label class="field-label">Proposta válida até</label>
+          <input id="w-validity" class="field-input" type="date" value="${esc(this.data.validity)}"/>
+        </div>
+      </div>
+      <div class="field-row">
+        <label class="field-label">Nota interna (não aparece para o cliente)</label>
+        <textarea id="w-note" class="field-input" rows="2" placeholder="Ex: cliente indicado pela família Souza">${esc(this.data.client.internal_note)}</textarea>
+      </div>`;
+  },
+  _collect1() {
+    this.data.client.name = document.getElementById('w-name')?.value || '';
+    this.data.validity = document.getElementById('w-validity')?.value || '';
+    this.data.client.internal_note = document.getElementById('w-note')?.value || '';
+  },
+
+  // ── STEP 2: Resort ──
+  renderStep2() {
+    const isExisting = this.data.resort.type !== 'custom';
+    const staticResorts = [
+      { slug:'costao',      name:'Costão do Santinho' },
+      { slug:'fazzenda',    name:'Fazzenda Park Resort' },
+      { slug:'japaratinga', name:'Japaratinga Lounge Resort' },
+    ];
+    try {
+      const custom = JSON.parse(localStorage.getItem('rsx_custom_pages') || '[]');
+      custom.forEach(c => { if (!staticResorts.find(r => r.slug === c.slug)) staticResorts.push({ slug: c.slug, name: c.nome }); });
+    } catch(e) {}
+    const opts = staticResorts.map(r =>
+      `<option value="${esc(r.slug)}" ${this.data.resort.slug===r.slug?'selected':''}>${esc(r.name)}</option>`
+    ).join('');
+
+    const existingPanel = `
+      <div class="field-row">
+        <label class="field-label">Resort</label>
+        <select id="w-resort-slug" class="field-input" onchange="WIZ.onResortChange(this.value)">
+          <option value="">— Selecione —</option>
+          ${opts}
+        </select>
+      </div>
+      ${this.data.resort.name ? `
+        <div class="wiz-field-grid three" style="margin-top:10px">
+          <div class="field-item-info"><div class="field-help">Resort</div><strong>${esc(this.data.resort.name)}</strong></div>
+          <div class="field-item-info"><div class="field-help">Regime</div><strong>${esc(this.data.resort.regime||'—')}</strong></div>
+          <div class="field-item-info"><div class="field-help">Vídeo</div><strong>${CMS.get(this.data.resort.slug,'hero_video_yt') ? '✓ Disponível' : '✕ Não configurado'}</strong></div>
+        </div>` : ''}`;
+
+    const customPanel = `
+      <div class="wiz-field-grid">
+        <div class="field-row wiz-field">
+          <label class="field-label">Nome do hotel / resort *</label>
+          <input id="w-custom-name" class="field-input" value="${esc(isExisting?'':this.data.resort.name)}" placeholder="Ex: Nannai Resort & Spa"/>
+        </div>
+        <div class="field-row wiz-field">
+          <label class="field-label">Localização</label>
+          <input id="w-custom-location" class="field-input" value="${esc(isExisting?'':this.data.resort.location)}" placeholder="Ex: Porto de Galinhas · PE"/>
+        </div>
+      </div>
+      <div class="field-row">
+        <label class="field-label">Regime alimentar</label>
+        <input id="w-custom-regime" class="field-input" value="${esc(isExisting?'':this.data.resort.regime)}" placeholder="Ex: All-Inclusive · Meia Pensão"/>
+      </div>
+      <div class="field-row">
+        <label class="field-label">Fotos do resort (até 5 · JPG/PNG/WebP)</label>
+        <div id="w-img-list" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px">
+          ${(this.data.resort.images||[]).map((url,i)=>`<div style="position:relative;display:inline-block"><img src="${esc(url)}" style="width:72px;height:72px;object-fit:cover;border-radius:3px;border:1px solid var(--border)"/><button onclick="WIZ.removeImage(${i})" style="position:absolute;top:-4px;right:-4px;background:#f87171;color:#fff;border:none;border-radius:50%;width:18px;height:18px;font-size:10px;cursor:pointer;line-height:18px">✕</button></div>`).join('')}
+        </div>
+        <input type="file" id="w-img-upload" accept="image/*" onchange="WIZ.uploadImage(this)" ${(this.data.resort.images||[]).length>=5?'disabled':''}/>
+        <div class="field-help" id="w-img-status"></div>
+      </div>`;
+
+    return `
+      <div class="wiz-body-title">Resort ou hotel</div>
+      <div class="resort-toggle-wrap">
+        <button class="resort-toggle-btn ${isExisting?'active':''}" onclick="WIZ.setResortType('existing')">🏖 Resort do site</button>
+        <button class="resort-toggle-btn ${!isExisting?'active':''}" onclick="WIZ.setResortType('custom')">🏨 Outro hotel / resort</button>
+      </div>
+      ${isExisting ? existingPanel : customPanel}`;
+  },
+
+  setResortType(type) {
+    this._collect2();
+    this.data.resort.type = type;
+    if (type === 'existing') {
+      this.data.resort.name = '';
+      this.data.resort.slug = '';
+      this.data.resort.location = '';
+      this.data.resort.regime = '';
+    }
+    this.renderBody();
+  },
+
+  onResortChange(slug) {
+    if (!slug) { this.data.resort = Object.assign(this.data.resort, { slug:'', name:'', location:'', regime:'' }); return; }
+    const names = { costao:'Costão do Santinho', fazzenda:'Fazzenda Park Resort', japaratinga:'Japaratinga Lounge Resort' };
+    const custom = (() => { try { return JSON.parse(localStorage.getItem('rsx_custom_pages')||'[]'); } catch(e){return[];} })();
+    const customPage = custom.find(c => c.slug === slug);
+    this.data.resort.slug = slug;
+    this.data.resort.name = names[slug] || (customPage && customPage.nome) || slug;
+    this.data.resort.regime = CMS.get(slug, 'regime') || '';
+    this.data.resort.location = CMS.get(slug, 'meta_localizacao') || '';
+    this.renderBody();
+  },
+
+  _collect2() {
+    if (this.data.resort.type === 'existing') {
+      const sel = document.getElementById('w-resort-slug');
+      if (sel) this.onResortChange(sel.value);
+    } else {
+      this.data.resort.name     = document.getElementById('w-custom-name')?.value || '';
+      this.data.resort.location = document.getElementById('w-custom-location')?.value || '';
+      this.data.resort.regime   = document.getElementById('w-custom-regime')?.value || '';
+    }
+  },
+
+  async uploadImage(input) {
+    if (!input.files || !input.files[0]) return;
+    const status = document.getElementById('w-img-status');
+    if (status) status.textContent = 'Enviando...';
+    const fd = new FormData();
+    fd.append('file', input.files[0]);
+    fd.append('_pass', CMS.pass());
+    try {
+      const r = await fetch('upload.php', { method: 'POST', body: fd });
+      const res = await r.json();
+      if (res.ok) {
+        if (!this.data.resort.images) this.data.resort.images = [];
+        this.data.resort.images.push(res.url);
+        this.renderBody();
+      } else {
+        if (status) status.textContent = '❌ ' + res.error;
+      }
+    } catch(e) {
+      if (status) status.textContent = '❌ Falha no upload.';
+    }
+    input.value = '';
+  },
+
+  removeImage(idx) {
+    this.data.resort.images.splice(idx, 1);
+    this.renderBody();
+  },
+
+  // ── STEP 3: Hospedagem ──
+  renderStep3() {
+    const children = this.data.stay.children || [];
+    const childrenHtml = children.map((age, i) => `
+      <div class="children-row">
+        <input class="field-input children-age-input" type="number" min="0" max="17" value="${age}" placeholder="Idade" data-child="${i}"/>
+        <button class="btn-ghost" style="padding:4px 8px" onclick="WIZ.removeChild(${i})">✕</button>
+      </div>`).join('');
+
+    return `
+      <div class="wiz-body-title">Detalhes da hospedagem</div>
+      <div class="wiz-field-grid">
+        <div class="field-row wiz-field">
+          <label class="field-label">Check-in</label>
+          <input id="w-checkin" class="field-input" type="date" value="${esc(this.data.stay.checkin)}"/>
+        </div>
+        <div class="field-row wiz-field">
+          <label class="field-label">Check-out</label>
+          <input id="w-checkout" class="field-input" type="date" value="${esc(this.data.stay.checkout)}"/>
+        </div>
+      </div>
+      <div class="field-row">
+        <label class="field-label">Tipo de acomodação / quarto</label>
+        <input id="w-room" class="field-input" value="${esc(this.data.stay.room_type)}" placeholder="Ex: Chalé Vista Mar · Superior"/>
+      </div>
+      <div class="wiz-field-grid">
+        <div class="field-row wiz-field">
+          <label class="field-label">Nº de adultos</label>
+          <input id="w-adults" class="field-input" type="number" min="1" max="20" value="${this.data.stay.adults||2}"/>
+        </div>
+        <div class="field-row wiz-field">
+          <label class="field-label">Valor da hospedagem (R$)</label>
+          <input id="w-acc-price" class="field-input" type="number" min="0" value="${this.data.accommodation_price||0}" oninput="WIZ.updateTotal()"/>
+        </div>
+      </div>
+      <div class="field-row">
+        <label class="field-label">Crianças (informe a idade de cada uma)</label>
+        <div id="w-children-list">${childrenHtml}</div>
+        <button class="btn-ghost" style="margin-top:6px;font-size:11px" onclick="WIZ.addChild()">+ Adicionar criança</button>
+      </div>`;
+  },
+
+  addChild() {
+    this._collect3();
+    this.data.stay.children.push(0);
+    this.renderBody();
+  },
+
+  removeChild(i) {
+    this._collect3();
+    this.data.stay.children.splice(i, 1);
+    this.renderBody();
+  },
+
+  _collect3() {
+    this.data.stay.checkin    = document.getElementById('w-checkin')?.value || '';
+    this.data.stay.checkout   = document.getElementById('w-checkout')?.value || '';
+    this.data.stay.room_type  = document.getElementById('w-room')?.value || '';
+    this.data.stay.adults     = parseInt(document.getElementById('w-adults')?.value||2, 10);
+    this.data.accommodation_price = parseFloat(document.getElementById('w-acc-price')?.value||0);
+    document.querySelectorAll('[data-child]').forEach(inp => {
+      const i = parseInt(inp.dataset.child, 10);
+      this.data.stay.children[i] = parseInt(inp.value||0, 10);
+    });
+  },
+
+  // Steps 4-6 and updateTotal/saveAndFinish will be added in Task 5
+  renderStep4() { return '<div class="wiz-body-title">Serviços — em breve (Task 5)</div>'; },
+  renderStep5() { return '<div class="wiz-body-title">Condições — em breve (Task 5)</div>'; },
+  renderStep6() { return '<div class="wiz-body-title">Revisão — em breve (Task 5)</div>'; },
+  _collect4() {},
+  _collect5() {},
+  updateTotal() {},
+  saveAndFinish() { toast('Steps 4-6 ainda não implementados.', true); },
+};
+
 // Init if session active
 if (sessionStorage.getItem(CMS.AUTH_KEY)) {
   renderCustomPageNav();
