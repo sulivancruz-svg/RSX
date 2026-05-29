@@ -151,6 +151,59 @@ input[type="file"]{display:none}
 ::-webkit-scrollbar{width:4px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+/* ── PROPOSTAS LIST ── */
+.prop-list-wrap{background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.prop-list-header{display:flex;align-items:center;gap:12px;padding:10px 16px;background:rgba(255,255,255,.03);border-bottom:1px solid var(--border);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-dim)}
+.prop-list-row{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid rgba(255,255,255,.04)}
+.prop-list-row:last-child{border-bottom:none}
+.prop-status-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.prop-status-dot.open{background:#4ade80}
+.prop-status-dot.exp{background:#f87171}
+.prop-list-client{flex:1;min-width:0}
+.prop-list-name{font-size:12px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.prop-list-detail{font-size:10px;color:var(--text-dim)}
+.prop-list-date{width:90px;font-size:10px;color:var(--text-dim);flex-shrink:0}
+.prop-list-actions{display:flex;gap:6px;flex-shrink:0;width:240px;justify-content:flex-end}
+.prop-action-btn{font-size:10px;color:var(--gold-dim);background:rgba(220,192,147,.07);border:1px solid rgba(220,192,147,.15);border-radius:2px;padding:4px 9px;cursor:pointer;white-space:nowrap;transition:.15s}
+.prop-action-btn:hover{background:rgba(220,192,147,.14)}
+.prop-action-btn.danger{color:rgba(248,113,113,.7);background:rgba(248,113,113,.06);border-color:rgba(248,113,113,.15)}
+.prop-list-empty{padding:40px;text-align:center;color:var(--text-dim);font-size:13px}
+/* ── WIZARD ── */
+.wiz-container{max-width:760px}
+.wiz-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
+.wiz-steps-bar{display:flex;background:var(--surface);border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-bottom:24px}
+.wiz-step-item{flex:1;padding:10px 8px;text-align:center;font-size:9px;letter-spacing:.06em;color:var(--text-dim);border-right:1px solid var(--border);cursor:pointer;transition:.15s}
+.wiz-step-item:last-child{border-right:none}
+.wiz-step-item.active{color:var(--gold-dim);background:rgba(220,192,147,.07);font-weight:600}
+.wiz-step-item.done{color:rgba(220,192,147,.5)}
+.wiz-step-item.done:hover{background:rgba(220,192,147,.05)}
+.wiz-body{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:24px;margin-bottom:16px}
+.wiz-body-title{font-size:14px;font-weight:600;color:var(--text);margin-bottom:20px}
+.wiz-footer{display:flex;align-items:center;justify-content:space-between;padding:0 4px}
+.wiz-progress{font-size:11px;color:var(--text-dim)}
+.wiz-field-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+.wiz-field-grid.three{grid-template-columns:1fr 1fr 1fr}
+.wiz-field-grid.full{grid-template-columns:1fr}
+.wiz-field{margin-bottom:0}
+.resort-toggle-wrap{display:flex;gap:0;background:rgba(255,255,255,.04);border-radius:4px;border:1px solid var(--border);overflow:hidden;width:fit-content;margin-bottom:18px}
+.resort-toggle-btn{font-size:11px;padding:8px 20px;border:none;background:transparent;color:var(--text-dim);cursor:pointer;transition:.15s}
+.resort-toggle-btn.active{background:rgba(220,192,147,.15);color:var(--gold-dim);font-weight:600}
+.svc-row{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:3px;padding:8px 10px;margin-bottom:6px}
+.svc-icon-input{width:36px;font-size:18px;background:transparent;border:none;color:var(--text);text-align:center;cursor:pointer}
+.svc-desc-input{flex:1;background:transparent;border:none;color:var(--text);font-size:12px;outline:none;font-family:inherit}
+.svc-price-input{width:100px;background:transparent;border:none;color:var(--gold-dim);font-size:12px;text-align:right;outline:none;font-family:inherit}
+.svc-remove-btn{background:none;border:none;color:rgba(248,113,113,.5);cursor:pointer;font-size:14px;padding:0 4px}
+.svc-add-presets{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.svc-preset-btn{font-size:10px;background:rgba(220,192,147,.07);border:1px solid var(--border);border-radius:3px;padding:5px 10px;color:var(--text-dim);cursor:pointer;transition:.15s}
+.svc-preset-btn:hover{background:rgba(220,192,147,.14);color:var(--gold-dim)}
+.wiz-total{background:rgba(220,192,147,.07);border:1px solid rgba(220,192,147,.2);border-radius:3px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;margin-top:12px}
+.wiz-total-lbl{font-size:9px;text-transform:uppercase;letter-spacing:.12em;color:var(--text-dim)}
+.wiz-total-val{font-size:20px;color:var(--gold-dim);font-family:'Cormorant Garamond',serif}
+.children-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.children-age-input{width:70px}
+.link-result{background:rgba(74,222,128,.08);border:1px solid rgba(74,222,128,.25);border-radius:4px;padding:16px;margin-bottom:16px}
+.link-result-url{font-size:11px;color:#4ade80;word-break:break-all;margin-bottom:10px;font-family:monospace}
+.link-copy-btn{background:#4ade80;color:#000;border:none;padding:7px 16px;border-radius:2px;font-size:10px;letter-spacing:.12em;font-weight:700;cursor:pointer}
 </style>
 </head>
 <body>
@@ -210,6 +263,11 @@ input[type="file"]{display:none}
       </button>
       <button class="nav-btn" data-page="contato" onclick="showPage('contato',this)">
         <span class="nav-icon">✉️</span>Contato
+      </button>
+
+      <div class="sidebar-section-label">Ferramentas</div>
+      <button class="nav-btn" data-page="propostas" onclick="showPage('propostas',this)">
+        <span class="nav-icon">📋</span>Propostas
       </button>
 
       <div class="sidebar-section-label">Criar</div>
@@ -327,6 +385,49 @@ const CMS = {
 };
 
 /* ══════════════════════════════════════════
+   PROPOSALS ENGINE
+══════════════════════════════════════════ */
+const PROPOSALS = {
+  data: { proposals: {} },
+
+  async load() {
+    try {
+      const r = await fetch('proposals-save.php?_=' + Date.now());
+      this.data = r.ok ? await r.json() : { proposals: {} };
+    } catch(e) { this.data = { proposals: {} }; }
+  },
+
+  async save(proposal) {
+    const r = await fetch('proposals-save.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ _pass: CMS.pass(), action: 'save', proposal })
+    });
+    return r.json();
+  },
+
+  async remove(id) {
+    const r = await fetch('proposals-save.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ _pass: CMS.pass(), action: 'delete', id })
+    });
+    return r.json();
+  },
+
+  all() {
+    return Object.values(this.data.proposals || {})
+      .sort((a, b) => (b.created_at || '').localeCompare(a.created_at || ''));
+  },
+
+  get(id) { return (this.data.proposals || {})[id] || null; },
+
+  propLink(id) {
+    return location.origin + location.pathname.replace('admin.html', '') + 'proposta.html?id=' + id;
+  }
+};
+
+/* ══════════════════════════════════════════
    AUTH
 ══════════════════════════════════════════ */
 function afterLoad() {
@@ -335,6 +436,7 @@ function afterLoad() {
     renderCustomPageNav();
     showPage('geral', document.querySelector('[data-page="geral"]'));
   });
+  PROPOSALS.load(); // carrega propostas em paralelo
 }
 
 function doLogin() {
@@ -862,6 +964,49 @@ const PAGES = {
       Número atual: <strong>${esc(wa)}</strong>
     </div>
   `; },
+
+  propostas() {
+    const all = PROPOSALS.all();
+    const today = new Date().toISOString().substring(0, 10);
+
+    const rows = all.length ? all.map(p => {
+      const expired = p.validity && p.validity < today;
+      const statusDot = `<span class="prop-status-dot ${expired ? 'exp' : 'open'}" title="${expired ? 'Expirada' : 'Aberta'}"></span>`;
+      const link = PROPOSALS.propLink(p.id);
+      return `
+        <div class="prop-list-row">
+          ${statusDot}
+          <div class="prop-list-client">
+            <div class="prop-list-name">${esc(p.client.name)}</div>
+            <div class="prop-list-detail">${esc(p.resort.name || '—')}${p.stay.checkin ? ' · ' + p.stay.checkin : ''}</div>
+          </div>
+          <div class="prop-list-date">${p.created_at || '—'}</div>
+          <div class="prop-list-actions">
+            <button class="prop-action-btn" onclick="propCopyLink('${esc(p.id)}','${esc(link)}')">🔗 Link</button>
+            <button class="prop-action-btn" onclick="propEdit('${esc(p.id)}')">✏️ Editar</button>
+            <button class="prop-action-btn" onclick="propDuplicate('${esc(p.id)}')">⧉ Duplicar</button>
+            <button class="prop-action-btn danger" onclick="propDelete('${esc(p.id)}')">🗑</button>
+          </div>
+        </div>`;
+    }).join('') : `<div class="prop-list-empty">Nenhuma proposta ainda. Crie a primeira!</div>`;
+
+    return `
+      <h1 class="page-title">Propostas de Viagem</h1>
+      <p class="page-subtitle">Crie cotações personalizadas e gere links únicos por cliente.</p>
+      <div style="margin-bottom:20px">
+        <button class="btn-save" onclick="propNew()">+ Nova proposta</button>
+      </div>
+      <div class="prop-list-wrap">
+        <div class="prop-list-header">
+          <span style="flex:0 0 12px"></span>
+          <span style="flex:1">Cliente / Resort</span>
+          <span style="width:90px">Criada em</span>
+          <span style="width:240px;text-align:right">Ações</span>
+        </div>
+        ${rows}
+      </div>
+    `;
+  },
 };
 
 /* ══════════════════════════════════════════
@@ -967,6 +1112,44 @@ function showPage(id, btn) {
   // Auto-fill fields from the live page if they're empty
   const file = PAGE_LINKS[id];
   if (file && PAGE_FIELD_MAPS[id]) prefillFromPage(id, file);
+}
+
+/* ── Proposal list actions ── */
+function propCopyLink(id, link) {
+  navigator.clipboard.writeText(link).then(() => toast('🔗 Link copiado!'));
+}
+
+function propNew() {
+  WIZ.init(null);
+}
+
+function propEdit(id) {
+  const p = PROPOSALS.get(id);
+  if (!p) { toast('Proposta não encontrada.', true); return; }
+  WIZ.init(p);
+}
+
+function propDuplicate(id) {
+  const p = PROPOSALS.get(id);
+  if (!p) { toast('Proposta não encontrada.', true); return; }
+  const copy = JSON.parse(JSON.stringify(p));
+  copy.id = '';
+  copy.created_at = '';
+  copy.status = 'open';
+  copy.client = Object.assign({}, copy.client, { name: copy.client.name + ' (cópia)' });
+  WIZ.init(copy);
+}
+
+async function propDelete(id) {
+  if (!confirm('Excluir esta proposta? Esta ação não pode ser desfeita.')) return;
+  const res = await PROPOSALS.remove(id);
+  if (res.ok) {
+    await PROPOSALS.load();
+    toast('🗑 Proposta excluída.');
+    showPage('propostas', document.querySelector('[data-page="propostas"]'));
+  } else {
+    toast('❌ Erro ao excluir: ' + res.error, true);
+  }
 }
 
 // Init if session active
