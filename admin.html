@@ -1550,7 +1550,7 @@ const WIZ = {
       const isDiff = card.querySelector('#opt-diff-'+i)?.checked;
       return {
         label:         card.querySelector('.accom-opt-label')?.value || ('Opção '+(i+1)),
-        resort_slug:   isDiff ? (this.data.resort.slug||'') : (this.data.resort.slug||''),
+        resort_slug:   isDiff ? '' : (this.data.resort.slug||''),
         resort_name:   isDiff ? (card.querySelector('.accom-opt-resort-name')?.value||'') : (this.data.resort.name||''),
         resort_regime: isDiff ? (card.querySelector('.accom-opt-resort-regime')?.value||'') : (this.data.resort.regime||''),
         room_type:     card.querySelector('.accom-opt-room')?.value || '',
@@ -1682,6 +1682,14 @@ const WIZ = {
 
     return `
       <div class="wiz-body-title">Revisão — como o cliente vai ver</div>
+      <div style="display:flex;align-items:center;gap:10px;background:rgba(220,192,147,.09);border:1px solid rgba(220,192,147,.3);border-radius:4px;padding:10px 14px;margin-bottom:14px">
+        <span style="font-size:16px">🏨</span>
+        <div>
+          <div style="font-size:9px;text-transform:uppercase;letter-spacing:.12em;color:var(--gold-dim)">Resort selecionado</div>
+          <div style="font-size:14px;font-weight:600;color:var(--text)">${esc(this.data.resort.name||'⚠️ Nenhum resort selecionado!')}</div>
+        </div>
+        <button class="btn-ghost" style="margin-left:auto;font-size:10px;padding:4px 10px" onclick="WIZ.jumpTo(2)">Alterar</button>
+      </div>
       <div style="background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:4px;padding:20px;margin-bottom:16px">
         <div style="font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold-dim);margin-bottom:4px">${esc(this.data.resort.regime||'')}</div>
         <div style="font-family:'Cormorant Garamond',serif;font-size:28px;color:var(--text);margin-bottom:4px">${esc(this.data.resort.name||'—')}</div>
@@ -1709,8 +1717,8 @@ const WIZ = {
       const slugify = s => String(s||'').toLowerCase()
         .normalize('NFD').replace(/[̀-ͯ]/g,'')
         .replace(/[^a-z0-9]/g,'-').replace(/-+/g,'-').replace(/^-|-$/g,'');
-      const clientPart = slugify(this.data.client.name).substring(0, 15);
-      const resortPart = slugify(this.data.resort.name).substring(0, 10);
+      const clientPart = slugify(this.data.client.name).substring(0, 15).replace(/-+$/, '');
+      const resortPart = slugify(this.data.resort.name).substring(0, 10).replace(/-+$/, '');
       const monthPart  = (this.data.stay.checkin || new Date().toISOString())
         .substring(0, 7).replace('-', '');
       let base = `${clientPart}-${resortPart}-${monthPart}`;
