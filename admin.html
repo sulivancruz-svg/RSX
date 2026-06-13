@@ -207,6 +207,38 @@ input[type="file"]{display:none}
 .accom-opt-label{flex:1;font-weight:600;font-size:12px}
 .link-result{background:rgba(74,222,128,.08);border:1px solid rgba(74,222,128,.25);border-radius:4px;padding:16px;margin-bottom:16px}
 .link-result-url{font-size:11px;color:#4ade80;word-break:break-all;margin-bottom:10px;font-family:monospace}
+
+/* ── MOBILE ── */
+.mob-menu-btn{display:none;background:none;border:none;color:var(--text);font-size:22px;cursor:pointer;padding:4px 8px;line-height:1;flex-shrink:0}
+.mob-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:99}
+@media(max-width:680px){
+  .mob-menu-btn{display:block}
+  .app-brand-label{display:none}
+  .sidebar{position:fixed;top:0;left:-260px;height:100%;width:240px;z-index:100;padding-top:56px;transition:left .25s ease;box-shadow:4px 0 24px rgba(0,0,0,.4)}
+  .sidebar.mob-open{left:0}
+  .mob-overlay.mob-open{display:block}
+  .main{padding:16px 14px 48px}
+  .page-title{font-size:26px}
+  .page-subtitle{margin-bottom:24px}
+  .wiz-container{max-width:100%}
+  .wiz-body{padding:16px 14px}
+  .wiz-header{margin-bottom:14px}
+  .wiz-header .page-title{font-size:20px;margin-bottom:0}
+  .wiz-steps-bar{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .wiz-step-item{min-width:46px;padding:9px 4px;font-size:8px;letter-spacing:0}
+  .wiz-field-grid,.wiz-field-grid.three{grid-template-columns:1fr}
+  .wiz-footer{gap:8px;flex-wrap:wrap}
+  .wiz-progress{width:100%;text-align:center;order:-1}
+  .resort-toggle-wrap{width:100%}
+  .resort-toggle-btn{flex:1;text-align:center}
+  .svc-row{flex-wrap:wrap}
+  .svc-price-input{width:100%}
+  .prop-list-date{display:none}
+  .prop-list-actions{width:auto;flex-wrap:wrap;gap:4px}
+  .prop-list-row{flex-wrap:wrap}
+  .prop-list-client{width:100%;min-width:100%;order:-1}
+  .link-copy-btn,.link-result a{font-size:10px;padding:6px 10px}
+}
 .link-copy-btn{background:#4ade80;color:#000;border:none;padding:7px 16px;border-radius:2px;font-size:10px;letter-spacing:.12em;font-weight:700;cursor:pointer}
 </style>
 </head>
@@ -232,6 +264,7 @@ input[type="file"]{display:none}
 <div id="app">
   <header class="app-header">
     <div class="app-brand">
+      <button class="mob-menu-btn" onclick="toggleSidebar()" aria-label="Menu">☰</button>
       <img src="design_handoff_rsx_travel_site/assets/rsx-logo-principal-crop.png" alt="RSX Travel"/>
       <span class="app-brand-label">Painel de Conteúdo</span>
     </div>
@@ -242,8 +275,10 @@ input[type="file"]{display:none}
     </div>
   </header>
 
+  <div class="mob-overlay" id="mobOverlay" onclick="toggleSidebar()"></div>
+
   <div class="app-body">
-    <aside class="sidebar">
+    <aside class="sidebar" id="sidebar">
       <div class="sidebar-section-label">Configurações</div>
       <button class="nav-btn active" data-page="geral" onclick="showPage('geral',this)">
         <span class="nav-icon">⚙️</span>Geral
@@ -1100,7 +1135,17 @@ async function prefillFromPage(pageId, file) {
   } catch(e) { /* silently ignore fetch errors (e.g. file:// protocol) */ }
 }
 
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('mob-open');
+  document.getElementById('mobOverlay').classList.toggle('mob-open');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('mob-open');
+  document.getElementById('mobOverlay').classList.remove('mob-open');
+}
+
 function showPage(id, btn) {
+  closeSidebar();
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
   if (btn) btn.classList.add('active');
   const pl = document.getElementById('previewLink');
