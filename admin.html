@@ -309,6 +309,11 @@ input[type="file"]{display:none}
         <span class="nav-icon">📋</span>Propostas
       </button>
 
+      <div class="sidebar-section-label">Eventos</div>
+      <button class="nav-btn" data-page="baila_costao" onclick="showPage('baila_costao',this)">
+        <span class="nav-icon">🎶</span>Baila Costão
+      </button>
+
       <div class="sidebar-section-label">Criar</div>
       <button class="nav-btn" data-page="novo" onclick="showPage('novo',this)">
         <span class="nav-icon">➕</span>Novo Destino
@@ -1842,6 +1847,289 @@ function renderCustomPageNav() {
       PAGES[p.slug] = () => resortHTML(p.slug, p.nome, p.slug + '.html');
     }
   });
+}
+
+/* ══════════════════════════════════════════
+   BAILA COSTÃO
+══════════════════════════════════════════ */
+const BAILA_CATS = [
+  { id:'sup_ind',  grupo:'Vilas Superior',              nome:'Individual',                  detalhe:'quarto e banheiro',                       preco:4696 },
+  { id:'sup_dup',  grupo:'Vilas Superior',              nome:'Duplo — por pessoa',           detalhe:'quarto e banheiro',                       preco:3354 },
+  { id:'lux_ind',  grupo:'Vilas Luxo',                  nome:'Individual',                  detalhe:'quarto, banheiro, sala, varanda',          preco:5400 },
+  { id:'lux_dup',  grupo:'Vilas Luxo',                  nome:'Duplo — por pessoa',           detalhe:'quarto, banheiro, sala, varanda',          preco:3857 },
+  { id:'lux_tri',  grupo:'Vilas Luxo',                  nome:'Triplo a Sêxtuplo — por pessoa',detalhe:'quarto, banheiro, sala, varanda',        preco:3279 },
+  { id:'hot_ind',  grupo:'Hotel Internacional Suite Prime', nome:'Individual',              detalhe:'suite, sala, varanda premium',             preco:6574 },
+  { id:'hot_dup',  grupo:'Hotel Internacional Suite Prime', nome:'Duplo — por pessoa',      detalhe:'suite, sala, varanda premium',             preco:4696 },
+];
+
+function bailaLoadState() {
+  try { return JSON.parse(localStorage.getItem('rsx_baila')||'{}'); } catch(e){ return {}; }
+}
+function bailaSaveState(s) { localStorage.setItem('rsx_baila', JSON.stringify(s)); }
+
+function bailaCollect() {
+  const s = {
+    lote:     document.getElementById('bc_lote')?.value||'Lote 3',
+    validade: document.getElementById('bc_validade')?.value||'',
+    noites:   document.getElementById('bc_noites')?.value||'3',
+    periodo:  document.getElementById('bc_periodo')?.value||'',
+    dias:     document.getElementById('bc_dias')?.value||'',
+    cliente:  document.getElementById('bc_cliente')?.value||'',
+    cri04:    parseFloat(document.getElementById('bc_cri04')?.value||804),
+    precos: {},
+    sel: {},
+  };
+  BAILA_CATS.forEach(c => {
+    s.precos[c.id] = parseFloat(document.getElementById('bcp_'+c.id)?.value||c.preco);
+    s.sel[c.id]    = document.getElementById('bcsel_'+c.id)?.checked ?? true;
+  });
+  return s;
+}
+
+PAGES['baila_costao'] = () => {
+  const st = bailaLoadState();
+  const fmtR = n => 'R$ ' + Number(n||0).toLocaleString('pt-BR',{minimumFractionDigits:2});
+
+  // Build category rows grouped
+  let lastGrupo = '';
+  const catRows = BAILA_CATS.map(c => {
+    let header = '';
+    if (c.grupo !== lastGrupo) {
+      lastGrupo = c.grupo;
+      header = `<div style="font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold-dim);font-weight:600;margin:14px 0 6px;padding-bottom:6px;border-bottom:1px solid var(--border)">${esc(c.grupo)}</div>`;
+    }
+    const preco = st.precos?.[c.id] ?? c.preco;
+    const sel   = st.sel?.[c.id] ?? true;
+    return `${header}
+    <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04)">
+      <input type="checkbox" id="bcsel_${c.id}" ${sel?'checked':''} style="flex-shrink:0"/>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:12px;color:var(--text)">${esc(c.nome)}</div>
+        <div style="font-size:10px;color:var(--text-dim)">${esc(c.detalhe)}</div>
+      </div>
+      <input id="bcp_${c.id}" type="number" min="0" step="1" value="${preco}"
+        style="width:110px;text-align:right" class="field-input"/>
+    </div>`;
+  }).join('');
+
+  return `
+  <h1 class="page-title">Baila Costão</h1>
+  <p class="page-subtitle">Configure o lote, selecione as categorias, preencha o cliente e gere o PDF para enviar.</p>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:32px">
+    <div class="cms-section" style="margin-bottom:0">
+      <div class="cms-section-label">Pacote</div>
+      <div class="field-row">
+        <label class="field-label">Lote</label>
+        <input id="bc_lote" class="field-input" value="${esc(st.lote||'Lote 3')}" placeholder="Ex: Lote 3"/>
+      </div>
+      <div class="field-row">
+        <label class="field-label">Válido até</label>
+        <input id="bc_validade" class="field-input" type="date" value="${esc(st.validade||'2026-05-12')}"/>
+      </div>
+      <div class="field-row">
+        <label class="field-label">Número de noites</label>
+        <select id="bc_noites" class="field-input">
+          <option value="3" ${(st.noites||'3')==='3'?'selected':''}>3 Noites</option>
+          <option value="4" ${(st.noites||'3')==='4'?'selected':''}>4 Noites</option>
+          <option value="7" ${(st.noites||'3')==='7'?'selected':''}>7 Noites</option>
+        </select>
+      </div>
+      <div class="field-row">
+        <label class="field-label">Período (ex: 09/07 a 12/07/2026)</label>
+        <input id="bc_periodo" class="field-input" value="${esc(st.periodo||'09/07 a 12/07/2026')}" placeholder="09/07 a 12/07/2026"/>
+      </div>
+      <div class="field-row">
+        <label class="field-label">Dias da semana</label>
+        <input id="bc_dias" class="field-input" value="${esc(st.dias||'De quinta a domingo')}" placeholder="De quinta a domingo"/>
+      </div>
+    </div>
+
+    <div class="cms-section" style="margin-bottom:0">
+      <div class="cms-section-label">Cliente</div>
+      <div class="field-row">
+        <label class="field-label">Nome do cliente *</label>
+        <input id="bc_cliente" class="field-input" value="${esc(st.cliente||'')}" placeholder="Ex: Ana Lima"/>
+      </div>
+      <div class="cms-section-label" style="margin-top:16px">Crianças</div>
+      <div class="field-row">
+        <label class="field-label">Valor criança 4–11 anos (cama extra)</label>
+        <input id="bc_cri04" class="field-input" type="number" min="0" step="1" value="${st.cri04||804}"/>
+      </div>
+      <div style="font-size:11px;color:var(--text-dim)">0–3 anos: cortesia (berço) — fixo.</div>
+    </div>
+  </div>
+
+  <div class="cms-section">
+    <div class="cms-section-label">Categorias e preços — marque as que aparecem no PDF</div>
+    ${catRows}
+  </div>
+
+  <div style="display:flex;gap:10px;margin-top:8px">
+    <button class="btn-save" onclick="bailaGerarPDF()">📄 Gerar PDF</button>
+    <button class="btn-ghost" onclick="bailaSaveState(bailaCollect());toast('✅ Configuração salva!')">💾 Salvar configuração</button>
+  </div>`;
+};
+
+function bailaGerarPDF() {
+  const s = bailaCollect();
+  bailaSaveState(s);
+
+  const cliente = s.cliente.trim() || 'Viajante';
+  const fmtR = n => 'R$ ' + Number(n||0).toLocaleString('pt-BR',{minimumFractionDigits:2});
+  const fmtData = iso => { if(!iso) return ''; const [y,m,d]=iso.split('-'); const ms=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez']; return `${parseInt(d)} ${ms[parseInt(m)-1]} ${y}`; };
+
+  // Build table rows per grupo
+  const grupos = {};
+  BAILA_CATS.forEach(c => {
+    if (!s.sel[c.id]) return;
+    if (!grupos[c.grupo]) grupos[c.grupo] = [];
+    grupos[c.grupo].push(c);
+  });
+
+  const tabelaHTML = Object.keys(grupos).map(g => `
+    <tr><td colspan="2" style="background:#e8f0f8;font-weight:700;padding:7px 12px;font-size:12px">${g}</td><td style="background:#e8f0f8;font-weight:700;padding:7px 12px;font-size:12px;text-align:right">Valor — total por pessoa</td></tr>
+    ${grupos[g].map(c => `<tr>
+      <td colspan="2" style="padding:6px 12px;font-size:12px">${c.nome} <span style="color:#666;font-size:11px">· ${c.detalhe}</span></td>
+      <td style="padding:6px 12px;font-size:12px;text-align:right;font-weight:600">${fmtR(s.precos[c.id]??c.preco)}</td>
+    </tr>`).join('')}
+  `).join('');
+
+  const hasSuite = BAILA_CATS.filter(c=>c.grupo==='Hotel Internacional Suite Prime'&&s.sel[c.id]).length>0;
+  const benefSuite = hasSuite ? `
+    <div class="section"><h3>Benefícios exclusivos para hóspedes do Hotel Internacional:</h3>
+    <p>01 procedimento de 20 minutos no SPA por adulto.<br>
+    Crédito de <strong>R$ 100,00 por adulto/dia</strong> para consumo no Rancho do Pescador – Ilhote do Baú.<br>
+    <em>Não é permitida a reserva de ala/grupo. O crédito é válido apenas para alimentos e bebidas no local. Valor não reembolsável.</em></p></div>` : '';
+
+  const valStr = s.validade ? fmtData(s.validade) : '';
+
+  const html = `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"/>
+<title>Baila Costão ${s.noites} Noites — ${s.lote} — ${cliente}</title>
+<style>
+  @page { size:A4; margin:18mm 16mm; }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:Arial,sans-serif;font-size:13px;color:#222;background:#fff;line-height:1.55}
+  .header{text-align:center;background:#1a2e6e;color:#fff;padding:18px 20px 14px;border-radius:6px;margin-bottom:18px}
+  .header-top{display:flex;align-items:center;justify-content:center;gap:18px;margin-bottom:8px}
+  .header-logo{height:64px;width:auto}
+  .header-rsx{height:44px;width:auto;filter:brightness(0) invert(1)}
+  .header-title{font-size:28px;font-weight:900;letter-spacing:.06em;color:#fff}
+  .header-sub{font-size:16px;color:#f5c84a;font-weight:700;letter-spacing:.1em}
+  .header-badge{display:inline-block;background:#f5c84a;color:#1a2e6e;font-weight:700;font-size:11px;letter-spacing:.1em;padding:3px 12px;border-radius:20px;margin-top:6px}
+  .greeting{margin-bottom:16px;line-height:1.7}
+  .greeting strong{color:#1a2e6e}
+  .event-box{background:#f0f4ff;border-left:4px solid #1a2e6e;padding:10px 14px;margin-bottom:14px;border-radius:0 4px 4px 0}
+  .event-box p{margin-bottom:4px;font-size:12px}
+  .lote-box{background:#fff3cd;border-left:4px solid #f5c84a;padding:8px 14px;margin-bottom:14px;border-radius:0 4px 4px 0;font-size:12px}
+  .alert-box{background:#fff8e1;border:1px solid #ffc107;padding:8px 14px;border-radius:4px;margin-bottom:18px;font-size:12px}
+  table{width:100%;border-collapse:collapse;margin-bottom:18px}
+  table td{border:1px solid #ddd}
+  .section{margin-bottom:16px}
+  .section h3{color:#e87000;font-size:13px;margin-bottom:6px;border-bottom:1px solid #eee;padding-bottom:4px}
+  .section p{font-size:12px;margin-bottom:5px;line-height:1.6}
+  .section ul{font-size:12px;padding-left:16px;line-height:1.7}
+  .cancel-box h3{color:#e87000}
+  .cancel-box p{font-size:12px;line-height:1.6;margin-bottom:4px}
+  .signature{margin-top:24px;padding-top:14px;border-top:1px solid #ddd;font-size:12px}
+  .signature strong{font-size:14px;display:block;margin:4px 0}
+  .sig-logos{display:flex;align-items:center;gap:14px;margin-top:8px}
+  .sig-logos img{height:36px;width:auto}
+  @media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+</style></head><body>
+
+<div class="header">
+  <div class="header-top">
+    <img class="header-logo" src="https://rsxtravel.com.br/midia/baila-costao-logo.png" alt="Baila Costão" onerror="this.style.display='none'"/>
+  </div>
+  <div class="header-sub">${s.noites} NOITES &nbsp;·&nbsp; ALL INCLUSIVE</div>
+  <div class="header-badge">${esc(s.lote)}${valStr?' · Válido até '+valStr:''}</div>
+</div>
+
+<div class="greeting">
+  <p><strong>Querido(a) ${esc(cliente)},</strong></p><br>
+  <p>Obrigada pelo contato e pela confiança!</p>
+  <p>Sou <strong>Rebeca, da RSX Travel</strong>, e será um prazer cuidar da sua viagem para o <strong>Baila Costão 2026</strong> — um pacote de <strong>${s.noites} noites</strong> all inclusive no incrível Resort Costão do Santinho.</p><br>
+  <p>Mais que hospedagem, o Costão do Santinho entrega uma experiência à beira mar.</p><br>
+  <p><strong>🎶 Baila Costão: dança, diversão e experiências incríveis!</strong><br>
+  Aproveite aulas de diversos ritmos, personal dancers, bailes temáticos, espetáculos, gincanas e muita animação!</p><br>
+  <p><strong>Vai ser inesquecível</strong> — e eu estarei aqui para te ajudar em cada passo. 💃✨</p>
+</div>
+
+<div class="event-box">
+  <p><strong>Pacote Baila Costão 2026 — ${s.noites} NOITES — ${esc(s.periodo)}</strong></p>
+  <p>${esc(s.dias)}.</p>
+</div>
+<div class="lote-box">⚡ <strong>${esc(s.lote)}!</strong>${valStr?' Válido até '+valStr+'.':''}</div>
+<div class="alert-box">⚠️ <strong>Atenção:</strong> Os apartamentos são limitados, e as vendas podem ser encerradas antes do prazo sem aviso prévio.</div>
+
+<table>
+  <tbody>${tabelaHTML}
+    <tr><td style="background:#e8f0f8;font-weight:700;padding:7px 12px;font-size:12px">Crianças</td><td style="background:#e8f0f8;font-weight:700;padding:7px 12px;font-size:12px"></td><td style="background:#e8f0f8;font-weight:700;padding:7px 12px;font-size:12px;text-align:right">Valor — total por criança</td></tr>
+    <tr><td colspan="2" style="padding:6px 12px;font-size:12px">0 a 3 anos (berço)</td><td style="padding:6px 12px;font-size:12px;text-align:right;font-weight:600">Cortesia</td></tr>
+    <tr><td colspan="2" style="padding:6px 12px;font-size:12px">4 a 11 anos (cama extra)</td><td style="padding:6px 12px;font-size:12px;text-align:right;font-weight:600">${fmtR(s.cri04)}</td></tr>
+  </tbody>
+</table>
+
+${benefSuite}
+
+<div class="section"><h3>Quando a experiência já vem completa!</h3>
+<p>Sua reserva conta com serviço <strong>ALL INCLUSIVE</strong>:</p>
+<ul>
+  <li>Café da manhã, almoço, jantar e lanches servidos no Bar das Piscinas.</li>
+  <li>Bebidas à vontade: água, refrigerantes, sucos, drinks, caipirinhas com cachaça, chopp, cerveja, vinho tinto e branco, uísque 8 anos, espumantes Brut e Demi-Sec.</li>
+  <li>Frigobar abastecido com água e refrigerantes (reposição mediante solicitação à governança).</li>
+</ul></div>
+
+<div class="section"><h3>Formas de pagamento e horários:</h3>
+<p><strong>Formas de Pagamento:</strong><br>
+Em até 10x sem juros nos Cartões de Crédito Visa ou Mastercard, através de link de cartão.<br>
+À vista no Pix.</p>
+<p><strong>Check-in</strong> a partir das 15h &nbsp;·&nbsp; <strong>Check-out</strong> até as 11h.<br>
+O almoço do dia da saída está incluso e é possível permanecer nas dependências do hotel até as 15h.</p></div>
+
+<div class="section"><h3>O valor inclui:</h3>
+<ul>
+  <li>Hospedagem de acordo com o número de noites contratadas e categoria escolhida.</li>
+  <li>Aulas de dança, bailes temáticos, gincanas, apresentações e muito mais!</li>
+  <li>A programação completa do Baila será divulgada mais perto da data do evento.</li>
+</ul></div>
+
+<div class="section"><h3>O valor não inclui:</h3>
+<ul>
+  <li>Atividades de custo extra — consulte.</li>
+  <li>Transfer e transporte.</li>
+  <li>Extras cash.</li>
+</ul></div>
+
+<div class="section cancel-box"><h3>Políticas de cancelamento ou alteração de reserva:</h3>
+<p>Para todos os cancelamentos em situações normais, exceto períodos de catástrofe, pandemia ou calamidade pública:</p>
+<p><strong>Até 60 dias antes do check-in:</strong> multa de 20% do valor da reserva.<br>
+<strong>Entre 59 e 30 dias antes da entrada:</strong> multa de 30% do valor total.<br>
+<strong>Menos de 29 dias da entrada:</strong> multa de 100% do valor da reserva.</p>
+<p>O valor pago será convertido em carta de crédito com validade de 1 ano, para ser utilizado em uma nova reserva.</p></div>
+
+<div class="section" style="font-size:11px;color:#555;line-height:1.6;border-top:1px solid #eee;padding-top:10px">
+<strong>Atenção aos detalhes:</strong> Os valores informados são por pessoa, com base em ocupação mínima por apartamento. Este é um orçamento informativo. <strong>Não há reserva confirmada.</strong> Tarifas e disponibilidade estão sujeitas a alteração sem aviso prévio. A confirmação só é garantida mediante pagamento.
+</div>
+
+<div class="signature">
+  <p>Muito obrigada. Vamos juntos nessa viagem incrível! Qualquer dúvida, me avise.</p>
+  <p>Com carinho,</p>
+  <strong>Rebeca Piccolo</strong>
+  <p>📱 41 98842-9348 &nbsp;·&nbsp; 🌐 www.rsxtravel.com.br &nbsp;·&nbsp; Instagram: rebecapiccolo</p>
+  <div class="sig-logos">
+    <img src="https://rsxtravel.com.br/design_handoff_rsx_travel_site/assets/rsx-logo-principal-crop.png" alt="RSX Travel" onerror="this.style.display='none'"/>
+    <img src="https://rsxtravel.com.br/midia/baila-costao-logo.png" alt="Baila Costão" onerror="this.style.display='none'"/>
+  </div>
+</div>
+
+<script>window.onload=()=>window.print();</script>
+</body></html>`;
+
+  const w = window.open('','_blank');
+  if (w) { w.document.write(html); w.document.close(); }
+  else toast('⚠️ Permita pop-ups para gerar o PDF.', true);
 }
 
 /* ══════════════════════════════════════════
