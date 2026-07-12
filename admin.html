@@ -2128,8 +2128,6 @@ function bailaGerarPDF() {
   .sig-msg{font-size:12px;color:rgba(245,239,230,.6);line-height:1.7;font-weight:300;margin-bottom:14px}
   .sig-name{font-family:'Cormorant Garamond',serif;font-size:26px;color:var(--gold-300);line-height:1;margin-bottom:5px}
   .sig-contact{font-size:11px;color:rgba(245,239,230,.45);letter-spacing:.04em}
-  .sig-logos{display:flex;align-items:center;gap:18px;margin-top:16px}
-  .sig-logos img{height:34px;width:auto}
 
   .foot{text-align:center;padding:24px 44px 34px;border-top:1px solid var(--line)}
   .foot-logo{font-family:'Cormorant Garamond',serif;font-size:14px;letter-spacing:.26em;color:var(--gold-400);margin-bottom:5px}
@@ -2137,6 +2135,10 @@ function bailaGerarPDF() {
 
   @media print{
     html,body{background:var(--navy-950)!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    .cat-row,.incl-card,.kids-item,.event-card,.cond-item,.alert{break-inside:avoid}
+    .section-eyebrow{break-after:avoid}
+    .signature{break-inside:avoid}
+    .hero{break-inside:avoid;break-after:avoid}
   }
 </style></head><body>
 <div class="sheet">
@@ -2217,10 +2219,6 @@ function bailaGerarPDF() {
       <div class="sig-msg">Muito obrigada. Vamos juntos nessa viagem incrível! Qualquer dúvida, me avise. Com carinho,</div>
       <div class="sig-name">Rebeca Piccolo</div>
       <div class="sig-contact">41 98842-9348 · www.rsxtravel.com.br · Instagram @rebecapiccolo</div>
-      <div class="sig-logos">
-        <img src="https://rsxtravel.com.br/design_handoff_rsx_travel_site/assets/rsx-logo-principal-crop.png" alt="RSX Travel" onerror="this.style.display='none'"/>
-        <img src="https://rsxtravel.com.br/midia/baila-costao-logo.png" alt="Baila Costão" onerror="this.style.display='none'"/>
-      </div>
     </div>
 
   </div>
