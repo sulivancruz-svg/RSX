@@ -2030,148 +2030,201 @@ function bailaGerarPDF() {
   const per = bailaGetPeriodo(s.periodoId);
 
   const cliente = s.cliente.trim() || 'Viajante';
-  const fmtR = n => 'R$ ' + Number(n||0).toLocaleString('pt-BR',{minimumFractionDigits:2});
+  const fmtR = n => 'R$ ' + Number(n||0).toLocaleString('pt-BR',{minimumFractionDigits:0,maximumFractionDigits:0});
   const fmtData = iso => { if(!iso) return ''; const [y,m,d]=iso.split('-'); const ms=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez']; return `${parseInt(d)} ${ms[parseInt(m)-1]} ${y}`; };
 
-  const tabelaHTML = `
-    <tr><td colspan="2" style="background:#e8f0f8;font-weight:700;padding:7px 12px;font-size:12px">Categoria</td><td style="background:#e8f0f8;font-weight:700;padding:7px 12px;font-size:12px;text-align:right">Total por pessoa</td></tr>
-    ${per.cats.map((c,i) => s.sel[i] ? `<tr>
-      <td colspan="2" style="padding:6px 12px;font-size:12px">${esc(c.nome)} <span style="color:#666;font-size:11px">· ${esc(c.detalhe)}</span></td>
-      <td style="padding:6px 12px;font-size:12px;text-align:right;font-weight:600">${fmtR(s.precos[i]??c.preco)}</td>
-    </tr>` : '').join('')}
-  `;
+  const linhasCat = per.cats.map((c,i) => s.sel[i] ? `
+    <div class="cat-row">
+      <div class="cat-info">
+        <div class="cat-name">${esc(c.nome)}</div>
+        <div class="cat-detail">${esc(c.detalhe)}</div>
+      </div>
+      <div class="cat-price">${fmtR(s.precos[i]??c.preco)}</div>
+    </div>` : '').join('');
 
   const hasSuite = per.cats.some((c,i) => s.sel[i] && /suíte prime/i.test(c.nome));
   const benefSuite = hasSuite ? `
-    <div class="section"><h3>Benefícios exclusivos para hóspedes das Suítes Prime:</h3>
-    <p>01 procedimento de 20 minutos no SPA por adulto.<br>
-    Crédito de <strong>R$ 100,00 por adulto/dia</strong> para consumo no Rancho do Pescador – Ilhote do Baú.<br>
-    <em>Não é permitida a reserva de ala/grupo. O crédito é válido apenas para alimentos e bebidas no local. Valor não reembolsável.</em></p></div>` : '';
+    <div class="cond-item">
+      <div class="cond-label">Benefícios exclusivos · Suítes Prime</div>
+      <div class="cond-text">01 procedimento de 20 minutos no SPA por adulto. Crédito de R$ 100,00 por adulto/dia para consumo no Rancho do Pescador – Ilhote do Baú. Não é permitida a reserva de ala/grupo; crédito válido apenas para alimentos e bebidas no local, não reembolsável.</div>
+    </div>` : '';
 
-  const valStr    = s.validade ? fmtData(s.validade) : '';
-  const loteBadge = s.lote ? `<div class="header-badge">${esc(s.lote)}${valStr?' · Válido até '+valStr:''}</div>` : '';
-  const loteBox   = s.lote ? `<div class="lote-box">⚡ <strong>${esc(s.lote)}!</strong>${valStr?' Válido até '+valStr+'.':''}</div>` : '';
+  const valStr = s.validade ? fmtData(s.validade) : '';
+  const barRight = (s.lote || valStr)
+    ? `<div class="client-validity">${s.lote?esc(s.lote):''}${(s.lote&&valStr)?' · ':''}${valStr?'Válida até '+valStr:''}</div>`
+    : '';
 
   const html = `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"/>
 <title>Baila Costão ${per.noites} Noites — ${cliente}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
 <style>
-  @page { size:A4; margin:18mm 16mm; }
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:Arial,sans-serif;font-size:13px;color:#222;background:#fff;line-height:1.55}
-  .header{text-align:center;background:#1a2e6e;color:#fff;padding:18px 20px 14px;border-radius:6px;margin-bottom:18px}
-  .header-top{display:flex;align-items:center;justify-content:center;gap:18px;margin-bottom:8px}
-  .header-logo{height:64px;width:auto}
-  .header-rsx{height:44px;width:auto;filter:brightness(0) invert(1)}
-  .header-title{font-size:28px;font-weight:900;letter-spacing:.06em;color:#fff}
-  .header-sub{font-size:16px;color:#f5c84a;font-weight:700;letter-spacing:.1em}
-  .header-badge{display:inline-block;background:#f5c84a;color:#1a2e6e;font-weight:700;font-size:11px;letter-spacing:.1em;padding:3px 12px;border-radius:20px;margin-top:6px}
-  .greeting{margin-bottom:16px;line-height:1.7}
-  .greeting strong{color:#1a2e6e}
-  .event-box{background:#f0f4ff;border-left:4px solid #1a2e6e;padding:10px 14px;margin-bottom:14px;border-radius:0 4px 4px 0}
-  .event-box p{margin-bottom:4px;font-size:12px}
-  .lote-box{background:#fff3cd;border-left:4px solid #f5c84a;padding:8px 14px;margin-bottom:14px;border-radius:0 4px 4px 0;font-size:12px}
-  .alert-box{background:#fff8e1;border:1px solid #ffc107;padding:8px 14px;border-radius:4px;margin-bottom:18px;font-size:12px}
-  table{width:100%;border-collapse:collapse;margin-bottom:18px}
-  table td{border:1px solid #ddd}
-  .section{margin-bottom:16px}
-  .section h3{color:#e87000;font-size:13px;margin-bottom:6px;border-bottom:1px solid #eee;padding-bottom:4px}
-  .section p{font-size:12px;margin-bottom:5px;line-height:1.6}
-  .section ul{font-size:12px;padding-left:16px;line-height:1.7}
-  .cancel-box h3{color:#e87000}
-  .cancel-box p{font-size:12px;line-height:1.6;margin-bottom:4px}
-  .signature{margin-top:24px;padding-top:14px;border-top:1px solid #ddd;font-size:12px}
-  .signature strong{font-size:14px;display:block;margin:4px 0}
-  .sig-logos{display:flex;align-items:center;gap:14px;margin-top:8px}
-  .sig-logos img{height:36px;width:auto}
-  @media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+  :root{
+    --navy-950:#080f1f;--navy-900:#0e1a35;--navy-800:#1a2847;
+    --gold-500:#b8935c;--gold-400:#c9a574;--gold-300:#dcc093;--gold-200:#edda9f;
+    --cream:#f5efe6;--line:rgba(201,165,116,.18);
+  }
+  @page{size:A4;margin:0}
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Inter',sans-serif;background:var(--navy-950);color:var(--cream);-webkit-font-smoothing:antialiased}
+  img{display:block;max-width:100%}
+  .sheet{max-width:820px;margin:0 auto}
+
+  .topbar{display:flex;align-items:center;justify-content:space-between;padding:18px 44px;border-bottom:1px solid var(--line)}
+  .topbar-logo{font-family:'Cormorant Garamond',serif;font-size:17px;letter-spacing:.28em;color:var(--gold-300)}
+  .topbar-tag{font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:rgba(245,239,230,.35)}
+
+  .hero{position:relative;padding:46px 44px 40px;text-align:center;background:
+    radial-gradient(120% 140% at 50% 0%,rgba(26,40,71,.85) 0%,var(--navy-950) 70%)}
+  .hero-logo{height:78px;width:auto;margin:0 auto 18px}
+  .hero-eyebrow{font-size:9px;letter-spacing:.28em;text-transform:uppercase;color:var(--gold-300);margin-bottom:12px}
+  .hero-name{font-family:'Cormorant Garamond',serif;font-size:52px;font-weight:400;line-height:.98;color:var(--cream);letter-spacing:-.01em;margin-bottom:10px}
+  .hero-location{font-size:12px;color:rgba(245,239,230,.5);letter-spacing:.08em}
+
+  .client-bar{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:14px 44px;background:rgba(201,165,116,.06);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .client-name{font-size:13px;color:var(--cream)}
+  .client-name strong{color:var(--gold-200);font-weight:600}
+  .client-validity{font-size:11px;color:var(--gold-300);letter-spacing:.03em}
+
+  .body{padding:40px 44px 30px}
+  .greeting p{font-size:13px;color:rgba(245,239,230,.72);line-height:1.75;font-weight:300;margin-bottom:9px}
+  .greeting strong{color:var(--gold-200);font-weight:500}
+
+  .section-eyebrow{font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold-400);font-weight:600;margin:34px 0 8px}
+
+  .event-card{background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:4px;padding:16px 20px;margin-top:6px}
+  .event-title{font-family:'Cormorant Garamond',serif;font-size:22px;color:var(--gold-300);line-height:1.1;margin-bottom:4px}
+  .event-meta{font-size:12px;color:rgba(245,239,230,.55);letter-spacing:.03em}
+
+  .cat-row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 2px;border-bottom:1px solid rgba(255,255,255,.055)}
+  .cat-row:last-child{border-bottom:none}
+  .cat-info{flex:1;min-width:0}
+  .cat-name{font-size:13px;color:var(--cream);font-weight:400;line-height:1.3}
+  .cat-detail{font-size:10px;color:rgba(245,239,230,.4);text-transform:uppercase;letter-spacing:.1em;margin-top:3px}
+  .cat-price{font-family:'Cormorant Garamond',serif;font-size:24px;color:var(--gold-300);white-space:nowrap;line-height:1}
+
+  .kids-box{display:flex;gap:10px;margin-top:14px}
+  .kids-item{flex:1;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:3px;padding:12px 14px}
+  .kids-lbl{font-size:8px;text-transform:uppercase;letter-spacing:.14em;color:rgba(245,239,230,.35);margin-bottom:5px}
+  .kids-val{font-size:14px;color:var(--gold-200)}
+
+  .incl-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:6px}
+  .incl-card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:4px;padding:15px 16px}
+  .incl-title{font-size:12px;color:var(--gold-300);font-weight:600;margin-bottom:5px}
+  .incl-desc{font-size:11px;color:rgba(245,239,230,.55);line-height:1.6}
+
+  .alert{margin-top:16px;background:rgba(201,165,116,.07);border:1px solid rgba(201,165,116,.22);border-radius:4px;padding:12px 16px;font-size:11px;color:rgba(245,239,230,.6);line-height:1.6}
+  .alert strong{color:var(--gold-200)}
+
+  .divider{height:1px;background:var(--line);margin:32px 0}
+  .cond-item{margin-bottom:18px}
+  .cond-label{font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold-400);margin-bottom:5px}
+  .cond-text{font-size:11px;color:rgba(245,239,230,.5);line-height:1.75}
+
+  .signature{margin-top:30px;padding-top:22px;border-top:1px solid var(--line)}
+  .sig-msg{font-size:12px;color:rgba(245,239,230,.6);line-height:1.7;font-weight:300;margin-bottom:14px}
+  .sig-name{font-family:'Cormorant Garamond',serif;font-size:26px;color:var(--gold-300);line-height:1;margin-bottom:5px}
+  .sig-contact{font-size:11px;color:rgba(245,239,230,.45);letter-spacing:.04em}
+  .sig-logos{display:flex;align-items:center;gap:18px;margin-top:16px}
+  .sig-logos img{height:34px;width:auto}
+
+  .foot{text-align:center;padding:24px 44px 34px;border-top:1px solid var(--line)}
+  .foot-logo{font-family:'Cormorant Garamond',serif;font-size:14px;letter-spacing:.26em;color:var(--gold-400);margin-bottom:5px}
+  .foot-tag{font-size:9px;color:rgba(245,239,230,.25);letter-spacing:.08em}
+
+  @media print{
+    html,body{background:var(--navy-950)!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  }
 </style></head><body>
+<div class="sheet">
 
-<div class="header">
-  <div class="header-top">
-    <img class="header-logo" src="https://rsxtravel.com.br/midia/baila-costao-logo.png" alt="Baila Costão" onerror="this.style.display='none'"/>
+  <div class="topbar">
+    <div class="topbar-logo">RSX TRAVEL</div>
+    <div class="topbar-tag">Proposta · Baila Costão</div>
   </div>
-  <div class="header-sub">${per.noites} NOITES &nbsp;·&nbsp; ALL INCLUSIVE</div>
-  ${loteBadge}
-</div>
 
-<div class="greeting">
-  <p><strong>Querido(a) ${esc(cliente)},</strong></p><br>
-  <p>Obrigada pelo contato e pela confiança!</p>
-  <p>Sou <strong>Rebeca, da RSX Travel</strong>, e será um prazer cuidar da sua viagem para o <strong>Baila Costão 2027</strong> — um pacote de <strong>${per.noites} noites</strong> all inclusive no incrível Resort Costão do Santinho.</p><br>
-  <p>Mais que hospedagem, o Costão do Santinho entrega uma experiência à beira mar.</p><br>
-  <p><strong>🎶 Baila Costão: dança, diversão e experiências incríveis!</strong><br>
-  Aproveite aulas de diversos ritmos, personal dancers, bailes temáticos, espetáculos, gincanas e muita animação!</p><br>
-  <p><strong>Vai ser inesquecível</strong> — e eu estarei aqui para te ajudar em cada passo. 💃✨</p>
-</div>
-
-<div class="event-box">
-  <p><strong>Pacote Baila Costão 2027 — ${per.noites} NOITES — ${esc(per.periodo)}</strong></p>
-  <p>${esc(per.dias)}.</p>
-</div>
-${loteBox}
-<div class="alert-box">⚠️ <strong>Atenção:</strong> Os apartamentos são limitados, e as vendas podem ser encerradas antes do prazo sem aviso prévio.</div>
-
-<table>
-  <tbody>${tabelaHTML}
-    <tr><td style="background:#e8f0f8;font-weight:700;padding:7px 12px;font-size:12px">Crianças</td><td style="background:#e8f0f8;font-weight:700;padding:7px 12px;font-size:12px"></td><td style="background:#e8f0f8;font-weight:700;padding:7px 12px;font-size:12px;text-align:right">Valor — total por criança</td></tr>
-    <tr><td colspan="2" style="padding:6px 12px;font-size:12px">0 a 3 anos (berço)</td><td style="padding:6px 12px;font-size:12px;text-align:right;font-weight:600">Cortesia</td></tr>
-    <tr><td colspan="2" style="padding:6px 12px;font-size:12px">4 a 11 anos (cama extra)</td><td style="padding:6px 12px;font-size:12px;text-align:right;font-weight:600">${fmtR(s.cri04)}</td></tr>
-  </tbody>
-</table>
-
-${benefSuite}
-
-<div class="section"><h3>Quando a experiência já vem completa!</h3>
-<p>Sua reserva conta com serviço <strong>ALL INCLUSIVE</strong>:</p>
-<ul>
-  <li>Café da manhã, almoço, jantar e lanches servidos no Bar das Piscinas.</li>
-  <li>Bebidas à vontade: água, refrigerantes, sucos, drinks, caipirinhas com cachaça, chopp, cerveja, vinho tinto e branco, uísque 8 anos, espumantes Brut e Demi-Sec.</li>
-  <li>Frigobar abastecido com água e refrigerantes (reposição mediante solicitação à governança).</li>
-</ul></div>
-
-<div class="section"><h3>Formas de pagamento e horários:</h3>
-<p><strong>Formas de Pagamento:</strong><br>
-Em até 10x sem juros nos Cartões de Crédito Visa ou Mastercard, através de link de cartão.<br>
-À vista no Pix.</p>
-<p><strong>Check-in</strong> a partir das 15h &nbsp;·&nbsp; <strong>Check-out</strong> até as 11h.<br>
-O almoço do dia da saída está incluso e é possível permanecer nas dependências do hotel até as 15h.</p></div>
-
-<div class="section"><h3>O valor inclui:</h3>
-<ul>
-  <li>Hospedagem de acordo com o número de noites contratadas e categoria escolhida.</li>
-  <li>Aulas de dança, bailes temáticos, gincanas, apresentações e muito mais!</li>
-  <li>A programação completa do Baila será divulgada mais perto da data do evento.</li>
-</ul></div>
-
-<div class="section"><h3>O valor não inclui:</h3>
-<ul>
-  <li>Atividades de custo extra — consulte.</li>
-  <li>Transfer e transporte.</li>
-  <li>Extras cash.</li>
-</ul></div>
-
-<div class="section cancel-box"><h3>Políticas de cancelamento ou alteração de reserva:</h3>
-<p>Para todos os cancelamentos em situações normais, exceto períodos de catástrofe, pandemia ou calamidade pública:</p>
-<p><strong>Até 60 dias antes do check-in:</strong> multa de 20% do valor da reserva.<br>
-<strong>Entre 59 e 30 dias antes da entrada:</strong> multa de 30% do valor total.<br>
-<strong>Menos de 29 dias da entrada:</strong> multa de 100% do valor da reserva.</p>
-<p>O valor pago será convertido em carta de crédito com validade de 1 ano, para ser utilizado em uma nova reserva.</p></div>
-
-<div class="section" style="font-size:11px;color:#555;line-height:1.6;border-top:1px solid #eee;padding-top:10px">
-<strong>Atenção aos detalhes:</strong> Os valores informados são por pessoa, com base em ocupação mínima por apartamento. Este é um orçamento informativo. <strong>Não há reserva confirmada.</strong> Tarifas e disponibilidade estão sujeitas a alteração sem aviso prévio. A confirmação só é garantida mediante pagamento.
-</div>
-
-<div class="signature">
-  <p>Muito obrigada. Vamos juntos nessa viagem incrível! Qualquer dúvida, me avise.</p>
-  <p>Com carinho,</p>
-  <strong>Rebeca Piccolo</strong>
-  <p>📱 41 98842-9348 &nbsp;·&nbsp; 🌐 www.rsxtravel.com.br &nbsp;·&nbsp; Instagram: rebecapiccolo</p>
-  <div class="sig-logos">
-    <img src="https://rsxtravel.com.br/design_handoff_rsx_travel_site/assets/rsx-logo-principal-crop.png" alt="RSX Travel" onerror="this.style.display='none'"/>
-    <img src="https://rsxtravel.com.br/midia/baila-costao-logo.png" alt="Baila Costão" onerror="this.style.display='none'"/>
+  <div class="hero">
+    <img class="hero-logo" src="https://rsxtravel.com.br/midia/baila-costao-logo.png" alt="Baila Costão" onerror="this.style.display='none'"/>
+    <div class="hero-eyebrow">All Inclusive · ${per.noites} Noites</div>
+    <div class="hero-name">Baila Costão 2027</div>
+    <div class="hero-location">Resort Costão do Santinho · Florianópolis / SC</div>
   </div>
-</div>
 
+  <div class="client-bar">
+    <div class="client-name">Proposta para <strong>${esc(cliente)}</strong></div>
+    ${barRight}
+  </div>
+
+  <div class="body">
+
+    <div class="greeting">
+      <p>Obrigada pelo contato e pela confiança! Sou <strong>Rebeca, da RSX Travel</strong>, e será um prazer cuidar da sua viagem para o <strong>Baila Costão 2027</strong> — um pacote de ${per.noites} noites all inclusive no incrível Resort Costão do Santinho.</p>
+      <p>Mais que hospedagem, o Baila Costão entrega dança, diversão e experiências à beira-mar: aulas de diversos ritmos, personal dancers, bailes temáticos, espetáculos, gincanas e muita animação. Vai ser inesquecível — e eu estarei aqui em cada passo.</p>
+    </div>
+
+    <div class="section-eyebrow">O pacote</div>
+    <div class="event-card">
+      <div class="event-title">${per.noites} Noites · ${esc(per.periodo)}</div>
+      <div class="event-meta">${esc(per.dias)} · Resort Costão do Santinho</div>
+    </div>
+
+    <div class="section-eyebrow">Valores por pessoa</div>
+    ${linhasCat}
+
+    <div class="kids-box">
+      <div class="kids-item"><div class="kids-lbl">0 a 3 anos · berço</div><div class="kids-val">Cortesia</div></div>
+      <div class="kids-item"><div class="kids-lbl">4 a 11 anos · cama extra</div><div class="kids-val">${fmtR(s.cri04)}</div></div>
+    </div>
+
+    <div class="alert">⚡ Os apartamentos são limitados e as vendas podem ser encerradas antes do prazo, sem aviso prévio. <strong>Este é um orçamento informativo — não há reserva confirmada.</strong> A confirmação é garantida somente mediante pagamento.</div>
+
+    <div class="section-eyebrow">O que está incluído</div>
+    <div class="incl-grid">
+      <div class="incl-card"><div class="incl-title">Regime All Inclusive</div><div class="incl-desc">Café da manhã, almoço, jantar e lanches. Bebidas à vontade: água, refrigerantes, sucos, drinks, caipirinhas, chopp, cerveja, vinhos, uísque 8 anos e espumantes.</div></div>
+      <div class="incl-card"><div class="incl-title">Programação Baila Costão</div><div class="incl-desc">Aulas de dança, bailes temáticos, gincanas e apresentações. A programação completa é divulgada mais perto da data do evento.</div></div>
+      <div class="incl-card"><div class="incl-title">Frigobar abastecido</div><div class="incl-desc">Água e refrigerantes, com reposição mediante solicitação à governança.</div></div>
+      <div class="incl-card"><div class="incl-title">Check-in / Check-out</div><div class="incl-desc">Entrada a partir das 15h e saída até as 11h. O almoço do dia da saída está incluso, com permanência nas dependências até as 15h.</div></div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="cond-item">
+      <div class="cond-label">Formas de pagamento</div>
+      <div class="cond-text">Em até 10x sem juros nos cartões de crédito Visa ou Mastercard, através de link de cartão. À vista no Pix.</div>
+    </div>
+    ${benefSuite}
+    <div class="cond-item">
+      <div class="cond-label">O valor não inclui</div>
+      <div class="cond-text">Atividades de custo extra (consulte), transfer e transporte, e demais extras em cash.</div>
+    </div>
+    <div class="cond-item">
+      <div class="cond-label">Política de cancelamento</div>
+      <div class="cond-text">Até 60 dias antes do check-in: multa de 20% do valor da reserva. Entre 59 e 30 dias: multa de 30%. Menos de 29 dias: multa de 100%. O valor pago é convertido em carta de crédito válida por 1 ano para uma nova reserva. Exceto em períodos de catástrofe, pandemia ou calamidade pública.</div>
+    </div>
+    <div class="cond-item">
+      <div class="cond-label">Informações gerais</div>
+      <div class="cond-text">Valores por pessoa, com base na ocupação mínima por apartamento. Tarifas e disponibilidade sujeitas a alteração sem aviso prévio.</div>
+    </div>
+
+    <div class="signature">
+      <div class="sig-msg">Muito obrigada. Vamos juntos nessa viagem incrível! Qualquer dúvida, me avise. Com carinho,</div>
+      <div class="sig-name">Rebeca Piccolo</div>
+      <div class="sig-contact">41 98842-9348 · www.rsxtravel.com.br · Instagram @rebecapiccolo</div>
+      <div class="sig-logos">
+        <img src="https://rsxtravel.com.br/design_handoff_rsx_travel_site/assets/rsx-logo-principal-crop.png" alt="RSX Travel" onerror="this.style.display='none'"/>
+        <img src="https://rsxtravel.com.br/midia/baila-costao-logo.png" alt="Baila Costão" onerror="this.style.display='none'"/>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="foot">
+    <div class="foot-logo">RSX TRAVEL</div>
+    <div class="foot-tag">Rebeca Piccolo · Curitiba PR · rsxtravel.com.br</div>
+  </div>
+
+</div>
 <script>window.onload=()=>window.print();<\/script>
 </body></html>`;
 
