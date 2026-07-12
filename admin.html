@@ -2124,10 +2124,14 @@ function bailaGerarPDF() {
   .cond-label{font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold-400);margin-bottom:5px}
   .cond-text{font-size:11px;color:rgba(245,239,230,.5);line-height:1.75}
 
-  .signature{margin-top:30px;padding-top:22px;border-top:1px solid var(--line)}
-  .sig-msg{font-size:12px;color:rgba(245,239,230,.6);line-height:1.7;font-weight:300;margin-bottom:14px}
-  .sig-name{font-family:'Cormorant Garamond',serif;font-size:26px;color:var(--gold-300);line-height:1;margin-bottom:5px}
-  .sig-contact{font-size:11px;color:rgba(245,239,230,.45);letter-spacing:.04em}
+  .sig-msg{font-size:12px;color:rgba(245,239,230,.6);line-height:1.7;font-weight:300;text-align:center;margin:30px 0 22px}
+  .signature{display:flex;align-items:center;gap:22px;padding:22px 24px;background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:6px}
+  .sig-avatar{width:82px;height:82px;border-radius:50%;background-image:url('https://rsxtravel.com.br/midia/site-1779999623.jpg');background-size:cover;background-position:center 20%;border:2px solid rgba(201,165,116,.45);flex-shrink:0}
+  .sig-body{flex:1;min-width:0}
+  .sig-name{font-family:'Cormorant Garamond',serif;font-size:28px;color:var(--gold-300);line-height:1;margin-bottom:4px}
+  .sig-role{font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold-500);margin-bottom:12px}
+  .sig-contacts{display:flex;flex-wrap:wrap;gap:7px}
+  .sig-chip{font-size:10px;color:rgba(245,239,230,.7);letter-spacing:.02em;background:rgba(201,165,116,.09);border:1px solid rgba(201,165,116,.22);border-radius:20px;padding:5px 12px}
 
   .foot{text-align:center;padding:24px 44px 34px;border-top:1px solid var(--line)}
   .foot-logo{font-family:'Cormorant Garamond',serif;font-size:14px;letter-spacing:.26em;color:var(--gold-400);margin-bottom:5px}
@@ -2215,10 +2219,18 @@ function bailaGerarPDF() {
       <div class="cond-text">Valores por pessoa, com base na ocupação mínima por apartamento. Tarifas e disponibilidade sujeitas a alteração sem aviso prévio.</div>
     </div>
 
+    <div class="sig-msg">Muito obrigada. Vamos juntos nessa viagem incrível! Qualquer dúvida, é só me chamar. Com carinho,</div>
     <div class="signature">
-      <div class="sig-msg">Muito obrigada. Vamos juntos nessa viagem incrível! Qualquer dúvida, me avise. Com carinho,</div>
-      <div class="sig-name">Rebeca Piccolo</div>
-      <div class="sig-contact">41 98842-9348 · www.rsxtravel.com.br · Instagram @rebecapiccolo</div>
+      <div class="sig-avatar"></div>
+      <div class="sig-body">
+        <div class="sig-name">Rebeca Piccolo</div>
+        <div class="sig-role">Consultora de Viagens · RSX Travel</div>
+        <div class="sig-contacts">
+          <span class="sig-chip">WhatsApp · 41 98842-9348</span>
+          <span class="sig-chip">rsxtravel.com.br</span>
+          <span class="sig-chip">Instagram · @rebecapiccolo</span>
+        </div>
+      </div>
     </div>
 
   </div>
