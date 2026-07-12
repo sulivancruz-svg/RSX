@@ -2027,6 +2027,7 @@ PAGES['baila_costao'] = () => {
 function bailaGerarPDF() {
   const s = bailaCollect();
   bailaSaveState(s);
+  const per = bailaGetPeriodo(s.periodoId);
 
   const cliente = s.cliente.trim() || 'Viajante';
   const fmtR = n => 'R$ ' + Number(n||0).toLocaleString('pt-BR',{minimumFractionDigits:2});
