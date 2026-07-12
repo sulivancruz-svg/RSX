@@ -2029,11 +2029,78 @@ PAGES['baila_costao'] = () => {
     ${catRows}
   </div>
 
-  <div style="display:flex;gap:10px;margin-top:8px">
+  <div style="display:flex;gap:10px;margin-top:8px;flex-wrap:wrap">
     <button class="btn-save" onclick="bailaGerarPDF()">📄 Gerar PDF</button>
+    <button class="btn-save" onclick="bailaGerarLink()">🔗 Gerar link</button>
     <button class="btn-ghost" onclick="bailaSaveState(bailaCollect());toast('✅ Configuração salva!')">💾 Salvar configuração</button>
-  </div>`;
+  </div>
+  <div id="baila-link-result" style="margin-top:16px"></div>`;
 };
+
+async function bailaGerarLink() {
+  const s   = bailaCollect();
+  bailaSaveState(s);
+  const per = bailaGetPeriodo(s.periodoId);
+  const cliente = s.cliente.trim() || 'Viajante';
+
+  const catsSnap = per.cats
+    .map((c,i) => ({ nome:c.nome, detalhe:bailaDetalheFull(c), preco:s.precos[i]??c.preco, sel:s.sel[i] }))
+    .filter(c => c.sel)
+    .map(({sel, ...rest}) => rest);
+
+  const slugify = str => String(str||'').toLowerCase()
+    .normalize('NFD').replace(/[̀-ͯ]/g,'')
+    .replace(/[^a-z0-9]/g,'-').replace(/-+/g,'-').replace(/^-|-$/g,'');
+
+  await PROPOSALS.load();
+  const base = `baila-${slugify(cliente).substring(0,20).replace(/-+$/,'')}-${per.id}`;
+  let candidate = base, n = 2;
+  const all = PROPOSALS.all();
+  while (all.find(p => p.id === candidate)) { candidate = base + '-' + n++; }
+
+  const proposal = {
+    id: candidate,
+    type: 'baila',
+    created_at: new Date().toISOString().substring(0,10),
+    status: 'open',
+    cliente,
+    lote: s.lote||'',
+    validade: s.validade||'',
+    noites: per.noites,
+    periodo: per.periodo,
+    dias: per.dias,
+    cri04: s.cri04,
+    cats: catsSnap,
+  };
+
+  const btn = document.querySelector('#mainInner .btn-save[onclick="bailaGerarLink()"]');
+  if (btn) { btn.disabled = true; btn.textContent = 'Salvando...'; }
+
+  const res = await PROPOSALS.save(proposal);
+
+  if (btn) { btn.disabled = false; btn.textContent = '🔗 Gerar link'; }
+
+  if (res.ok) {
+    await PROPOSALS.load();
+    const link = PROPOSALS.propLink(proposal.id);
+    const el = document.getElementById('baila-link-result');
+    if (el) {
+      el.innerHTML = `
+        <div class="link-result">
+          <div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:rgba(74,222,128,.7);margin-bottom:8px">✓ Proposta salva com sucesso!</div>
+          <div class="link-result-url">${esc(link)}</div>
+          <div style="display:flex;gap:8px">
+            <button class="link-copy-btn" onclick="navigator.clipboard.writeText('${esc(link)}').then(()=>toast('🔗 Link copiado!'))">📋 Copiar link</button>
+            <a href="${esc(link)}" target="_blank" class="btn-ghost" style="font-size:10px;padding:7px 14px">↗ Abrir proposta</a>
+          </div>
+        </div>`;
+      el.scrollIntoView({ behavior:'smooth', block:'center' });
+    }
+    toast('✅ Link gerado com sucesso!');
+  } else {
+    toast('⚠️ Erro ao salvar: ' + (res.error||'desconhecido'), true);
+  }
+}
 
 function bailaGerarPDF() {
   const s = bailaCollect();

@@ -134,6 +134,41 @@ img{display:block;max-width:100%}
 .loading-bar::after{content:'';position:absolute;left:-50%;width:50%;height:100%;background:var(--gold-300);animation:load .8s ease-in-out infinite}
 @keyframes load{to{left:100%}}
 
+/* ── BAILA COSTÃO PROPOSAL ── */
+.baila-hero{position:relative;min-height:340px;padding:0;overflow:hidden;background:var(--navy-800)}
+.baila-hero-bg{position:absolute;inset:0;background-image:url('https://rsxtravel.com.br/midia/costao-do-santinho-resort-all-inclusive_-1779812032.jpg');background-size:cover;background-position:center}
+.baila-hero-overlay{position:absolute;inset:0;background:linear-gradient(to top,var(--navy-950) 4%,rgba(8,15,31,.55) 55%,rgba(8,15,31,.35) 100%)}
+.baila-hero-inner{position:relative;z-index:1;text-align:center;padding:40px 40px 34px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;min-height:340px}
+.baila-hero-logo{height:140px;width:auto;margin:0 auto 16px}
+.baila-hero-eyebrow{font-size:9px;letter-spacing:.28em;text-transform:uppercase;color:var(--gold-300);margin-bottom:10px}
+.baila-hero-name{font-family:'Cormorant Garamond',serif;font-size:52px;font-weight:400;line-height:.98;color:var(--cream);letter-spacing:-.01em;margin-bottom:8px;text-shadow:0 2px 18px rgba(0,0,0,.4)}
+.baila-hero-location{font-size:12px;color:rgba(245,239,230,.6);letter-spacing:.08em}
+.baila-event-card{background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:4px;padding:16px 20px;margin-top:6px}
+.baila-event-title{font-family:'Cormorant Garamond',serif;font-size:22px;color:var(--gold-300);line-height:1.1;margin-bottom:4px}
+.baila-event-meta{font-size:12px;color:rgba(245,239,230,.55);letter-spacing:.03em}
+.baila-cat-row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 2px;border-bottom:1px solid rgba(255,255,255,.055)}
+.baila-cat-row:last-child{border-bottom:none}
+.baila-cat-name{font-size:13px;color:var(--cream);font-weight:400;line-height:1.3}
+.baila-cat-detail{font-size:10px;color:rgba(245,239,230,.4);text-transform:uppercase;letter-spacing:.1em;margin-top:3px}
+.baila-cat-price{font-family:'Cormorant Garamond',serif;font-size:24px;color:var(--gold-300);white-space:nowrap;line-height:1}
+.baila-kids-box{display:flex;gap:10px;margin-top:14px}
+.baila-kids-item{flex:1;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:3px;padding:12px 14px}
+.baila-kids-lbl{font-size:8px;text-transform:uppercase;letter-spacing:.14em;color:rgba(245,239,230,.35);margin-bottom:5px}
+.baila-kids-val{font-size:14px;color:var(--gold-200)}
+.baila-incl-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:6px}
+.baila-incl-card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:4px;padding:15px 16px}
+.baila-incl-title{font-size:12px;color:var(--gold-300);font-weight:600;margin-bottom:5px}
+.baila-incl-desc{font-size:11px;color:rgba(245,239,230,.55);line-height:1.6}
+.baila-alert{margin-top:16px;background:rgba(201,165,116,.07);border:1px solid rgba(201,165,116,.22);border-radius:4px;padding:12px 16px;font-size:11px;color:rgba(245,239,230,.6);line-height:1.6}
+.baila-alert strong{color:var(--gold-200)}
+.baila-sig-msg{font-size:12px;color:rgba(245,239,230,.6);line-height:1.7;font-weight:300;text-align:center;margin:30px 0 22px}
+.baila-signature{display:flex;align-items:center;gap:22px;padding:22px 24px;background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:6px}
+.baila-sig-avatar{width:82px;height:82px;border-radius:50%;background-image:url('https://rsxtravel.com.br/midia/site-1779999623.jpg');background-size:cover;background-position:center 20%;border:2px solid rgba(201,165,116,.45);flex-shrink:0}
+.baila-sig-name{font-family:'Cormorant Garamond',serif;font-size:28px;color:var(--gold-300);line-height:1;margin-bottom:4px}
+.baila-sig-role{font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold-500);margin-bottom:12px}
+.baila-sig-contacts{display:flex;flex-wrap:wrap;gap:7px}
+.baila-sig-chip{font-size:10px;color:rgba(245,239,230,.7);letter-spacing:.02em;background:rgba(201,165,116,.09);border:1px solid rgba(201,165,116,.22);border-radius:20px;padding:5px 12px}
+
 /* ── RESPONSIVE ── */
 @media(max-width:640px){
   .topbar,.hero-content,.prop-body,.video-expand,.client-bar,.gallery-strip{padding-left:20px;padding-right:20px}
@@ -142,6 +177,9 @@ img{display:block;max-width:100%}
   .stats-bar{grid-template-columns:1fr 1fr}
   .hero-name{font-size:clamp(32px,9vw,52px)}
   .total-val{font-size:32px}
+  .baila-hero-name{font-size:clamp(32px,9vw,44px)}
+  .baila-incl-grid{grid-template-columns:1fr}
+  .baila-signature{flex-direction:column;text-align:center}
 }
 </style>
 </head>
@@ -507,6 +545,121 @@ img{display:block;max-width:100%}
       </div>`;
   }
 
+  function fmtMoney0(v) {
+    return 'R$ ' + (Number(v)||0).toLocaleString('pt-BR',{minimumFractionDigits:0,maximumFractionDigits:0});
+  }
+
+  function renderBaila(p) {
+    const app = document.getElementById('app');
+    const cliente = p.cliente || 'Viajante';
+    document.title = `Proposta ${esc(cliente)} — Baila Costão — RSX Travel`;
+
+    const catRows = (p.cats||[]).map(c => `
+      <div class="baila-cat-row">
+        <div>
+          <div class="baila-cat-name">${esc(c.nome)}</div>
+          <div class="baila-cat-detail">${esc(c.detalhe)}</div>
+        </div>
+        <div class="baila-cat-price">${fmtMoney0(c.preco)}</div>
+      </div>`).join('');
+
+    const hasSuite = (p.cats||[]).some(c => /ala internacional/i.test(c.detalhe||''));
+    const benefSuite = hasSuite ? `
+      <div class="cond-item">
+        <div class="cond-label">Benefícios exclusivos · Ala Internacional</div>
+        <div class="cond-text">01 procedimento de 20 minutos no SPA por adulto. Crédito de R$ 100,00 por adulto/dia para consumo no Rancho do Pescador – Ilhote do Baú. Não é permitida a reserva de ala/grupo; crédito válido apenas para alimentos e bebidas no local, não reembolsável.</div>
+      </div>` : '';
+
+    const valStr = p.validade ? fmtDate(p.validade) : '';
+    const barRight = (p.lote || valStr)
+      ? `<div class="client-validity">${p.lote?esc(p.lote):''}${(p.lote&&valStr)?' · ':''}${valStr?'Válida até '+valStr:''}</div>`
+      : '';
+
+    const defaultMsg = `Oi Rebeca! Sou ${cliente}, quero confirmar minha proposta do Baila Costão 2027 (${p.noites} noites). Pode me ajudar? (Ref: ${p.id})`;
+    const waLink = `https://wa.me/5541988429348?text=${encodeURIComponent(defaultMsg)}`;
+
+    app.innerHTML = `
+      <div class="baila-hero">
+        <div class="baila-hero-bg"></div>
+        <div class="baila-hero-overlay"></div>
+        <div class="baila-hero-inner">
+          <img class="baila-hero-logo" src="https://rsxtravel.com.br/midia/baila-costao-logo.png?v=4" alt="Baila Costão" onerror="this.style.display='none'"/>
+          <div class="baila-hero-eyebrow">All Inclusive · ${p.noites} Noites</div>
+          <div class="baila-hero-name">Baila Costão 2027</div>
+          <div class="baila-hero-location">Resort Costão do Santinho · Florianópolis / SC</div>
+        </div>
+      </div>
+
+      <div class="client-bar">
+        <div class="client-name">Proposta para <strong>${esc(cliente)}</strong></div>
+        ${barRight}
+      </div>
+
+      <div class="prop-body">
+        <div class="resort-overview">
+          <p class="resort-overview-text">Obrigada pelo contato e pela confiança! Sou <strong style="color:var(--gold-200)">Rebeca, da RSX Travel</strong>, e será um prazer cuidar da sua viagem para o <strong style="color:var(--gold-200)">Baila Costão 2027</strong> — um pacote de ${p.noites} noites all inclusive no incrível Resort Costão do Santinho.</p>
+          <p class="resort-overview-text">Mais que hospedagem, o Baila Costão entrega dança, diversão e experiências à beira-mar: aulas de diversos ritmos, personal dancers, bailes temáticos, espetáculos, gincanas e muita animação.</p>
+        </div>
+
+        <div class="section-eyebrow">O pacote</div>
+        <div class="baila-event-card">
+          <div class="baila-event-title">${p.noites} Noites · ${esc(p.periodo)}</div>
+          <div class="baila-event-meta">${esc(p.dias)} · Resort Costão do Santinho</div>
+        </div>
+
+        <div class="section-eyebrow">Valores por pessoa</div>
+        ${catRows}
+
+        <div class="baila-kids-box">
+          <div class="baila-kids-item"><div class="baila-kids-lbl">0 a 3 anos · berço</div><div class="baila-kids-val">Cortesia</div></div>
+          <div class="baila-kids-item"><div class="baila-kids-lbl">4 a 11 anos · cama extra</div><div class="baila-kids-val">${fmtMoney0(p.cri04)}</div></div>
+        </div>
+
+        <div class="baila-alert">⚡ Os apartamentos são limitados e as vendas podem ser encerradas antes do prazo, sem aviso prévio. <strong>Este é um orçamento informativo — não há reserva confirmada.</strong> A confirmação é garantida somente mediante pagamento.</div>
+
+        <div class="section-eyebrow">O que está incluído</div>
+        <div class="baila-incl-grid">
+          <div class="baila-incl-card"><div class="baila-incl-title">Regime All Inclusive</div><div class="baila-incl-desc">Café da manhã, almoço, jantar e lanches. Bebidas à vontade: água, refrigerantes, sucos, drinks, caipirinhas, chopp, cerveja, vinhos, uísque 8 anos e espumantes.</div></div>
+          <div class="baila-incl-card"><div class="baila-incl-title">Programação Baila Costão</div><div class="baila-incl-desc">Aulas de dança, bailes temáticos, gincanas e apresentações. A programação completa é divulgada mais perto da data do evento.</div></div>
+          <div class="baila-incl-card"><div class="baila-incl-title">Frigobar abastecido</div><div class="baila-incl-desc">Água e refrigerantes, com reposição mediante solicitação à governança.</div></div>
+          <div class="baila-incl-card"><div class="baila-incl-title">Check-in / Check-out</div><div class="baila-incl-desc">Entrada a partir das 15h e saída até as 11h. O almoço do dia da saída está incluso, com permanência nas dependências até as 15h.</div></div>
+        </div>
+
+        <a href="${waLink}" target="_blank" rel="noopener" class="cta-btn" style="margin-top:36px">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 14.4c-.3-.1-1.8-.9-2.1-1-.3-.1-.5-.1-.7.1-.2.3-.7 1-.9 1.1-.2.2-.3.2-.6.1-.3-.1-1.3-.5-2.4-1.5-.9-.8-1.5-1.8-1.7-2.1-.2-.3 0-.5.1-.6l.4-.5c.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5 0-.1-.7-1.7-1-2.3-.3-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1.1 1.1-1.1 2.6 0 1.6 1.1 3.1 1.3 3.3.2.2 2.3 3.5 5.6 4.9.8.3 1.4.5 1.9.7.8.2 1.5.2 2.1.1.6-.1 1.8-.7 2.1-1.5.3-.7.3-1.4.2-1.5-.1-.2-.3-.3-.6-.4zM12 2C6.5 2 2 6.5 2 12c0 1.8.5 3.5 1.3 5L2 22l5.2-1.4c1.5.8 3.1 1.2 4.8 1.2 5.5 0 10-4.5 10-10S17.5 2 12 2z"/></svg>
+          Quero essa viagem!
+        </a>
+
+        <div class="divider"></div>
+        <div class="conditions">
+          <div class="cond-item"><div class="cond-label">Formas de pagamento</div><div class="cond-text">Em até 10x sem juros nos cartões de crédito Visa ou Mastercard, através de link de cartão. À vista no Pix.</div></div>
+          ${benefSuite}
+          <div class="cond-item"><div class="cond-label">O valor não inclui</div><div class="cond-text">Atividades de custo extra (consulte), transfer e transporte, e demais extras em cash.</div></div>
+          <div class="cond-item"><div class="cond-label">Política de cancelamento</div><div class="cond-text">Até 60 dias antes do check-in: multa de 20% do valor da reserva. Entre 59 e 30 dias: multa de 30%. Menos de 29 dias: multa de 100%. O valor pago é convertido em carta de crédito válida por 1 ano para uma nova reserva. Exceto em períodos de catástrofe, pandemia ou calamidade pública.</div></div>
+          <div class="cond-item"><div class="cond-label">Informações gerais</div><div class="cond-text">Valores por pessoa, com base na ocupação mínima por apartamento. Tarifas e disponibilidade sujeitas a alteração sem aviso prévio.</div></div>
+        </div>
+
+        <div class="baila-sig-msg">Muito obrigada. Vamos juntos nessa viagem incrível! Qualquer dúvida, é só me chamar. Com carinho,</div>
+        <div class="baila-signature">
+          <div class="baila-sig-avatar"></div>
+          <div>
+            <div class="baila-sig-name">Rebeca Piccolo</div>
+            <div class="baila-sig-role">Consultora de Viagens · RSX Travel</div>
+            <div class="baila-sig-contacts">
+              <span class="baila-sig-chip">WhatsApp · 41 98842-9348</span>
+              <span class="baila-sig-chip">rsxtravel.com.br</span>
+              <span class="baila-sig-chip">Instagram · @rebecapiccolo</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="prop-footer">
+        <div class="prop-footer-logo">RSX TRAVEL</div>
+        <div class="prop-footer-tag">Rebeca Piccolo · Curitiba PR · rsxtravel.com.br</div>
+      </div>`;
+  }
+
   async function init() {
     const id = getParam('id');
     if (!id) { showError('Nenhum ID de proposta foi informado na URL.'); return; }
@@ -516,6 +669,8 @@ img{display:block;max-width:100%}
       const json = await r.json();
       const proposal = (json.proposals || {})[id];
       if (!proposal) { showError('A proposta "' + id + '" não existe ou foi removida.'); return; }
+
+      if (proposal.type === 'baila') { renderBaila(proposal); return; }
 
       let cmsData = null;
       if (proposal.resort && proposal.resort.type === 'existing') {
