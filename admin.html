@@ -1925,6 +1925,17 @@ function bailaGetPeriodo(id) {
   return BAILA_PERIODOS.find(p => p.id === id) || BAILA_PERIODOS[0];
 }
 
+function bailaBuilding(nome) {
+  if (/^Apto/i.test(nome)) return 'Vilas Portuguesas';
+  if (/^Suíte/i.test(nome)) return 'Ala Internacional';
+  return '';
+}
+
+function bailaDetalheFull(c) {
+  const bd = bailaBuilding(c.nome);
+  return bd ? `${bd} · ${c.detalhe}` : c.detalhe;
+}
+
 function bailaOnPeriodoChange() {
   const s = bailaLoadState();
   s.periodoId = document.getElementById('bc_periodo_sel')?.value || BAILA_PERIODOS[0].id;
@@ -1963,7 +1974,7 @@ PAGES['baila_costao'] = () => {
       <input type="checkbox" id="bcsel_${i}" ${sel?'checked':''} style="flex-shrink:0"/>
       <div style="flex:1;min-width:0">
         <div style="font-size:12px;color:var(--text)">${esc(c.nome)}</div>
-        <div style="font-size:10px;color:var(--text-dim)">${esc(c.detalhe)}</div>
+        <div style="font-size:10px;color:var(--text-dim)">${esc(bailaDetalheFull(c))}</div>
       </div>
       <input id="bcp_${i}" type="number" min="0" step="1" value="${preco}"
         style="width:110px;text-align:right" class="field-input"/>
@@ -2037,7 +2048,7 @@ function bailaGerarPDF() {
     <div class="cat-row">
       <div class="cat-info">
         <div class="cat-name">${esc(c.nome)}</div>
-        <div class="cat-detail">${esc(c.detalhe)}</div>
+        <div class="cat-detail">${esc(bailaDetalheFull(c))}</div>
       </div>
       <div class="cat-price">${fmtR(s.precos[i]??c.preco)}</div>
     </div>` : '').join('');
@@ -2065,7 +2076,8 @@ function bailaGerarPDF() {
     --gold-500:#b8935c;--gold-400:#c9a574;--gold-300:#dcc093;--gold-200:#edda9f;
     --cream:#f5efe6;--line:rgba(201,165,116,.18);
   }
-  @page{size:A4;margin:0}
+  @page{size:A4;margin:14mm 0 12mm}
+  @page:first{margin-top:0}
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
   body{font-family:'Inter',sans-serif;background:var(--navy-950);color:var(--cream);-webkit-font-smoothing:antialiased}
   img{display:block;max-width:100%}
