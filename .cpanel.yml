@@ -7,3 +7,4 @@ deployment:
     - /bin/cp -rf design_handoff_rsx_travel_site /home/rsxtrave/public_html/
     - /bin/mkdir -p /home/rsxtrave/public_html/midia
     - /bin/chmod 755 /home/rsxtrave/public_html/midia
+    - /bin/cp -n midia/* /home/rsxtrave/public_html/midia/ || true
