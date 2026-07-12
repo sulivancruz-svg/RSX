@@ -1852,14 +1852,68 @@ function renderCustomPageNav() {
 /* ══════════════════════════════════════════
    BAILA COSTÃO
 ══════════════════════════════════════════ */
-const BAILA_CATS = [
-  { id:'sup_ind',  grupo:'Vilas Superior',              nome:'Individual',                  detalhe:'quarto e banheiro',                       preco:4696 },
-  { id:'sup_dup',  grupo:'Vilas Superior',              nome:'Duplo — por pessoa',           detalhe:'quarto e banheiro',                       preco:3354 },
-  { id:'lux_ind',  grupo:'Vilas Luxo',                  nome:'Individual',                  detalhe:'quarto, banheiro, sala, varanda',          preco:5400 },
-  { id:'lux_dup',  grupo:'Vilas Luxo',                  nome:'Duplo — por pessoa',           detalhe:'quarto, banheiro, sala, varanda',          preco:3857 },
-  { id:'lux_tri',  grupo:'Vilas Luxo',                  nome:'Triplo a Sêxtuplo — por pessoa',detalhe:'quarto, banheiro, sala, varanda',        preco:3279 },
-  { id:'hot_ind',  grupo:'Hotel Internacional Suite Prime', nome:'Individual',              detalhe:'suite, sala, varanda premium',             preco:6574 },
-  { id:'hot_dup',  grupo:'Hotel Internacional Suite Prime', nome:'Duplo — por pessoa',      detalhe:'suite, sala, varanda premium',             preco:4696 },
+const BAILA_PERIODOS = [
+  { id:'p3qd', label:'3 Noites (Qui–Dom)', periodo:'29/07/2027 a 01/08/2027', noites:3, dias:'De quinta a domingo', crianca:888,
+    cats:[
+      { nome:'Apto Luxo Individual', detalhe:'quarto, banheiro, sacada', preco:4320 },
+      { nome:'Apto Luxo Duplo — por pessoa', detalhe:'quarto, banheiro, sacada', preco:3086 },
+      { nome:'Apto Luxo Triplo/Quádruplo — por pessoa', detalhe:'quarto, banheiro, sacada', preco:2777 },
+      { nome:'Apto Luxo Quíntuplo/Sêxtuplo — por pessoa', detalhe:'quarto, banheiro, sacada', preco:2623 },
+      { nome:'Suíte Prime Junior Duplo — por pessoa', detalhe:'suite prime', preco:3757 },
+      { nome:'Suíte Prime Master Duplo — por pessoa', detalhe:'suite prime', preco:4293 },
+      { nome:'Suíte Prime Luxo Duplo — por pessoa', detalhe:'suite prime', preco:4025 },
+      { nome:'Suíte Prime 2 Dorm. Triplo/Quádruplo — por pessoa', detalhe:'suite prime', preco:4723 },
+    ]},
+  { id:'p4dq', label:'4 Noites (Dom–Qui)', periodo:'25/07/2027 a 29/07/2027', noites:4, dias:'De domingo a quinta', crianca:1184,
+    cats:[
+      { nome:'Apto Luxo Individual', detalhe:'quarto, banheiro, sacada', preco:4938 },
+      { nome:'Apto Luxo Duplo — por pessoa', detalhe:'quarto, banheiro, sacada', preco:3527 },
+      { nome:'Apto Luxo Triplo/Quádruplo — por pessoa', detalhe:'quarto, banheiro, sacada', preco:3175 },
+      { nome:'Apto Luxo Quíntuplo/Sêxtuplo — por pessoa', detalhe:'quarto, banheiro, sacada', preco:2998 },
+      { nome:'Suíte Prime Junior Single', detalhe:'suite prime', preco:6012 },
+      { nome:'Suíte Prime Junior Duplo — por pessoa', detalhe:'suite prime', preco:4294 },
+      { nome:'Suíte Prime Master Duplo — por pessoa', detalhe:'suite prime', preco:4908 },
+      { nome:'Suíte Prime Luxo Duplo — por pessoa', detalhe:'suite prime', preco:4601 },
+      { nome:'Suíte Prime 2 Dorm. Triplo/Quádruplo — por pessoa', detalhe:'suite prime', preco:5399 },
+    ]},
+  { id:'p7',   label:'7 Noites', periodo:'25/07/2027 a 01/08/2027', noites:7, dias:'Pacote completo', crianca:2072,
+    cats:[
+      { nome:'Superior Individual', detalhe:'quarto e banheiro', preco:6979 },
+      { nome:'Superior Duplo — por pessoa', detalhe:'quarto e banheiro', preco:4985 },
+      { nome:'Apto Luxo Individual', detalhe:'quarto, banheiro, sacada', preco:8026 },
+      { nome:'Apto Luxo Duplo — por pessoa', detalhe:'quarto, banheiro, sacada', preco:5733 },
+      { nome:'Apto Luxo Triplo/Quádruplo — por pessoa', detalhe:'quarto, banheiro, sacada', preco:5159 },
+      { nome:'Apto Luxo Quíntuplo/Sêxtuplo — por pessoa', detalhe:'quarto, banheiro, sacada', preco:4873 },
+      { nome:'Suíte Prime Junior Single', detalhe:'suite prime', preco:9771 },
+      { nome:'Suíte Prime Junior Duplo — por pessoa', detalhe:'suite prime', preco:6979 },
+      { nome:'Suíte Prime Master Duplo — por pessoa', detalhe:'suite prime', preco:7976 },
+      { nome:'Suíte Prime Luxo Duplo — por pessoa', detalhe:'suite prime', preco:7477 },
+      { nome:'Suíte Prime 2 Dorm. Triplo/Quádruplo — por pessoa', detalhe:'suite prime', preco:8774 },
+    ]},
+  { id:'p3dq', label:'3 Noites (Dom–Qua)', periodo:'25/07/2027 a 28/07/2027', noites:3, dias:'De domingo a quarta', crianca:888,
+    cats:[
+      { nome:'Apto Luxo Individual', detalhe:'quarto, banheiro, sacada', preco:3704 },
+      { nome:'Apto Luxo Duplo — por pessoa', detalhe:'quarto, banheiro, sacada', preco:2646 },
+      { nome:'Apto Luxo Triplo/Quádruplo — por pessoa', detalhe:'quarto, banheiro, sacada', preco:2381 },
+      { nome:'Apto Luxo Quíntuplo/Sêxtuplo — por pessoa', detalhe:'quarto, banheiro, sacada', preco:2249 },
+      { nome:'Suíte Prime Junior Single', detalhe:'suite prime', preco:4509 },
+      { nome:'Suíte Prime Junior Duplo — por pessoa', detalhe:'suite prime', preco:3221 },
+      { nome:'Suíte Prime Master Duplo — por pessoa', detalhe:'suite prime', preco:3681 },
+      { nome:'Suíte Prime Luxo Duplo — por pessoa', detalhe:'suite prime', preco:3451 },
+      { nome:'Suíte Prime 2 Dorm. Triplo/Quádruplo — por pessoa', detalhe:'suite prime', preco:4049 },
+    ]},
+  { id:'p4qd', label:'4 Noites (Qua–Dom)', periodo:'28/07/2027 a 01/08/2027', noites:4, dias:'De quarta a domingo', crianca:1184,
+    cats:[
+      { nome:'Apto Luxo Individual', detalhe:'quarto, banheiro, sacada', preco:5553 },
+      { nome:'Apto Luxo Duplo — por pessoa', detalhe:'quarto, banheiro, sacada', preco:3967 },
+      { nome:'Apto Luxo Triplo/Quádruplo — por pessoa', detalhe:'quarto, banheiro, sacada', preco:3570 },
+      { nome:'Apto Luxo Quíntuplo/Sêxtuplo — por pessoa', detalhe:'quarto, banheiro, sacada', preco:3372 },
+      { nome:'Suíte Prime Junior Single', detalhe:'suite prime', preco:6760 },
+      { nome:'Suíte Prime Junior Duplo — por pessoa', detalhe:'suite prime', preco:4829 },
+      { nome:'Suíte Prime Master Duplo — por pessoa', detalhe:'suite prime', preco:5519 },
+      { nome:'Suíte Prime Luxo Duplo — por pessoa', detalhe:'suite prime', preco:5174 },
+      { nome:'Suíte Prime 2 Dorm. Triplo/Quádruplo — por pessoa', detalhe:'suite prime', preco:6071 },
+    ]},
 ];
 
 function bailaLoadState() {
@@ -1867,81 +1921,80 @@ function bailaLoadState() {
 }
 function bailaSaveState(s) { localStorage.setItem('rsx_baila', JSON.stringify(s)); }
 
+function bailaGetPeriodo(id) {
+  return BAILA_PERIODOS.find(p => p.id === id) || BAILA_PERIODOS[0];
+}
+
+function bailaOnPeriodoChange() {
+  const s = bailaLoadState();
+  s.periodoId = document.getElementById('bc_periodo_sel')?.value || BAILA_PERIODOS[0].id;
+  s.precos = {}; s.sel = {};
+  bailaSaveState(s);
+  showPage('baila_costao', document.querySelector('.nav-btn[data-page="baila_costao"]'));
+}
+
 function bailaCollect() {
+  const per = bailaGetPeriodo(document.getElementById('bc_periodo_sel')?.value);
   const s = {
-    lote:     document.getElementById('bc_lote')?.value||'Lote 3',
+    periodoId: per.id,
+    lote:     document.getElementById('bc_lote')?.value||'',
     validade: document.getElementById('bc_validade')?.value||'',
-    noites:   document.getElementById('bc_noites')?.value||'3',
-    periodo:  document.getElementById('bc_periodo')?.value||'',
-    dias:     document.getElementById('bc_dias')?.value||'',
     cliente:  document.getElementById('bc_cliente')?.value||'',
-    cri04:    parseFloat(document.getElementById('bc_cri04')?.value||804),
+    cri04:    parseFloat(document.getElementById('bc_cri04')?.value||per.crianca),
     precos: {},
     sel: {},
   };
-  BAILA_CATS.forEach(c => {
-    s.precos[c.id] = parseFloat(document.getElementById('bcp_'+c.id)?.value||c.preco);
-    s.sel[c.id]    = document.getElementById('bcsel_'+c.id)?.checked ?? true;
+  per.cats.forEach((c,i) => {
+    s.precos[i] = parseFloat(document.getElementById('bcp_'+i)?.value||c.preco);
+    s.sel[i]    = document.getElementById('bcsel_'+i)?.checked ?? true;
   });
   return s;
 }
 
 PAGES['baila_costao'] = () => {
-  const st = bailaLoadState();
-  const fmtR = n => 'R$ ' + Number(n||0).toLocaleString('pt-BR',{minimumFractionDigits:2});
+  const st  = bailaLoadState();
+  const per = bailaGetPeriodo(st.periodoId);
 
-  // Build category rows grouped
-  let lastGrupo = '';
-  const catRows = BAILA_CATS.map(c => {
-    let header = '';
-    if (c.grupo !== lastGrupo) {
-      lastGrupo = c.grupo;
-      header = `<div style="font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold-dim);font-weight:600;margin:14px 0 6px;padding-bottom:6px;border-bottom:1px solid var(--border)">${esc(c.grupo)}</div>`;
-    }
-    const preco = st.precos?.[c.id] ?? c.preco;
-    const sel   = st.sel?.[c.id] ?? true;
-    return `${header}
+  const catRows = per.cats.map((c,i) => {
+    const preco = st.precos?.[i] ?? c.preco;
+    const sel   = st.sel?.[i] ?? true;
+    return `
     <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04)">
-      <input type="checkbox" id="bcsel_${c.id}" ${sel?'checked':''} style="flex-shrink:0"/>
+      <input type="checkbox" id="bcsel_${i}" ${sel?'checked':''} style="flex-shrink:0"/>
       <div style="flex:1;min-width:0">
         <div style="font-size:12px;color:var(--text)">${esc(c.nome)}</div>
         <div style="font-size:10px;color:var(--text-dim)">${esc(c.detalhe)}</div>
       </div>
-      <input id="bcp_${c.id}" type="number" min="0" step="1" value="${preco}"
+      <input id="bcp_${i}" type="number" min="0" step="1" value="${preco}"
         style="width:110px;text-align:right" class="field-input"/>
     </div>`;
   }).join('');
 
+  const periodoOpts = BAILA_PERIODOS.map(p =>
+    `<option value="${p.id}" ${per.id===p.id?'selected':''}>${esc(p.label)} — ${esc(p.periodo)}</option>`
+  ).join('');
+
   return `
   <h1 class="page-title">Baila Costão</h1>
-  <p class="page-subtitle">Configure o lote, selecione as categorias, preencha o cliente e gere o PDF para enviar.</p>
+  <p class="page-subtitle">Valores oficiais da planilha Baila 2027. Selecione o período, ajuste se precisar, preencha o cliente e gere o PDF.</p>
 
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:32px">
     <div class="cms-section" style="margin-bottom:0">
       <div class="cms-section-label">Pacote</div>
       <div class="field-row">
-        <label class="field-label">Lote</label>
-        <input id="bc_lote" class="field-input" value="${esc(st.lote||'Lote 3')}" placeholder="Ex: Lote 3"/>
+        <label class="field-label">Período *</label>
+        <select id="bc_periodo_sel" class="field-input" onchange="bailaOnPeriodoChange()">${periodoOpts}</select>
+      </div>
+      <div style="font-size:11px;color:var(--text-dim);margin:-4px 0 10px">
+        ${per.noites} noites · ${esc(per.dias)} · Data: ${esc(per.periodo)}
       </div>
       <div class="field-row">
-        <label class="field-label">Válido até</label>
-        <input id="bc_validade" class="field-input" type="date" value="${esc(st.validade||'2026-05-12')}"/>
+        <label class="field-label">Lote (opcional)</label>
+        <input id="bc_lote" class="field-input" value="${esc(st.lote||'')}" placeholder="Ex: Lote 1"/>
       </div>
       <div class="field-row">
-        <label class="field-label">Número de noites</label>
-        <select id="bc_noites" class="field-input">
-          <option value="3" ${(st.noites||'3')==='3'?'selected':''}>3 Noites</option>
-          <option value="4" ${(st.noites||'3')==='4'?'selected':''}>4 Noites</option>
-          <option value="7" ${(st.noites||'3')==='7'?'selected':''}>7 Noites</option>
-        </select>
-      </div>
-      <div class="field-row">
-        <label class="field-label">Período (ex: 09/07 a 12/07/2026)</label>
-        <input id="bc_periodo" class="field-input" value="${esc(st.periodo||'09/07 a 12/07/2026')}" placeholder="09/07 a 12/07/2026"/>
-      </div>
-      <div class="field-row">
-        <label class="field-label">Dias da semana</label>
-        <input id="bc_dias" class="field-input" value="${esc(st.dias||'De quinta a domingo')}" placeholder="De quinta a domingo"/>
+        <label class="field-label">Válido até (opcional)</label>
+        <input id="bc_validade" class="field-input" type="date" value="${esc(st.validade||'')}"/>
       </div>
     </div>
 
@@ -1954,7 +2007,7 @@ PAGES['baila_costao'] = () => {
       <div class="cms-section-label" style="margin-top:16px">Crianças</div>
       <div class="field-row">
         <label class="field-label">Valor criança 4–11 anos (cama extra)</label>
-        <input id="bc_cri04" class="field-input" type="number" min="0" step="1" value="${st.cri04||804}"/>
+        <input id="bc_cri04" class="field-input" type="number" min="0" step="1" value="${st.cri04??per.crianca}"/>
       </div>
       <div style="font-size:11px;color:var(--text-dim)">0–3 anos: cortesia (berço) — fixo.</div>
     </div>
@@ -1979,33 +2032,27 @@ function bailaGerarPDF() {
   const fmtR = n => 'R$ ' + Number(n||0).toLocaleString('pt-BR',{minimumFractionDigits:2});
   const fmtData = iso => { if(!iso) return ''; const [y,m,d]=iso.split('-'); const ms=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez']; return `${parseInt(d)} ${ms[parseInt(m)-1]} ${y}`; };
 
-  // Build table rows per grupo
-  const grupos = {};
-  BAILA_CATS.forEach(c => {
-    if (!s.sel[c.id]) return;
-    if (!grupos[c.grupo]) grupos[c.grupo] = [];
-    grupos[c.grupo].push(c);
-  });
+  const tabelaHTML = `
+    <tr><td colspan="2" style="background:#e8f0f8;font-weight:700;padding:7px 12px;font-size:12px">Categoria</td><td style="background:#e8f0f8;font-weight:700;padding:7px 12px;font-size:12px;text-align:right">Total por pessoa</td></tr>
+    ${per.cats.map((c,i) => s.sel[i] ? `<tr>
+      <td colspan="2" style="padding:6px 12px;font-size:12px">${esc(c.nome)} <span style="color:#666;font-size:11px">· ${esc(c.detalhe)}</span></td>
+      <td style="padding:6px 12px;font-size:12px;text-align:right;font-weight:600">${fmtR(s.precos[i]??c.preco)}</td>
+    </tr>` : '').join('')}
+  `;
 
-  const tabelaHTML = Object.keys(grupos).map(g => `
-    <tr><td colspan="2" style="background:#e8f0f8;font-weight:700;padding:7px 12px;font-size:12px">${g}</td><td style="background:#e8f0f8;font-weight:700;padding:7px 12px;font-size:12px;text-align:right">Valor — total por pessoa</td></tr>
-    ${grupos[g].map(c => `<tr>
-      <td colspan="2" style="padding:6px 12px;font-size:12px">${c.nome} <span style="color:#666;font-size:11px">· ${c.detalhe}</span></td>
-      <td style="padding:6px 12px;font-size:12px;text-align:right;font-weight:600">${fmtR(s.precos[c.id]??c.preco)}</td>
-    </tr>`).join('')}
-  `).join('');
-
-  const hasSuite = BAILA_CATS.filter(c=>c.grupo==='Hotel Internacional Suite Prime'&&s.sel[c.id]).length>0;
+  const hasSuite = per.cats.some((c,i) => s.sel[i] && /suíte prime/i.test(c.nome));
   const benefSuite = hasSuite ? `
-    <div class="section"><h3>Benefícios exclusivos para hóspedes do Hotel Internacional:</h3>
+    <div class="section"><h3>Benefícios exclusivos para hóspedes das Suítes Prime:</h3>
     <p>01 procedimento de 20 minutos no SPA por adulto.<br>
-    Crédito de <strong>R$ 100,00 por adulto/dia</strong> para consumo no Rancho do Pescador – Ilhote do Baú.<br>
+    Crédito de <strong>R$ 100,00 por adulto/dia</strong> para consumo no Rancho do Pescador – Ilhote do Baú.<br>
     <em>Não é permitida a reserva de ala/grupo. O crédito é válido apenas para alimentos e bebidas no local. Valor não reembolsável.</em></p></div>` : '';
 
-  const valStr = s.validade ? fmtData(s.validade) : '';
+  const valStr    = s.validade ? fmtData(s.validade) : '';
+  const loteBadge = s.lote ? `<div class="header-badge">${esc(s.lote)}${valStr?' · Válido até '+valStr:''}</div>` : '';
+  const loteBox   = s.lote ? `<div class="lote-box">⚡ <strong>${esc(s.lote)}!</strong>${valStr?' Válido até '+valStr+'.':''}</div>` : '';
 
   const html = `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"/>
-<title>Baila Costão ${s.noites} Noites — ${s.lote} — ${cliente}</title>
+<title>Baila Costão ${per.noites} Noites — ${cliente}</title>
 <style>
   @page { size:A4; margin:18mm 16mm; }
   *{box-sizing:border-box;margin:0;padding:0}
@@ -2042,14 +2089,14 @@ function bailaGerarPDF() {
   <div class="header-top">
     <img class="header-logo" src="https://rsxtravel.com.br/midia/baila-costao-logo.png" alt="Baila Costão" onerror="this.style.display='none'"/>
   </div>
-  <div class="header-sub">${s.noites} NOITES &nbsp;·&nbsp; ALL INCLUSIVE</div>
-  <div class="header-badge">${esc(s.lote)}${valStr?' · Válido até '+valStr:''}</div>
+  <div class="header-sub">${per.noites} NOITES &nbsp;·&nbsp; ALL INCLUSIVE</div>
+  ${loteBadge}
 </div>
 
 <div class="greeting">
   <p><strong>Querido(a) ${esc(cliente)},</strong></p><br>
   <p>Obrigada pelo contato e pela confiança!</p>
-  <p>Sou <strong>Rebeca, da RSX Travel</strong>, e será um prazer cuidar da sua viagem para o <strong>Baila Costão 2026</strong> — um pacote de <strong>${s.noites} noites</strong> all inclusive no incrível Resort Costão do Santinho.</p><br>
+  <p>Sou <strong>Rebeca, da RSX Travel</strong>, e será um prazer cuidar da sua viagem para o <strong>Baila Costão 2027</strong> — um pacote de <strong>${per.noites} noites</strong> all inclusive no incrível Resort Costão do Santinho.</p><br>
   <p>Mais que hospedagem, o Costão do Santinho entrega uma experiência à beira mar.</p><br>
   <p><strong>🎶 Baila Costão: dança, diversão e experiências incríveis!</strong><br>
   Aproveite aulas de diversos ritmos, personal dancers, bailes temáticos, espetáculos, gincanas e muita animação!</p><br>
@@ -2057,10 +2104,10 @@ function bailaGerarPDF() {
 </div>
 
 <div class="event-box">
-  <p><strong>Pacote Baila Costão 2026 — ${s.noites} NOITES — ${esc(s.periodo)}</strong></p>
-  <p>${esc(s.dias)}.</p>
+  <p><strong>Pacote Baila Costão 2027 — ${per.noites} NOITES — ${esc(per.periodo)}</strong></p>
+  <p>${esc(per.dias)}.</p>
 </div>
-<div class="lote-box">⚡ <strong>${esc(s.lote)}!</strong>${valStr?' Válido até '+valStr+'.':''}</div>
+${loteBox}
 <div class="alert-box">⚠️ <strong>Atenção:</strong> Os apartamentos são limitados, e as vendas podem ser encerradas antes do prazo sem aviso prévio.</div>
 
 <table>
