@@ -8,3 +8,4 @@ deployment:
     - /bin/mkdir -p /home/rsxtrave/public_html/midia
     - /bin/chmod 755 /home/rsxtrave/public_html/midia
     - /bin/cp -n midia/* /home/rsxtrave/public_html/midia/ || true
+    - /bin/cp -f midia/baila-costao-logo.png /home/rsxtrave/public_html/midia/baila-costao-logo.png || true
