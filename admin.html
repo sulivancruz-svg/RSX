@@ -1897,20 +1897,18 @@ function bailaDetalheFull(c) {
   return bd ? `${bd} · ${c.detalhe}` : c.detalhe;
 }
 
-function bailaDefaultPessoas(nome) {
-  if (/Individual|Single/i.test(nome)) return 1;
-  if (/Duplo/i.test(nome)) return 2;
-  if (/Triplo\/Qu[aá]druplo/i.test(nome)) return 3;
-  if (/Qu[ií]ntuplo\/S[eê]xtuplo/i.test(nome)) return 5;
-  return 1;
-}
-
 function bailaUpdateTotal(i) {
   const preco = parseFloat(document.getElementById('bcp_'+i)?.value || 0);
-  const qtd   = parseInt(document.getElementById('bcqty_'+i)?.value || 1);
+  const qtd   = parseInt(document.getElementById('bc_pessoas')?.value || 1);
   const total = preco * qtd;
   const el = document.getElementById('bctotal_'+i);
   if (el) el.textContent = 'Total: R$ ' + total.toLocaleString('pt-BR',{minimumFractionDigits:0,maximumFractionDigits:0});
+}
+
+function bailaUpdateAllTotals() {
+  document.querySelectorAll('[id^="bcp_"]').forEach(inp => {
+    bailaUpdateTotal(inp.id.replace('bcp_', ''));
+  });
 }
 
 function bailaOnPeriodoChange() {
@@ -1929,14 +1927,13 @@ function bailaCollect() {
     validade: document.getElementById('bc_validade')?.value||'',
     cliente:  document.getElementById('bc_cliente')?.value||'',
     cri04:    parseFloat(document.getElementById('bc_cri04')?.value||per.crianca),
+    pessoas:  parseInt(document.getElementById('bc_pessoas')?.value || 2),
     precos: {},
     sel: {},
   };
-  s.pessoas = {};
   per.cats.forEach((c,i) => {
-    s.precos[i]  = parseFloat(document.getElementById('bcp_'+i)?.value||c.preco);
-    s.sel[i]     = document.getElementById('bcsel_'+i)?.checked ?? true;
-    s.pessoas[i] = parseInt(document.getElementById('bcqty_'+i)?.value || bailaDefaultPessoas(c.nome));
+    s.precos[i] = parseFloat(document.getElementById('bcp_'+i)?.value||c.preco);
+    s.sel[i]    = document.getElementById('bcsel_'+i)?.checked ?? true;
   });
   return s;
 }
@@ -1963,11 +1960,12 @@ PAGES['baila_costao'] = () => {
   const st  = bailaLoadState();
   const per = bailaGetPeriodo(st.periodoId);
 
+  const pessoasGlobal = st.pessoas ?? 2;
+
   const catRows = per.cats.map((c,i) => {
-    const preco   = st.precos?.[i] ?? c.preco;
-    const sel     = st.sel?.[i] ?? true;
-    const pessoas = st.pessoas?.[i] ?? bailaDefaultPessoas(c.nome);
-    const total   = preco * pessoas;
+    const preco = st.precos?.[i] ?? c.preco;
+    const sel   = st.sel?.[i] ?? true;
+    const total = preco * pessoasGlobal;
     return `
     <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04);flex-wrap:wrap">
       <input type="checkbox" id="bcsel_${i}" ${sel?'checked':''} style="flex-shrink:0"/>
@@ -1979,11 +1977,6 @@ PAGES['baila_costao'] = () => {
         <label style="font-size:9px;color:var(--text-dim)">Preço/pessoa</label>
         <input id="bcp_${i}" type="number" min="0" step="1" value="${preco}" oninput="bailaUpdateTotal(${i})"
           style="width:100px;text-align:right" class="field-input"/>
-      </div>
-      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px">
-        <label style="font-size:9px;color:var(--text-dim)">Nº pessoas</label>
-        <input id="bcqty_${i}" type="number" min="1" step="1" value="${pessoas}" oninput="bailaUpdateTotal(${i})"
-          style="width:64px;text-align:right" class="field-input"/>
       </div>
       <div id="bctotal_${i}" style="font-size:11px;font-weight:600;color:var(--gold-dim);min-width:110px;text-align:right">Total: R$ ${total.toLocaleString('pt-BR',{minimumFractionDigits:0,maximumFractionDigits:0})}</div>
     </div>`;
@@ -2023,6 +2016,11 @@ PAGES['baila_costao'] = () => {
         <label class="field-label">Nome do cliente *</label>
         <input id="bc_cliente" class="field-input" value="${esc(st.cliente||'')}" placeholder="Ex: Ana Lima"/>
       </div>
+      <div class="field-row">
+        <label class="field-label">Número de pessoas</label>
+        <input id="bc_pessoas" class="field-input" type="number" min="1" step="1" value="${pessoasGlobal}" oninput="bailaUpdateAllTotals()"/>
+      </div>
+      <div style="font-size:11px;color:var(--text-dim)">Aplicado a todas as categorias abaixo (preço/pessoa × pessoas).</div>
       <div class="cms-section-label" style="margin-top:16px">Crianças</div>
       <div class="field-row">
         <label class="field-label">Valor criança 4–11 anos (cama extra)</label>
@@ -2053,9 +2051,8 @@ async function bailaGerarLink() {
 
   const catsSnap = per.cats
     .map((c,i) => {
-      const preco   = s.precos[i] ?? c.preco;
-      const pessoas = s.pessoas?.[i] ?? bailaDefaultPessoas(c.nome);
-      return { nome:c.nome, detalhe:bailaDetalheFull(c), preco, pessoas, total:preco*pessoas, sel:s.sel[i] };
+      const preco = s.precos[i] ?? c.preco;
+      return { nome:c.nome, detalhe:bailaDetalheFull(c), preco, pessoas:s.pessoas, total:preco*s.pessoas, sel:s.sel[i] };
     })
     .filter(c => c.sel)
     .map(({sel, ...rest}) => rest);
@@ -2125,8 +2122,7 @@ function bailaGerarPDF() {
 
   const linhasCat = per.cats.map((c,i) => {
     if (!s.sel[i]) return '';
-    const preco   = s.precos[i] ?? c.preco;
-    const pessoas = s.pessoas?.[i] ?? bailaDefaultPessoas(c.nome);
+    const preco = s.precos[i] ?? c.preco;
     return `
     <div class="cat-row">
       <div class="cat-info">
@@ -2135,7 +2131,7 @@ function bailaGerarPDF() {
       </div>
       <div class="cat-price-wrap">
         <div class="cat-price">${fmtR(preco)}</div>
-        <div class="cat-total">${pessoas}× · Total ${fmtR(preco*pessoas)}</div>
+        <div class="cat-total">${s.pessoas}× · Total ${fmtR(preco*s.pessoas)}</div>
       </div>
     </div>`;
   }).join('');
