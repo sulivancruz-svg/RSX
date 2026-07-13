@@ -74,27 +74,35 @@ function colToIndex($col) {
     return $result;
 }
 
+const NS = 'http://schemas.openxmlformats.org/spreadsheetml/2006/main';
+
+function loadXPath($xmlString) {
+    $doc = new DOMDocument();
+    $doc->loadXML($xmlString);
+    $xp = new DOMXPath($doc);
+    $xp->registerNamespace('a', NS);
+    return $xp;
+}
+
 // ── Shared strings ──
 $sharedStrings = [];
 $sstXml = $zip->getFromName('xl/sharedStrings.xml');
 if ($sstXml) {
-    $sst = simplexml_load_string($sstXml);
-    $sst->registerXPathNamespace('a', 'http://schemas.openxmlformats.org/spreadsheetml/2006/main');
-    foreach ($sst->xpath('//a:si') as $si) {
+    $xp = loadXPath($sstXml);
+    foreach ($xp->query('//a:si') as $si) {
         $text = '';
-        foreach ($si->xpath('.//a:t') as $t) { $text .= (string)$t; }
+        foreach ($xp->query('.//a:t', $si) as $t) { $text .= $t->textContent; }
         $sharedStrings[] = $text;
     }
 }
 
 // ── Sheet order/names ──
 $wbXml = $zip->getFromName('xl/workbook.xml');
-$wb = simplexml_load_string($wbXml);
-$wb->registerXPathNamespace('a', 'http://schemas.openxmlformats.org/spreadsheetml/2006/main');
+$xpWb = loadXPath($wbXml);
 $sheets = [];
 $idx = 1;
-foreach ($wb->xpath('//a:sheets/a:sheet') as $sheet) {
-    $sheets[] = ['name' => (string)$sheet['name'], 'index' => $idx];
+foreach ($xpWb->query('//a:sheets/a:sheet') as $sheet) {
+    $sheets[] = ['name' => $sheet->getAttribute('name'), 'index' => $idx];
     $idx++;
 }
 
@@ -108,24 +116,22 @@ $periodos = [];
 foreach ($sheets as $sheetInfo) {
     $sheetXml = $zip->getFromName('xl/worksheets/sheet' . $sheetInfo['index'] . '.xml');
     if (!$sheetXml) continue;
-    $sheetDoc = simplexml_load_string($sheetXml);
-    $sheetDoc->registerXPathNamespace('a', 'http://schemas.openxmlformats.org/spreadsheetml/2006/main');
+    $xpSheet = loadXPath($sheetXml);
 
     $rows = [];
-    foreach ($sheetDoc->xpath('//a:row') as $row) {
-        $rowNum = (int)$row['r'];
+    foreach ($xpSheet->query('//a:row') as $row) {
+        $rowNum = (int) $row->getAttribute('r');
         $cells = [];
-        foreach ($row->c as $c) {
-            $ref = (string)$c['r'];
+        foreach ($xpSheet->query('a:c', $row) as $c) {
+            $ref = $c->getAttribute('r');
             $col = preg_replace('/[0-9]/', '', $ref);
             $colIdx = colToIndex($col);
-            $type = (string)$c['t'];
+            $type = $c->getAttribute('t');
+            $vNodes = $xpSheet->query('a:v', $c);
             $value = null;
-            if ($type === 's' && isset($c->v)) {
-                $sIdx = (int)$c->v;
-                $value = $sharedStrings[$sIdx] ?? '';
-            } elseif (isset($c->v)) {
-                $value = (string)$c->v;
+            if ($vNodes->length > 0) {
+                $raw = $vNodes->item(0)->textContent;
+                $value = ($type === 's') ? ($sharedStrings[(int)$raw] ?? '') : $raw;
             }
             if ($value !== null) $cells[$colIdx] = $value;
         }
