@@ -1852,69 +1852,30 @@ function renderCustomPageNav() {
 /* ══════════════════════════════════════════
    BAILA COSTÃO
 ══════════════════════════════════════════ */
-const BAILA_PERIODOS = [
-  { id:'p3qd', label:'3 Noites (Qui–Dom)', periodo:'29/07/2027 a 01/08/2027', noites:3, dias:'De quinta a domingo', crianca:888,
-    cats:[
-      { nome:'Apto Luxo Individual', detalhe:'quarto, banheiro, sacada', preco:4320 },
-      { nome:'Apto Luxo Duplo — por pessoa', detalhe:'quarto, banheiro, sacada', preco:3086 },
-      { nome:'Apto Luxo Triplo/Quádruplo — por pessoa', detalhe:'quarto, banheiro, sacada', preco:2777 },
-      { nome:'Apto Luxo Quíntuplo/Sêxtuplo — por pessoa', detalhe:'quarto, banheiro, sacada', preco:2623 },
-      { nome:'Suíte Prime Junior Duplo — por pessoa', detalhe:'suite prime', preco:3757 },
-      { nome:'Suíte Prime Master Duplo — por pessoa', detalhe:'suite prime', preco:4293 },
-      { nome:'Suíte Prime Luxo Duplo — por pessoa', detalhe:'suite prime', preco:4025 },
-      { nome:'Suíte Prime 2 Dorm. Triplo/Quádruplo — por pessoa', detalhe:'suite prime', preco:4723 },
-    ]},
-  { id:'p4dq', label:'4 Noites (Dom–Qui)', periodo:'25/07/2027 a 29/07/2027', noites:4, dias:'De domingo a quinta', crianca:1184,
-    cats:[
-      { nome:'Apto Luxo Individual', detalhe:'quarto, banheiro, sacada', preco:4938 },
-      { nome:'Apto Luxo Duplo — por pessoa', detalhe:'quarto, banheiro, sacada', preco:3527 },
-      { nome:'Apto Luxo Triplo/Quádruplo — por pessoa', detalhe:'quarto, banheiro, sacada', preco:3175 },
-      { nome:'Apto Luxo Quíntuplo/Sêxtuplo — por pessoa', detalhe:'quarto, banheiro, sacada', preco:2998 },
-      { nome:'Suíte Prime Junior Single', detalhe:'suite prime', preco:6012 },
-      { nome:'Suíte Prime Junior Duplo — por pessoa', detalhe:'suite prime', preco:4294 },
-      { nome:'Suíte Prime Master Duplo — por pessoa', detalhe:'suite prime', preco:4908 },
-      { nome:'Suíte Prime Luxo Duplo — por pessoa', detalhe:'suite prime', preco:4601 },
-      { nome:'Suíte Prime 2 Dorm. Triplo/Quádruplo — por pessoa', detalhe:'suite prime', preco:5399 },
-    ]},
-  { id:'p7',   label:'7 Noites', periodo:'25/07/2027 a 01/08/2027', noites:7, dias:'Pacote completo', crianca:2072,
-    cats:[
-      { nome:'Superior Individual', detalhe:'quarto e banheiro', preco:6979 },
-      { nome:'Superior Duplo — por pessoa', detalhe:'quarto e banheiro', preco:4985 },
-      { nome:'Apto Luxo Individual', detalhe:'quarto, banheiro, sacada', preco:8026 },
-      { nome:'Apto Luxo Duplo — por pessoa', detalhe:'quarto, banheiro, sacada', preco:5733 },
-      { nome:'Apto Luxo Triplo/Quádruplo — por pessoa', detalhe:'quarto, banheiro, sacada', preco:5159 },
-      { nome:'Apto Luxo Quíntuplo/Sêxtuplo — por pessoa', detalhe:'quarto, banheiro, sacada', preco:4873 },
-      { nome:'Suíte Prime Junior Single', detalhe:'suite prime', preco:9771 },
-      { nome:'Suíte Prime Junior Duplo — por pessoa', detalhe:'suite prime', preco:6979 },
-      { nome:'Suíte Prime Master Duplo — por pessoa', detalhe:'suite prime', preco:7976 },
-      { nome:'Suíte Prime Luxo Duplo — por pessoa', detalhe:'suite prime', preco:7477 },
-      { nome:'Suíte Prime 2 Dorm. Triplo/Quádruplo — por pessoa', detalhe:'suite prime', preco:8774 },
-    ]},
-  { id:'p3dq', label:'3 Noites (Dom–Qua)', periodo:'25/07/2027 a 28/07/2027', noites:3, dias:'De domingo a quarta', crianca:888,
-    cats:[
-      { nome:'Apto Luxo Individual', detalhe:'quarto, banheiro, sacada', preco:3704 },
-      { nome:'Apto Luxo Duplo — por pessoa', detalhe:'quarto, banheiro, sacada', preco:2646 },
-      { nome:'Apto Luxo Triplo/Quádruplo — por pessoa', detalhe:'quarto, banheiro, sacada', preco:2381 },
-      { nome:'Apto Luxo Quíntuplo/Sêxtuplo — por pessoa', detalhe:'quarto, banheiro, sacada', preco:2249 },
-      { nome:'Suíte Prime Junior Single', detalhe:'suite prime', preco:4509 },
-      { nome:'Suíte Prime Junior Duplo — por pessoa', detalhe:'suite prime', preco:3221 },
-      { nome:'Suíte Prime Master Duplo — por pessoa', detalhe:'suite prime', preco:3681 },
-      { nome:'Suíte Prime Luxo Duplo — por pessoa', detalhe:'suite prime', preco:3451 },
-      { nome:'Suíte Prime 2 Dorm. Triplo/Quádruplo — por pessoa', detalhe:'suite prime', preco:4049 },
-    ]},
-  { id:'p4qd', label:'4 Noites (Qua–Dom)', periodo:'28/07/2027 a 01/08/2027', noites:4, dias:'De quarta a domingo', crianca:1184,
-    cats:[
-      { nome:'Apto Luxo Individual', detalhe:'quarto, banheiro, sacada', preco:5553 },
-      { nome:'Apto Luxo Duplo — por pessoa', detalhe:'quarto, banheiro, sacada', preco:3967 },
-      { nome:'Apto Luxo Triplo/Quádruplo — por pessoa', detalhe:'quarto, banheiro, sacada', preco:3570 },
-      { nome:'Apto Luxo Quíntuplo/Sêxtuplo — por pessoa', detalhe:'quarto, banheiro, sacada', preco:3372 },
-      { nome:'Suíte Prime Junior Single', detalhe:'suite prime', preco:6760 },
-      { nome:'Suíte Prime Junior Duplo — por pessoa', detalhe:'suite prime', preco:4829 },
-      { nome:'Suíte Prime Master Duplo — por pessoa', detalhe:'suite prime', preco:5519 },
-      { nome:'Suíte Prime Luxo Duplo — por pessoa', detalhe:'suite prime', preco:5174 },
-      { nome:'Suíte Prime 2 Dorm. Triplo/Quádruplo — por pessoa', detalhe:'suite prime', preco:6071 },
-    ]},
-];
+let BAILA_PERIODOS = null;
+let BAILA_LOAD_ERROR = null;
+let bailaLoadPromise = null;
+
+function bailaLoadPeriodos(force) {
+  if (bailaLoadPromise && !force) return bailaLoadPromise;
+  BAILA_LOAD_ERROR = null;
+  bailaLoadPromise = fetch('baila-sheet.php?_=' + Date.now())
+    .then(r => r.json())
+    .then(json => {
+      if (json.error || !json.periodos || !json.periodos.length) {
+        throw new Error(json.error || 'Planilha vazia');
+      }
+      BAILA_PERIODOS = json.periodos;
+    })
+    .catch(err => {
+      BAILA_LOAD_ERROR = err.message || 'Erro ao carregar a planilha';
+      BAILA_PERIODOS = null;
+    })
+    .finally(() => {
+      showPage('baila_costao', document.querySelector('.nav-btn[data-page="baila_costao"]'));
+    });
+  return bailaLoadPromise;
+}
 
 function bailaLoadState() {
   try { return JSON.parse(localStorage.getItem('rsx_baila')||'{}'); } catch(e){ return {}; }
@@ -1963,6 +1924,24 @@ function bailaCollect() {
 }
 
 PAGES['baila_costao'] = () => {
+  if (!BAILA_PERIODOS) {
+    bailaLoadPeriodos();
+    if (BAILA_LOAD_ERROR) {
+      return `
+      <h1 class="page-title">Baila Costão</h1>
+      <div class="cms-section" style="text-align:center;padding:40px 20px">
+        <p style="font-size:14px;color:#f87171;margin-bottom:6px">⚠️ Não foi possível carregar os valores da planilha</p>
+        <p style="font-size:12px;color:var(--text-dim);margin-bottom:16px">${esc(BAILA_LOAD_ERROR)}</p>
+        <button class="btn-save" onclick="bailaLoadPeriodos(true)">🔄 Tentar novamente</button>
+      </div>`;
+    }
+    return `
+    <h1 class="page-title">Baila Costão</h1>
+    <div class="cms-section" style="text-align:center;padding:40px 20px">
+      <p style="font-size:13px;color:var(--text-dim)">⏳ Carregando valores da planilha oficial…</p>
+    </div>`;
+  }
+
   const st  = bailaLoadState();
   const per = bailaGetPeriodo(st.periodoId);
 
