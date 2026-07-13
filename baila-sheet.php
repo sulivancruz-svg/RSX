@@ -25,7 +25,7 @@ function readCache($file) {
     return null;
 }
 
-if (file_exists($CACHE_FILE) && (time() - filemtime($CACHE_FILE)) < $CACHE_TTL) {
+if (!isset($_GET['debug']) && file_exists($CACHE_FILE) && (time() - filemtime($CACHE_FILE)) < $CACHE_TTL) {
     $cached = readCache($CACHE_FILE);
     if ($cached) respond($cached);
 }
@@ -112,10 +112,23 @@ $weekdayMap = [
 ];
 
 $periodos = [];
+$debug = isset($_GET['debug']);
+$debugInfo = [
+    'shared_strings_count' => count($sharedStrings),
+    'sheets_found' => $sheets,
+    'zip_worksheet_names' => [],
+];
+for ($zi = 0; $zi < $zip->numFiles; $zi++) {
+    $n = $zip->getNameIndex($zi);
+    if (strpos($n, 'xl/worksheets/') === 0) $debugInfo['zip_worksheet_names'][] = $n;
+}
 
 foreach ($sheets as $sheetInfo) {
     $sheetXml = $zip->getFromName('xl/worksheets/sheet' . $sheetInfo['index'] . '.xml');
-    if (!$sheetXml) continue;
+    if (!$sheetXml) {
+        $debugInfo['sheet_' . $sheetInfo['index']] = 'MISSING xl/worksheets/sheet' . $sheetInfo['index'] . '.xml';
+        continue;
+    }
     $xpSheet = loadXPath($sheetXml);
 
     $rows = [];
@@ -136,6 +149,17 @@ foreach ($sheets as $sheetInfo) {
             if ($value !== null) $cells[$colIdx] = $value;
         }
         if (!empty($cells)) $rows[$rowNum] = $cells;
+    }
+
+    if ($debug) {
+        $debugInfo['sheet_' . $sheetInfo['index'] . '_' . $sheetInfo['name']] = [
+            'rows_found' => count($rows),
+            'row_keys' => array_keys($rows),
+            'row1' => $rows[1] ?? null,
+            'row2' => $rows[2] ?? null,
+            'row4' => $rows[4] ?? null,
+            'row5' => $rows[5] ?? null,
+        ];
     }
 
     $title     = trim($rows[1][1] ?? '');
@@ -216,6 +240,7 @@ $zip->close();
 @unlink($tmpFile);
 
 if (empty($periodos)) {
+    if ($debug) respond(['error' => 'Nenhum período encontrado na planilha', 'debug' => $debugInfo], 500);
     $cached = readCache($CACHE_FILE);
     if ($cached) respond($cached);
     respond(['error' => 'Nenhum período encontrado na planilha'], 500);
