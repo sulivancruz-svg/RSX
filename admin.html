@@ -1897,23 +1897,6 @@ function bailaDetalheFull(c) {
   return bd ? `${bd} · ${c.detalhe}` : c.detalhe;
 }
 
-function bailaDefaultPessoas(nome) {
-  if (/Individual|Single/i.test(nome)) return 1;
-  if (/Duplo/i.test(nome)) return 2;
-  if (/Triplo\/Qu[aá]druplo/i.test(nome)) return 3;
-  if (/Qu[ií]ntuplo\/S[eê]xtuplo/i.test(nome)) return 5;
-  return 1;
-}
-
-function bailaUpdateTotal(i) {
-  const inp = document.getElementById('bcp_'+i);
-  const preco = parseFloat(inp?.value || 0);
-  const qtd   = parseInt(inp?.dataset.pessoas || 1);
-  const total = preco * qtd;
-  const el = document.getElementById('bctotal_'+i);
-  if (el) el.textContent = 'Total: R$ ' + total.toLocaleString('pt-BR',{minimumFractionDigits:0,maximumFractionDigits:0});
-}
-
 function bailaOnPeriodoChange() {
   const s = bailaLoadState();
   s.periodoId = document.getElementById('bc_periodo_sel')?.value || BAILA_PERIODOS[0].id;
@@ -1932,12 +1915,10 @@ function bailaCollect() {
     cri04:    parseFloat(document.getElementById('bc_cri04')?.value||per.crianca),
     precos: {},
     sel: {},
-    pessoas: {},
   };
   per.cats.forEach((c,i) => {
-    s.precos[i]  = parseFloat(document.getElementById('bcp_'+i)?.value||c.preco);
-    s.sel[i]     = document.getElementById('bcsel_'+i)?.checked ?? true;
-    s.pessoas[i] = bailaDefaultPessoas(c.nome);
+    s.precos[i] = parseFloat(document.getElementById('bcp_'+i)?.value||c.preco);
+    s.sel[i]    = document.getElementById('bcsel_'+i)?.checked ?? true;
   });
   return s;
 }
@@ -1965,23 +1946,17 @@ PAGES['baila_costao'] = () => {
   const per = bailaGetPeriodo(st.periodoId);
 
   const catRows = per.cats.map((c,i) => {
-    const preco   = st.precos?.[i] ?? c.preco;
-    const sel     = st.sel?.[i] ?? true;
-    const pessoas = bailaDefaultPessoas(c.nome);
-    const total   = preco * pessoas;
+    const preco = st.precos?.[i] ?? c.preco;
+    const sel   = st.sel?.[i] ?? true;
     return `
-    <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04);flex-wrap:wrap">
+    <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04)">
       <input type="checkbox" id="bcsel_${i}" ${sel?'checked':''} style="flex-shrink:0"/>
-      <div style="flex:1;min-width:160px">
+      <div style="flex:1;min-width:0">
         <div style="font-size:12px;color:var(--text)">${esc(c.nome)}</div>
-        <div style="font-size:10px;color:var(--text-dim)">${esc(bailaDetalheFull(c))} · ${pessoas} pessoa${pessoas>1?'s':''}</div>
+        <div style="font-size:10px;color:var(--text-dim)">${esc(bailaDetalheFull(c))}</div>
       </div>
-      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px">
-        <label style="font-size:9px;color:var(--text-dim)">Preço/pessoa</label>
-        <input id="bcp_${i}" type="number" min="0" step="1" value="${preco}" data-pessoas="${pessoas}" oninput="bailaUpdateTotal(${i})"
-          style="width:100px;text-align:right" class="field-input"/>
-      </div>
-      <div id="bctotal_${i}" style="font-size:11px;font-weight:600;color:var(--gold-dim);min-width:110px;text-align:right">Total: R$ ${total.toLocaleString('pt-BR',{minimumFractionDigits:0,maximumFractionDigits:0})}</div>
+      <input id="bcp_${i}" type="number" min="0" step="1" value="${preco}"
+        style="width:110px;text-align:right" class="field-input"/>
     </div>`;
   }).join('');
 
@@ -2048,11 +2023,7 @@ async function bailaGerarLink() {
   const cliente = s.cliente.trim() || 'Viajante';
 
   const catsSnap = per.cats
-    .map((c,i) => {
-      const preco   = s.precos[i] ?? c.preco;
-      const pessoas = s.pessoas?.[i] ?? bailaDefaultPessoas(c.nome);
-      return { nome:c.nome, detalhe:bailaDetalheFull(c), preco, pessoas, total:preco*pessoas, sel:s.sel[i] };
-    })
+    .map((c,i) => ({ nome:c.nome, detalhe:bailaDetalheFull(c), preco:s.precos[i]??c.preco, sel:s.sel[i] }))
     .filter(c => c.sel)
     .map(({sel, ...rest}) => rest);
 
@@ -2119,22 +2090,14 @@ function bailaGerarPDF() {
   const fmtR = n => 'R$ ' + Number(n||0).toLocaleString('pt-BR',{minimumFractionDigits:0,maximumFractionDigits:0});
   const fmtData = iso => { if(!iso) return ''; const [y,m,d]=iso.split('-'); const ms=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez']; return `${parseInt(d)} ${ms[parseInt(m)-1]} ${y}`; };
 
-  const linhasCat = per.cats.map((c,i) => {
-    if (!s.sel[i]) return '';
-    const preco   = s.precos[i] ?? c.preco;
-    const pessoas = s.pessoas?.[i] ?? bailaDefaultPessoas(c.nome);
-    return `
+  const linhasCat = per.cats.map((c,i) => s.sel[i] ? `
     <div class="cat-row">
       <div class="cat-info">
         <div class="cat-name">${esc(c.nome)}</div>
         <div class="cat-detail">${esc(bailaDetalheFull(c))}</div>
       </div>
-      <div class="cat-price-wrap">
-        <div class="cat-price">${fmtR(preco)}</div>
-        <div class="cat-total">${pessoas}× · Total ${fmtR(preco*pessoas)}</div>
-      </div>
-    </div>`;
-  }).join('');
+      <div class="cat-price">${fmtR(s.precos[i]??c.preco)}</div>
+    </div>` : '').join('');
 
   const hasSuite = per.cats.some((c,i) => s.sel[i] && /suíte prime/i.test(c.nome));
   const benefSuite = hasSuite ? `
@@ -2199,9 +2162,7 @@ function bailaGerarPDF() {
   .cat-info{flex:1;min-width:0}
   .cat-name{font-size:13px;color:var(--cream);font-weight:400;line-height:1.3}
   .cat-detail{font-size:10px;color:rgba(245,239,230,.4);text-transform:uppercase;letter-spacing:.1em;margin-top:3px}
-  .cat-price-wrap{text-align:right;flex-shrink:0}
   .cat-price{font-family:'Cormorant Garamond',serif;font-size:24px;color:var(--gold-300);white-space:nowrap;line-height:1}
-  .cat-total{font-size:10px;color:rgba(245,239,230,.5);white-space:nowrap;margin-top:3px}
 
   .kids-box{display:flex;gap:10px;margin-top:14px}
   .kids-item{flex:1;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:3px;padding:12px 14px}
