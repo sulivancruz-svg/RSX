@@ -1017,12 +1017,29 @@ const PAGES = {
       const expired = p.validity && p.validity < today;
       const statusDot = `<span class="prop-status-dot ${expired ? 'exp' : 'open'}" title="${expired ? 'Expirada' : 'Aberta'}"></span>`;
       const link = PROPOSALS.propLink(p.id);
+
+      if (p.type === 'baila') {
+        return `
+        <div class="prop-list-row">
+          ${statusDot}
+          <div class="prop-list-client">
+            <div class="prop-list-name">${esc(p.cliente || '—')}</div>
+            <div class="prop-list-detail">🎶 Baila Costão${p.periodo ? ' · ' + esc(p.periodo) : ''}</div>
+          </div>
+          <div class="prop-list-date">${p.created_at || '—'}</div>
+          <div class="prop-list-actions">
+            <button class="prop-action-btn" onclick="propCopyLink('${esc(p.id)}','${esc(link)}')">🔗 Link</button>
+            <button class="prop-action-btn danger" onclick="propDelete('${esc(p.id)}')">🗑</button>
+          </div>
+        </div>`;
+      }
+
       return `
         <div class="prop-list-row">
           ${statusDot}
           <div class="prop-list-client">
-            <div class="prop-list-name">${esc(p.client.name)}</div>
-            <div class="prop-list-detail">${esc(p.resort.name || '—')}${p.stay.checkin ? ' · ' + p.stay.checkin : ''}</div>
+            <div class="prop-list-name">${esc(p.client?.name || '—')}</div>
+            <div class="prop-list-detail">${esc(p.resort?.name || '—')}${p.stay?.checkin ? ' · ' + p.stay.checkin : ''}</div>
           </div>
           <div class="prop-list-date">${p.created_at || '—'}</div>
           <div class="prop-list-actions">
