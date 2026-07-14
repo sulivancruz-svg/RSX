@@ -173,7 +173,12 @@ foreach ($sheets as $sheetInfo) {
         // handles "R$ 4.320" -> 4320 and any stray comma decimal
 
         if (preg_match('/crian[çc]a/iu', $rawName)) {
-            $crianca = $priceNum;
+            // Only the "4 a 11 anos" row sets the paid children price; other
+            // children rows (e.g. "0 a 3 anos / berço") are always free and
+            // shown as "Cortesia" in the UI, so they're intentionally ignored.
+            if (preg_match('/4\s*a\s*11/u', $rawName)) {
+                $crianca = $priceNum;
+            }
             continue;
         }
 
