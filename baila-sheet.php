@@ -7,7 +7,7 @@
 header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: *');
 
-$SHEET_ID   = '1Cdrg13ruqhitv9z9o31_KfTejpR1sU0B';
+$SHEET_ID   = '1DMcBxa5qHxcweHrd1zyTtMxZr60xBk_Y';
 $CACHE_FILE = __DIR__ . '/baila-sheet-cache.json';
 $CACHE_TTL  = 300; // 5 minutes
 
@@ -144,18 +144,15 @@ foreach ($sheets as $sheetInfo) {
     preg_match('/(\d+)\s*Noites?/iu', $sheetInfo['name'], $nm);
     $noites = isset($nm[1]) ? (int)$nm[1] : 0;
 
-    $dias = '';
-    if (preg_match('/\(([A-Za-zÀ-ú]+)-([A-Za-zÀ-ú]+)\)/u', $sheetInfo['name'], $wm)) {
+    // Weekday range in the tab name, with or without parentheses:
+    // "3 Noites (Qui-Dom)" or "03 Noites Qui-Dom" both match.
+    $dias = 'Pacote completo';
+    $idSuffix = '';
+    if (preg_match('/Noites?\s*\(?\s*([A-Za-zÀ-ú]+)\s*-\s*([A-Za-zÀ-ú]+)\s*\)?/u', $sheetInfo['name'], $wm)) {
         $d1 = $weekdayMap[$wm[1]] ?? $wm[1];
         $d2 = $weekdayMap[$wm[2]] ?? $wm[2];
         $dias = 'De ' . $d1 . ' a ' . $d2;
-    } else {
-        $dias = 'Pacote completo';
-    }
-
-    $idSuffix = '';
-    if (preg_match('/\(([A-Za-zÀ-ú]+)-([A-Za-zÀ-ú]+)\)/u', $sheetInfo['name'], $wm2)) {
-        $idSuffix = strtolower(substr($wm2[1], 0, 1) . substr($wm2[2], 0, 1));
+        $idSuffix = strtolower(substr($wm[1], 0, 1) . substr($wm[2], 0, 1));
     }
     $id = 'p' . $noites . $idSuffix;
 
@@ -182,18 +179,31 @@ foreach ($sheets as $sheetInfo) {
             continue;
         }
 
-        $cleanName = preg_replace('/\s*\([^)]*\)\s*/u', ' ', $rawName);
-        $cleanName = trim(preg_replace('/\s+/', ' ', $cleanName));
+        // Room detail can come two ways: "Nome - detalhe" (current sheet
+        // format) or "Nome (detalhe)" (older format). Prefer whichever the
+        // sheet actually provides; only fall back to a hardcoded guess when
+        // neither is present (e.g. "Apto Luxo Triplo/Quádruplo").
+        $sheetDetail = '';
+        if (preg_match('/^(.*?)\s*\(([^)]*)\)\s*$/u', $rawName, $pm)) {
+            $cleanName   = trim($pm[1]);
+            $sheetDetail = trim(preg_replace('/\s+/', ' ', $pm[2]));
+        } elseif (preg_match('/^(.*?)\s+-\s+(.+)$/u', $rawName, $dm)) {
+            $cleanName   = trim($dm[1]);
+            $sheetDetail = trim(preg_replace('/\s+/', ' ', $dm[2]));
+        } else {
+            $cleanName = trim(preg_replace('/\s+/', ' ', $rawName));
+        }
 
         $building = '';
-        $detalhe  = '';
+        $fallbackDetalhe = '';
         if (preg_match('/^Apto/iu', $cleanName)) {
-            $building = 'Vilas Portuguesas'; $detalhe = 'quarto, banheiro, sacada';
+            $building = 'Vilas Portuguesas'; $fallbackDetalhe = 'quarto, banheiro, sacada';
         } elseif (preg_match('/^Superior/iu', $cleanName)) {
-            $building = 'Vilas Portuguesas'; $detalhe = 'quarto e banheiro';
+            $building = 'Vilas Portuguesas'; $fallbackDetalhe = 'quarto e banheiro';
         } elseif (preg_match('/^Su[ií]te/iu', $cleanName)) {
-            $building = 'Ala Internacional'; $detalhe = 'suite prime';
+            $building = 'Ala Internacional'; $fallbackDetalhe = 'suite prime';
         }
+        $detalhe = $sheetDetail !== '' ? $sheetDetail : $fallbackDetalhe;
         $fullDetalhe = $building ? ($building . ($detalhe ? ' · ' . $detalhe : '')) : $detalhe;
 
         $displayName = $cleanName;
