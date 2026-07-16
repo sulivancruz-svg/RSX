@@ -1963,7 +1963,7 @@ PAGES['baila_costao'] = () => {
   const per = bailaGetPeriodo(st.periodoId);
 
   const catRows = per.cats.map((c,i) => {
-    const preco = st.precos?.[i] ?? c.preco;
+    const preco = c.preco; // always the live spreadsheet price, never a stale cached override
     const sel   = st.sel?.[i] ?? true;
     return `
     <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04)">
