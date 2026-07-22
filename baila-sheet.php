@@ -169,6 +169,15 @@ foreach ($sheets as $sheetInfo) {
         $priceNum = (float) str_replace(['R$', '.', ' ', ','], ['', '', '', '.'], $rawPrice);
         // handles "R$ 4.320" -> 4320 and any stray comma decimal
 
+        // Room can be flagged unavailable in the sheet by prefixing its name
+        // with "SEM DISPONIBILIDADE". Strip the marker for parsing but keep
+        // the category — the UI shows it as unavailable instead of hiding it.
+        $disponivel = true;
+        if (preg_match('/^\s*SEM\s+DISPONIBILIDADE\s*-?\s*(.*)$/iu', $rawName, $avm)) {
+            $disponivel = false;
+            $rawName = trim($avm[1]);
+        }
+
         if (preg_match('/crian[çc]a/iu', $rawName)) {
             // Only the "4 a 11 anos" row sets the paid children price; other
             // children rows (e.g. "0 a 3 anos / berço") are always free and
@@ -211,7 +220,7 @@ foreach ($sheets as $sheetInfo) {
             $displayName .= ' — por pessoa';
         }
 
-        $cats[] = ['nome' => $displayName, 'detalhe' => $fullDetalhe, 'preco' => $priceNum];
+        $cats[] = ['nome' => $displayName, 'detalhe' => $fullDetalhe, 'preco' => $priceNum, 'disponivel' => $disponivel];
     }
 
     if (empty($cats)) continue; // skip sheets that aren't pricing tables
