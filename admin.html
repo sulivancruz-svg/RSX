@@ -1870,19 +1870,23 @@ function renderCustomPageNav() {
    BAILA COSTÃO
 ══════════════════════════════════════════ */
 let BAILA_PERIODOS = null;
+let BAILA_OVERRIDES = null;
 let BAILA_LOAD_ERROR = null;
 let bailaLoadPromise = null;
 
 function bailaLoadPeriodos(force) {
   if (bailaLoadPromise && !force) return bailaLoadPromise;
   BAILA_LOAD_ERROR = null;
-  bailaLoadPromise = fetch('baila-sheet.php?_=' + Date.now())
-    .then(r => r.json())
-    .then(json => {
-      if (json.error || !json.periodos || !json.periodos.length) {
-        throw new Error(json.error || 'Planilha vazia');
+  bailaLoadPromise = Promise.all([
+    fetch('baila-sheet.php?_=' + Date.now()).then(r => r.json()),
+    fetch('baila-overrides.php?_=' + Date.now()).then(r => r.json()).catch(() => ({})),
+  ])
+    .then(([sheetJson, overridesJson]) => {
+      if (sheetJson.error || !sheetJson.periodos || !sheetJson.periodos.length) {
+        throw new Error(sheetJson.error || 'Planilha vazia');
       }
-      BAILA_PERIODOS = json.periodos;
+      BAILA_PERIODOS = sheetJson.periodos;
+      BAILA_OVERRIDES = overridesJson || {};
     })
     .catch(err => {
       BAILA_LOAD_ERROR = err.message || 'Erro ao carregar a planilha';
@@ -1892,6 +1896,25 @@ function bailaLoadPeriodos(force) {
       showPage('baila_costao', document.querySelector('.nav-btn[data-page="baila_costao"]'));
     });
   return bailaLoadPromise;
+}
+
+function bailaIsDisponivel(periodoId, nome, sheetDisponivel) {
+  if (BAILA_OVERRIDES && BAILA_OVERRIDES[periodoId] && BAILA_OVERRIDES[periodoId][nome] === true) return false;
+  return sheetDisponivel !== false;
+}
+
+async function bailaToggleDisponivel(periodoId, nome, tornarDisponivel) {
+  try {
+    await fetch('baila-overrides.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ _pass: CMS.pass(), periodoId, categoria: nome, disponivel: tornarDisponivel }),
+    });
+    await bailaLoadPeriodos(true);
+    toast(tornarDisponivel ? '✅ Marcado como disponível' : '🚫 Marcado como indisponível');
+  } catch (e) {
+    toast('⚠️ Erro ao salvar status', true);
+  }
 }
 
 function bailaLoadState() {
@@ -1953,18 +1976,21 @@ PAGES['baila_costao'] = () => {
 
   const catRows = per.cats.map((c,i) => {
     const preco = c.preco; // always the live spreadsheet price, never a stale cached override
-    const indisponivel = c.disponivel === false;
+    const indisponivel = !bailaIsDisponivel(per.id, c.nome, c.disponivel);
     const sel = st.sel?.[i] ?? !indisponivel; // unavailable rooms start unchecked
     const badge = indisponivel ? `<span style="font-size:9px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#f87171;background:rgba(248,113,113,.12);border:1px solid rgba(248,113,113,.3);border-radius:20px;padding:1px 8px;margin-left:6px">Indisponível</span>` : '';
+    const nomeJs = c.nome.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+    const toggleBtn = `<button type="button" class="btn-ghost" style="font-size:9px;padding:4px 10px;flex-shrink:0;white-space:nowrap" onclick="bailaToggleDisponivel('${per.id}','${nomeJs}',${indisponivel})">${indisponivel ? '✅ Disponível' : '🚫 Indisponível'}</button>`;
     return `
-    <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04);${indisponivel?'opacity:.6':''}">
+    <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04);flex-wrap:wrap;${indisponivel?'opacity:.6':''}">
       <input type="checkbox" id="bcsel_${i}" ${sel?'checked':''} style="flex-shrink:0"/>
-      <div style="flex:1;min-width:0">
+      <div style="flex:1;min-width:160px">
         <div style="font-size:12px;color:var(--text)">${esc(c.nome)}${badge}</div>
         <div style="font-size:10px;color:var(--text-dim)">${esc(c.detalhe)}</div>
       </div>
       <input id="bcp_${i}" type="number" min="0" step="1" value="${preco}"
         style="width:110px;text-align:right" class="field-input"/>
+      ${toggleBtn}
     </div>`;
   }).join('');
 
@@ -2031,7 +2057,7 @@ async function bailaGerarLink() {
   const cliente = s.cliente.trim() || 'Viajante';
 
   const catsSnap = per.cats
-    .map((c,i) => ({ nome:c.nome, detalhe:c.detalhe, preco:s.precos[i]??c.preco, disponivel:c.disponivel!==false, sel:s.sel[i] }))
+    .map((c,i) => ({ nome:c.nome, detalhe:c.detalhe, preco:s.precos[i]??c.preco, disponivel:bailaIsDisponivel(per.id,c.nome,c.disponivel), sel:s.sel[i] }))
     .filter(c => c.sel)
     .map(({sel, ...rest}) => rest);
 
@@ -2100,7 +2126,7 @@ function bailaGerarPDF() {
 
   const linhasCat = per.cats.map((c,i) => {
     if (!s.sel[i]) return '';
-    const badge = c.disponivel === false ? `<span class="indispon-badge">Indisponível</span>` : '';
+    const badge = !bailaIsDisponivel(per.id,c.nome,c.disponivel) ? `<span class="indispon-badge">Indisponível</span>` : '';
     return `
     <div class="cat-row">
       <div class="cat-info">

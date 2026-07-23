@@ -9,7 +9,7 @@ header('Access-Control-Allow-Origin: *');
 
 $SHEET_ID   = '1DMcBxa5qHxcweHrd1zyTtMxZr60xBk_Y';
 $CACHE_FILE = __DIR__ . '/baila-sheet-cache.json';
-$CACHE_TTL  = 300; // 5 minutes
+$CACHE_TTL  = 60; // 1 minute
 
 function respond($data, $code = 200) {
     http_response_code($code);
