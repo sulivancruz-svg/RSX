@@ -1899,7 +1899,8 @@ function bailaLoadPeriodos(force) {
 }
 
 function bailaIsDisponivel(periodoId, nome, sheetDisponivel) {
-  if (BAILA_OVERRIDES && BAILA_OVERRIDES[periodoId] && BAILA_OVERRIDES[periodoId][nome] === true) return false;
+  const ov = BAILA_OVERRIDES && BAILA_OVERRIDES[periodoId] ? BAILA_OVERRIDES[periodoId][nome] : undefined;
+  if (typeof ov === 'boolean') return ov; // explicit override always wins, either direction
   return sheetDisponivel !== false;
 }
 

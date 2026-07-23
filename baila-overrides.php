@@ -51,13 +51,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $current = json_decode(file_get_contents($DATA_FILE), true) ?: [];
     if (!isset($current[$periodoId])) $current[$periodoId] = [];
 
-    if ($disponivel) {
-        // "disponível" is the default; clear the override instead of storing it
-        unset($current[$periodoId][$categoria]);
-        if (empty($current[$periodoId])) unset($current[$periodoId]);
-    } else {
-        $current[$periodoId][$categoria] = true; // true = marcado indisponível
-    }
+    // Store the explicit forced state (true = disponível, false = indisponível).
+    // This always wins over whatever the spreadsheet says, in either direction,
+    // so the button can also re-enable a room the sheet marks unavailable.
+    $current[$periodoId][$categoria] = $disponivel;
 
     $json = json_encode($current, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
     if (file_put_contents($DATA_FILE, $json) === false) {
