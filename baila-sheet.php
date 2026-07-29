@@ -245,6 +245,12 @@ if (empty($periodos)) {
     respond(['error' => 'Nenhum período encontrado na planilha'], 500);
 }
 
-$result = ['periodos' => $periodos, 'fetched_at' => date('c')];
+// Identifies which spreadsheet ("lote") this data came from, without
+// exposing the raw Google Sheets doc ID. Links saved from proposta.html
+// carry this value; if it ever differs from the live one, the whole
+// spreadsheet was swapped for a new lote and the old link is stale.
+$sheetVersion = substr(md5($SHEET_ID), 0, 10);
+
+$result = ['periodos' => $periodos, 'fetched_at' => date('c'), 'sheet_version' => $sheetVersion];
 @file_put_contents($CACHE_FILE, json_encode($result, JSON_UNESCAPED_UNICODE));
 respond($result);

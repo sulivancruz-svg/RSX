@@ -1871,6 +1871,7 @@ function renderCustomPageNav() {
 ══════════════════════════════════════════ */
 let BAILA_PERIODOS = null;
 let BAILA_OVERRIDES = null;
+let BAILA_SHEET_VERSION = null;
 let BAILA_LOAD_ERROR = null;
 let bailaLoadPromise = null;
 
@@ -1887,6 +1888,7 @@ function bailaLoadPeriodos(force) {
       }
       BAILA_PERIODOS = sheetJson.periodos;
       BAILA_OVERRIDES = overridesJson || {};
+      BAILA_SHEET_VERSION = sheetJson.sheet_version || null;
     })
     .catch(err => {
       BAILA_LOAD_ERROR = err.message || 'Erro ao carregar a planilha';
@@ -2085,6 +2087,7 @@ async function bailaGerarLink() {
     dias: per.dias,
     cri04: s.cri04,
     cats: catsSnap,
+    sheet_version: BAILA_SHEET_VERSION,
   };
 
   const btn = document.querySelector('#mainInner .btn-save[onclick="bailaGerarLink()"]');

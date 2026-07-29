@@ -560,6 +560,15 @@ img{display:block;max-width:100%}
       </div>`;
   }
 
+  function showExpired() {
+    document.getElementById('app').innerHTML = `
+      <div class="error-state">
+        <div class="error-title">Proposta expirada</div>
+        <div class="error-sub">Os valores deste pacote foram atualizados desde que esta proposta foi gerada. Entre em contato para receber um orçamento com os preços atuais.</div>
+        <a href="https://wa.me/5541988429348" target="_blank" rel="noopener" style="margin-top:8px;font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:rgba(201,165,116,.5)">Falar com a Rebeca →</a>
+      </div>`;
+  }
+
   function fmtMoney0(v) {
     return 'R$ ' + (Number(v)||0).toLocaleString('pt-BR',{minimumFractionDigits:0,maximumFractionDigits:0});
   }
@@ -688,7 +697,20 @@ img{display:block;max-width:100%}
       const proposal = (json.proposals || {})[id];
       if (!proposal) { showError('A proposta "' + id + '" não existe ou foi removida.'); return; }
 
-      if (proposal.type === 'baila') { renderBaila(proposal); return; }
+      if (proposal.type === 'baila') {
+        if (proposal.sheet_version) {
+          try {
+            const sr = await fetch('baila-sheet.php?_=' + Date.now());
+            const sj = await sr.json();
+            if (sj.sheet_version && sj.sheet_version !== proposal.sheet_version) {
+              showExpired();
+              return;
+            }
+          } catch (e) { /* if the check itself fails, still show the saved proposal */ }
+        }
+        renderBaila(proposal);
+        return;
+      }
 
       let cmsData = null;
       if (proposal.resort && proposal.resort.type === 'existing') {
