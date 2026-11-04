@@ -257,7 +257,6 @@ input[type="file"]{display:none}
     <button class="btn-primary" onclick="doLogin()">Entrar</button>
     <div id="loginError" class="login-error">Senha incorreta. Tente novamente.</div>
   </div>
-  <div class="default-pass-hint">Senha padrão: rsx2024</div>
 </div>
 
 <!-- ════════════ APP ════════════ -->
@@ -436,7 +435,11 @@ const PROPOSALS = {
 
   async load() {
     try {
-      const r = await fetch('proposals-save.php?_=' + Date.now());
+      const r = await fetch('proposals-save.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ _pass: CMS.pass(), action: 'list' })
+      });
       this.data = r.ok ? await r.json() : { proposals: {} };
     } catch(e) { this.data = { proposals: {} }; }
   },

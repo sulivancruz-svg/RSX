@@ -5,7 +5,7 @@
  * POST → { _pass, action:"save"|"delete", proposal?:{...}, id?:"..." }
  */
 header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: *');
+// Sem Access-Control-Allow-Origin: so as paginas deste mesmo dominio usam este endpoint.
 header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type');
 
@@ -25,8 +25,23 @@ function getPass($f) {
     return 'rsx2024';
 }
 
+// GET devolve UMA proposta, pedida pelo id (e o que a pagina do cliente precisa).
+// A lista inteira so sai pelo POST action=list, que exige senha.
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-    echo file_exists($DATA_FILE) ? file_get_contents($DATA_FILE) : '{"proposals":{}}';
+    $id = isset($_GET['id']) ? (string) $_GET['id'] : '';
+    if ($id === '') {
+        http_response_code(400);
+        echo json_encode(['ok'=>false,'error'=>'Informe o id da proposta.']);
+        exit;
+    }
+    $todas = json_decode((string) @file_get_contents($DATA_FILE), true) ?: ['proposals'=>[]];
+    $p = $todas['proposals'][$id] ?? null;
+    if (!$p) {
+        http_response_code(404);
+        echo json_encode(['ok'=>false,'error'=>'Proposta nao encontrada.']);
+        exit;
+    }
+    echo json_encode(['proposals'=>[$id=>$p]], JSON_UNESCAPED_UNICODE);
     exit;
 }
 
@@ -46,6 +61,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (!is_array($p)) { http_response_code(400); echo json_encode(['ok'=>false,'error'=>'Missing proposal']); exit; }
         if (empty($p['id'])) { http_response_code(400); echo json_encode(['ok'=>false,'error'=>'Missing id']); exit; }
         $current['proposals'][$p['id']] = $p;
+    } elseif ($action === 'list') {
+        // usado pelo painel, ja depois da conferencia da senha acima
+        echo json_encode($current, JSON_UNESCAPED_UNICODE);
+        exit;
     } elseif ($action === 'delete') {
         $id = $body['id'] ?? '';
         if (!$id || !isset($current['proposals'][$id])) {

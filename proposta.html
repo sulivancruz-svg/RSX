@@ -691,7 +691,7 @@ img{display:block;max-width:100%}
     const id = getParam('id');
     if (!id) { showError('Nenhum ID de proposta foi informado na URL.'); return; }
     try {
-      const r = await fetch('proposals-save.php?_=' + Date.now());
+      const r = await fetch('proposals-save.php?id=' + encodeURIComponent(id) + '&_=' + Date.now());
       if (!r.ok) throw new Error('Servidor indisponível');
       const json = await r.json();
       const proposal = (json.proposals || {})[id];

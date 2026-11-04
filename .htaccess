@@ -5,6 +5,11 @@ php_value memory_limit        256M
 php_value max_execution_time  300
 php_value max_input_time      300
 
+# Arquivos de dados: so o PHP le, ninguem baixa direto pela URL.
+# (cms-data.json fica de fora de proposito: o navegador de todo visitante precisa dele)
+RedirectMatch 404 ^/(proposals|baila-overrides)\.json$
+RedirectMatch 404 ^/cms-pass\.txt$
+
 # MIME types para vídeo
 AddType video/mp4  .mp4
 AddType video/webm .webm
