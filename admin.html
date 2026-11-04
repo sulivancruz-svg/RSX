@@ -1042,7 +1042,7 @@ const PAGES = {
           ${statusDot}
           <div class="prop-list-client">
             <div class="prop-list-name">${esc(p.client?.name || '—')}</div>
-            <div class="prop-list-detail">${esc(p.resort?.name || '—')}${p.stay?.checkin ? ' · ' + p.stay.checkin : ''}</div>
+            <div class="prop-list-detail">${p.client?.label ? esc(p.client.label) + ' · ' : ''}${esc(p.resort?.name || '—')}${p.stay?.checkin ? ' · ' + p.stay.checkin : ''}</div>
           </div>
           <div class="prop-list-date">${p.created_at || '—'}</div>
           <div class="prop-list-actions">
@@ -1210,7 +1210,8 @@ function propDuplicate(id) {
   copy.id = '';
   copy.created_at = '';
   copy.status = 'open';
-  copy.client = Object.assign({}, copy.client, { name: copy.client.name + ' (cópia)' });
+  // a copia marca a identificacao: o nome do cliente precisa continuar casando com o cadastro de vendas
+  copy.client = Object.assign({}, copy.client, { label: ((copy.client.label || '') + ' (cópia)').trim() });
   WIZ.init(copy);
 }
 
@@ -1236,7 +1237,7 @@ const WIZ = {
 
   _blank() {
     return {
-      client: { name: '', internal_note: '' },
+      client: { name: '', label: '', internal_note: '' },
       validity: '',
       resort: { type: 'existing', slug: '', name: '', location: '', regime: '', images: [] },
       stay: { checkin: '', checkout: '', room_type: '', adults: 2, children: [] },
@@ -1329,6 +1330,12 @@ const WIZ = {
         <div class="field-row wiz-field">
           <label class="field-label">Nome do cliente *</label>
           <input id="w-name" class="field-input" value="${esc(this.data.client.name)}" placeholder="Ex: Ana Lima"/>
+          <div style="font-size:11px;color:var(--text-dim);margin-top:4px">Só o nome, igual ao cadastro de vendas. Datas e acompanhantes vão no campo ao lado.</div>
+        </div>
+        <div class="field-row wiz-field">
+          <label class="field-label">Identificação da proposta</label>
+          <input id="w-label" class="field-input" value="${esc(this.data.client.label || '')}" placeholder="Ex: família, 20 a 24/01"/>
+          <div style="font-size:11px;color:var(--text-dim);margin-top:4px">Só para você achar na lista. O cliente não vê.</div>
         </div>
         <div class="field-row wiz-field">
           <label class="field-label">Proposta válida até</label>
@@ -1342,6 +1349,7 @@ const WIZ = {
   },
   _collect1() {
     this.data.client.name = document.getElementById('w-name')?.value || '';
+    this.data.client.label = document.getElementById('w-label')?.value || '';
     this.data.validity = document.getElementById('w-validity')?.value || '';
     this.data.client.internal_note = document.getElementById('w-note')?.value || '';
   },
