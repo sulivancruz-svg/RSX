@@ -1,4 +1,16 @@
 # RSX Travel — configurações do servidor
+
+# Página inicial: o site novo (index.html) vem ANTES do WordPress antigo
+# (index.php ainda existe em public_html). Sem esta linha a raiz abre o WordPress.
+DirectoryIndex index.html index.php
+
+# Endereços sem ".html" (ex: /fazzenda, /costao, /sobre) abrem a página .html
+# correspondente — mantém funcionando links antigos do site WordPress e do Google.
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME}.html -f
+RewriteRule ^([^./]+)/?$ $1.html [L]
+
 php_value upload_max_filesize 256M
 php_value post_max_size       260M
 php_value memory_limit        256M
